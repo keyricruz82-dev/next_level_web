@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" sizes="32x32" href="images/next.jpeg">
+<link rel="apple-touch-icon" href="images/next.jpeg">
+<title>Detalle de Evento - Next Level Producciones</title>
+<link rel="stylesheet" href="css/style.css?v=20260424">
+</head>
+<body>
+<header>
+    <nav id="inicio" class="navbar">
+        <div class="logo-container">
+            <a href="#inicio" class="logo-container">
+            <img src="images/next.jpeg" alt="Logo Next Level Producciones" class="logo"></a>
+            <h1>Next Level Producciones</h1>
+        </div>
+
+        <div class="nav-right">
+            <button id="modoBtn">🌙</button>
+            <button id="menuToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="navMenu">☰</button>
+        </div>
+
+        <ul id="navMenu">
+            <li><a href="index.html#inicio">Inicio</a></li>
+            <li><a href="quien.html">Quienes Somos</a></li>
+            <li><a href="productos.html">Servicios</a></li>
+            <li><a href="actividades.html">Eventos</a></li>
+            <li><a href="index.html#contactanos">Contacto</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <section id="event-detail">
+        <div class="section-intro">
+            <h2 id="detailPageTitle">Detalle del Evento</h2>
+            <p id="detailPageSubtitle">Selecciona una imagen en la galería de eventos para ver su descripción completa.</p>
+        </div>
+
+        <div class="detail-page">
+            <div class="detail-media">
+                <img id="detailImg" src="images/imag1.jpg" alt="Detalle de evento">
+                <div class="detail-badge" id="detailBadge">Producción / Boda</div>
+                
+                <div class="detail-overlay">
+                    <div class="overlay-logo">
+                        <img src="images/next.jpeg" alt="Logo Next Level Producciones">
+                    </div>
+                    
+                    <div class="overlay-content">
+                        <h2 id="overlayTitle">Bodas Elegantes</h2>
+                        <button id="verGaleriaBtn" class="cta-btn secondary">Ver Galería</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-copy">
+                <span class="eyebrow" id="detailTag">Producción audiovisual profesional</span>
+                <h1 id="detailTitle">Bodas Elegantes</h1>
+                <p id="detailIntro">Una cobertura nupcial cinematográfica que captura la esencia del evento.</p>
+            </div>
+
+            <div class="detail-text" id="detailTextBox">
+                <h3>Descripción</h3>
+                <p id="detailText">Ofrecemos grabación profesional, fotografía artística, iluminación y edición de alta calidad. Cada boda se documenta con planos emocionales, detalles del vestido, el primer baile y los momentos más íntimos para crear un recuerdo inolvidable.</p>
+                <div class="detail-actions">
+                    <a href="actividades.html" class="cta-btn">Volver a Eventos</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="event-gallery" class="event-gallery hidden">
+        <div class="section-intro">
+            <h2 id="galleryTitle">Galería - Bodas Elegantes</h2>
+            <p id="gallerySubtitle">Descubre más imágenes de este evento</p>
+        </div>
+
+        <div class="gallery-grid" id="galleryGrid">
+            <!-- Las imágenes se cargarán dinámicamente aquí -->
+        </div>
+    </section>
+</main>
+
+<footer id="contactanos">
+    <div class="footer-container">
+        <div class="footer-logo">
+            <img src="images/next.jpeg" alt="Logo Next Level Producciones">
+        </div>
+        <div class="footer-links">
+            <h3>Accesos Rápidos</h3>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="quien.html">Quienes Somos</a></li>
+                <li><a href="productos.html">Servicios</a></li>
+                <li><a href="actividades.html">Eventos</a></li>
+            </ul>
+        </div>
+        <div class="footer-contact">
+            <p>San Miguel, El Salvador</p>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>© 2026 Next Level Producciones - Todos los derechos reservados</p>
+        <div class="footer-social">
+            <a href="https://www.facebook.com/share/1CRGc8frAp/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer">
+                <img src="images/iconF.png" alt="Facebook">
+            </a>
+            <a href="https://www.instagram.com/nextlevelproducciones_?igsh=bDBrcGkyNmp5aXZk" target="_blank" rel="noopener noreferrer">
+                <img src="images/iconIn.png" alt="Instagram">
+            </a>
+            <a href="https://www.tiktok.com/@nextlevelproducciones?_r=1&_t=ZS-95vGeT53f7P" target="_blank" rel="noopener noreferrer">
+                <img src="images/iconT.png" alt="TikTok">
+            </a>
+        </div>
+    </div>
+    <button id="btnTop">↑</button>
+</footer>
+
+<script src="js/script.js?v=20260424"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const details = {
+      bodas: {
+        title: 'Bodas Elegantes',
+        tag: 'Producción / Boda',
+        badge: 'Bodas Elegantes',
+        image: 'images/2ULI08.jpeg',
+        alt: 'Bodas Elegantes',
+        intro: 'Una cobertura nupcial cinematográfica que captura la esencia del evento.',
+        text: 'Ofrecemos grabación profesional, fotografía artística, iluminación y edición de alta calidad. Cada boda se documenta con planos emocionales, detalles del vestido, el primer baile y los momentos más íntimos para crear un recuerdo inolvidable.',
+        gallery: [
+          { img: 'images/2ULI08.jpeg', alt: 'Detalle de la novia' },
+          { img: 'images/2ULI5.jpeg', alt: 'Ceremonia' },
+          { img: 'images/2ULI01.jpeg', alt: 'Primer baile' },
+          { img: 'images/2ULI6.jpeg', alt: 'Celebración' },
+          { img: 'images/2UL0.jpeg', alt: 'Momento familiar' },
+          { img: 'images/2ULI02.jpeg', alt: 'Detalles de la boda' }
+        ]
+      },
+      cumpleanos: {
+        title: 'Fiestas de Cumpleaños',
+        tag: 'Producción / Cumpleaños',
+        badge: 'Fiestas de Cumpleaños',
+        image: 'images/2UL0.jpeg',
+        alt: 'Fiestas de Cumpleaños',
+        intro: 'Eventos llenos de color, música y recuerdos inolvidables.',
+        text: 'Diseñamos experiencias únicas para todas las edades, con cobertura de animación, entrevistas a invitados, montaje de highlights y fotografías espontáneas. Ideal para celebraciones familiares y eventos con estilo.',
+        gallery: [
+          { img: 'images/2UL0.jpeg', alt: 'Entrada al evento' },
+          { img: 'images/2ULI5.jpeg', alt: 'Diversión y risas' },
+          { img: 'images/2ULI6.jpeg', alt: 'Decoración' },
+          { img: 'images/2ULI01.jpeg', alt: 'Pastel de cumpleaños' },
+          { img: 'images/2ULI02.jpeg', alt: 'Momentos especiales' },
+          { img: 'images/2ULI03.jpeg', alt: 'Familia reunida' },
+          { img: 'images/2ULI5.jpeg', alt: 'Familia reunida' },
+          { img: 'images/2ULI01.jpeg', alt: 'Familia reunida' },
+          { img: 'images/2ULI3.jpeg', alt: 'Familia reunida' },
+          { img: 'images/2ULI06.jpeg', alt: 'Familia reunida' }
+        ]
+      },
+      corporativos: {
+        title: 'Eventos Corporativos',
+        tag: 'Producción / Corporativo',
+        badge: 'Eventos Corporativos',
+        image: 'images/2ULI1.jpeg',
+        alt: 'Eventos Corporativos',
+        intro: 'Cobertura profesional para conferencias, lanzamientos y encuentros ejecutivos.',
+        text: 'Brindamos soportes audiovisuales, edición de contenido institucional, multicámara y piezas para redes sociales. Nuestro equipo enfatiza calidad, imagen de marca y un mensaje claro para cada audiencia.',
+        gallery: [
+          { img: 'images/2ULI1.jpeg', alt: 'Inicio de la conferencia' },
+          { img: 'images/2UL14.jpeg', alt: 'Presentador principal' },
+          { img: 'images/2UL111.jpg', alt: 'Panel de discusión' },
+          { img: 'images/2UL1.jpg', alt: 'Asistentes' },
+          { img: 'images/2UL0.jpeg', alt: 'Networking' },
+          { img: 'images/2UL11.jpg', alt: 'Clausura del evento' }
+        ]
+      },
+      graduaciones: {
+        title: 'Graduaciones',
+        tag: 'Producción / Graduación',
+        badge: 'Graduaciones',
+        image: 'images/2UL2.jpeg',
+        alt: 'Graduaciones',
+        intro: 'Capturamos el orgullo del momento con estilo documental y emotivo.',
+        text: 'Desde la ceremonia hasta las celebraciones posteriores, inmortalizamos logros con videos de alta calidad, entrevistas a graduados y piezas para redes sociales. La experiencia está pensada para familias y promociones.',
+        gallery: [
+          { img: 'images/2UL2.jpeg', alt: 'Procesión de graduados' },
+          { img: 'images/2UL21.jpg', alt: 'Recibiendo diploma' },
+          { img: 'images/2UL22.jpeg', alt: 'Foto oficial'},
+          { img: 'images/2UL23.jpg', alt: 'Celebración con familia'},
+          { img: 'images/2UL0.jpeg', alt: 'Momentos de alegría'},
+          { img: 'images/2UL24.jpg', alt: 'Promoción completa'}
+        ]
+      }
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const key = params.get('evento') || 'bodas';
+    const detail = details[key] || details.bodas;
+
+    document.getElementById('detailTitle').textContent = detail.title;
+    document.getElementById('overlayTitle').textContent = detail.title;
+    document.getElementById('detailTag').textContent = detail.tag;
+    document.getElementById('detailIntro').textContent = detail.intro;
+    document.getElementById('detailText').textContent = detail.text;
+    document.getElementById('detailBadge').textContent = detail.badge;
+
+    const detailImg = document.getElementById('detailImg');
+    detailImg.src = detail.image;
+    detailImg.alt = detail.alt;
+
+    document.getElementById('detailPageTitle').textContent = detail.title;
+    document.getElementById('detailPageSubtitle').textContent = `Descubre la descripción completa para ${detail.title}.`;
+    document.getElementById('galleryTitle').textContent = `Galería - ${detail.title}`;
+    document.title = `${detail.title} | Next Level Producciones`;
+
+    // Cargar galería
+    const galleryGrid = document.getElementById('galleryGrid');
+    detail.gallery.forEach((item, index) => {
+      const card = document.createElement('a');
+      card.href = '#';
+      card.className = 'gallery-card';
+      if (index === 0) card.classList.add('large');
+      if (index === 1 || index === 2) card.classList.add('medium');
+      if (index === 3) card.classList.add('wide');
+      
+      card.innerHTML = `
+        <img src="${item.img}" alt="${item.alt}">
+        <div class="gallery-overlay">
+          <span>Galería</span>
+          <h3>${item.alt}</h3>
+        </div>
+      `;
+      
+      galleryGrid.appendChild(card);
+    });
+
+    // Manejar botón Ver Galería
+    const verGaleriaBtn = document.getElementById('verGaleriaBtn');
+    const eventGallery = document.getElementById('event-gallery');
+    const detailTextBox = document.getElementById('detailTextBox');
+
+    verGaleriaBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      eventGallery.classList.toggle('hidden');
+      detailTextBox.classList.toggle('hidden');
+      
+      // Scroll a la galería si se abre
+      if (!eventGallery.classList.contains('hidden')) {
+        setTimeout(() => {
+          eventGallery.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      }
+    });
+  });
+</script>
+
+<!-- Botón Flotante de WhatsApp -->
+<a href="https://wa.me/50377251450?text=Hola,%20me%20gustaría%20más%20información" 
+   class="whatsapp-btn"
+   target="_blank" 
+   rel="noopener noreferrer"
+   title="Chatea con nosotros por WhatsApp">
+   <i class="bi bi-whatsapp"></i>
+   <img src="images/whatsapp.gif.gif" alt="WhatsApp" width="35" height="35">
+</a>
+
+</body>
+</html>

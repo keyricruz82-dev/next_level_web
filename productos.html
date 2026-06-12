@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" sizes="32x32" href="images/next.jpeg">
+<link rel="apple-touch-icon" href="images/next.jpeg">
+<title>Servicios - Next Level Producciones</title>
+<link rel="stylesheet" href="css/style.css?v=20260424">
+</head>
+
+<body>
+
+<header>
+    <nav id="inicio" class="navbar">
+        <div class="logo-container">
+            <a href="#inicio" class="logo-container">
+            <img src="images/next.jpeg" alt="Logo Next Level Producciones" class="logo"></a>
+            <h1>Next Level Producciones</h1>
+        </div>
+
+        <div class="nav-right">
+            <button id="modoBtn">🌙</button>
+            <button id="menuToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="navMenu">☰</button>
+        </div>
+        
+
+        <ul id="navMenu">
+            <li><a href="index.html#inicio">Inicio</a></li>
+            <li><a href="quien.html">Quienes Somos</a></li>
+            <li><a href="productos.html">Servicios</a></li>
+            <li><a href="actividades.html">Eventos</a></li>
+            <li><a href="index.html#contactanos">Contacto</a></li>
+        </ul>
+    </nav>
+</header>
+
+<section class="hero-video">
+    <video autoplay muted loop class="video-bg">
+        <source src="videos/studio.mp4" type="video/mp4">
+    </video>
+
+    <div class="contenido">
+        <div class="hero-copy">
+            <h1>Nuestros Servicios</h1>
+            <p>Descubre la calidad y creatividad en cada uno de nuestros servicios</p>
+        </div>
+    </div>
+</section>
+<section id="servicios">
+    <h1>Nuestros Servicios</h1>
+    <div class="curated-grid">
+        <div class="work-item"><img src="images/paq1.jpeg" alt="Fotografía de Eventos"></div>
+        <div class="work-item"><img src="images/paq2.jpeg" alt="Sesiones Fotográficas"></div>
+        <div class="work-item"><img src="images/paq3.jpeg" alt="Producción de Video"></div>
+        <div class="work-item"><img src="images/paq4.jpeg" alt="Transmisiones en Vivo"></div>
+    </div>
+</section>
+
+
+<!-- IMAGEN PUBLICITARIA / BANNER -->
+<section class="promo-banner">
+
+    <img src="images/servi.png" alt="NEXT Producciones">
+
+</section>
+
+
+
+    <div class="servicios">
+        <h2>Qué Ofrecemos</h2>
+
+        <div class="card">
+            <img src="images/UL29.jpeg" alt="Fotografía de Eventos">
+            <h3>Fotografía de Eventos</h3>
+            <p>Bodas, cumpleaños, graduaciones y eventos empresariales.</p>
+            <a href="https://www.facebook.com/share/1CRGc8frAp/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer">Visitar Facebook →</a>
+                
+        </div>
+
+        <div class="card">
+    <video autoplay muted loop playsinline>
+        <source src="videos/vid.mp4" type="video/mp4">
+        Tu navegador no soporta videos HTML5.
+    </video>
+    <h3>Producción de Video</h3>
+    <p>Videos profesionales para eventos especiales.</p>
+</div>
+
+        <div class="card">
+            <img src="images/U19.jpeg" alt="Sesiones Fotográficas">
+            <h3>Sesiones Fotográficas</h3>
+            <p>Sesiones familiares, personales y de productos.</p>
+        </div>
+
+    </div>
+
+
+
+<section id="galeria-servicios">
+    <h2>Muestras de Nuestro Trabajo</h2>
+
+    <div class="slider" data-visible="4">
+        <div class="slides">
+            <div class="slide"><img src="images/U8.jpeg" alt="Trabajo 1"></div>
+            <div class="slide"><img src="images/U0.jpeg" alt="Trabajo 2"></div>
+            <div class="slide"><img src="images/U16.jpeg" alt="Trabajo 3"></div>
+            <div class="slide"><img src="images/U7.jpeg" alt="Trabajo 4"></div>
+            <div class="slide"><img src="images/U19.jpeg" alt="Trabajo 5"></div>
+            <div class="slide"><img src="images/UL29.jpeg" alt="Trabajo 6"></div>
+            <div class="slide"><img src="images/UL20.jpeg" alt="Trabajo 7"></div>
+            <div class="slide"><img src="images/UL10.jpeg" alt="Trabajo 8"></div>
+            <div class="slide"><img src="images/U4.jpeg" alt="Trabajo 9"></div>
+            <div class="slide"><img src="images/U5.jpeg" alt="Trabajo 10"></div>            
+            <div class="slide"><img src="images/U0.jpeg" alt="Trabajo 2"></div>
+            <div class="slide"><img src="images/U16.jpeg" alt="Trabajo 3"></div>
+            <div class="slide"><img src="images/U7.jpeg" alt="Trabajo 4"></div>
+            <div class="slide"><img src="images/U19.jpeg" alt="Trabajo 5"></div>
+            <div class="slide"><img src="images/UL29.jpeg" alt="Trabajo 6"></div>
+            <div class="slide"><img src="images/UL20.jpeg" alt="Trabajo 7"></div>
+            <div class="slide"><img src="images/UL10.jpeg" alt="Trabajo 8"></div>
+            <div class="slide"><img src="images/U4.jpeg" alt="Trabajo 9"></div>
+            <div class="slide"><img src="images/U5.jpeg" alt="Trabajo 10"></div>
+        </div>
+    </div>
+</section>
+
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="Galería de imágenes">
+    <button id="closeLightbox" type="button" aria-label="Cerrar">×</button>
+    <button id="prevBtn" class="lightbox-btn" type="button" aria-label="Imagen anterior">‹</button>
+    <img id="lightboxImg" src="" alt="Imagen ampliada de servicio">
+    <button id="nextBtn" class="lightbox-btn" type="button" aria-label="Siguiente imagen">›</button>
+</div>
+<footer id="contactanos">
+    <div class="footer-container">
+        <div class="footer-logo">
+            <img src="images/next.jpeg" alt="Logo Next Level Producciones">
+        </div>
+        <div class="footer-links">
+            <h3>Accesos Rápidos</h3>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="quien.html">Quienes Somos</a></li>
+                <li><a href="productos.html">Servicios</a></li>
+                <li><a href="actividades.html">Eventos</a></li>
+            </ul>
+        </div>
+        <div class="footer-contact">
+            <p>San Miguel, El Salvador</p>
+        </div>
+        
+    </div>
+    <div class="footer-bottom">
+        <p>© 2026 Next Level Producciones - Todos los derechos reservados</p>
+        <div class="footer-social">
+            <a href="https://www.facebook.com/share/1CRGc8frAp/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer">
+                <img src="images/iconF.png" alt="Facebook">
+            </a>
+            <a href="https://www.instagram.com/nextlevelproducciones_?igsh=bDBrcGkyNmp5aXZk" target="_blank" rel="noopener noreferrer">
+                <img src="images/iconIn.png" alt="Instagram">
+            </a>
+            <a href="https://www.tiktok.com/@nextlevelproducciones?_r=1&_t=ZS-95vGeT53f7P" target="_blank" rel="noopener noreferrer">
+                <img src="images/iconT.png" alt="TikTok">
+            </a>
+            <a href="https://www.youtube.com/@NextLevelProducciones" target="_blank" rel="noopener noreferrer">
+                <img src="images/iconY.png" alt="YouTube">
+            </a>
+        </div>
+    </div>
+    <button id="btnTop">↑</button>
+</footer>
+<script src="js/script.js?v=20260424"></script>
+
+<!-- Botón Flotante de WhatsApp -->
+    <a href="https://wa.me/50377251450?text=Hola,%20me%20gustaría%20más%20información" 
+       class="whatsapp-btn"
+       target="_blank" 
+       rel="noopener noreferrer"
+       title="Chatea con nosotros por WhatsApp">
+        
+       <i class="bi bi-whatsapp"></i>
+              <img src="images/whatsapp.gif.gif" alt="WhatsApp" width="35" height="35">
+    </a>
+
+</body>
+</html>
