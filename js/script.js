@@ -1,5 +1,20 @@
 document.addEventListener("DOMContentLoaded", function(){
 
+function applyResponsiveState(){
+  const width = window.innerWidth;
+  document.body.classList.toggle('is-mobile', width < 768);
+  document.body.classList.toggle('is-tablet', width >= 768 && width < 1100);
+  document.documentElement.style.setProperty('--viewport-width', `${width}px`);
+  document.documentElement.style.setProperty('--viewport-scale', width < 768 ? '0.98' : '1');
+
+  if (window.visualViewport) {
+    document.documentElement.style.setProperty('--viewport-height', `${window.visualViewport.height}px`);
+  }
+}
+
+applyResponsiveState();
+window.addEventListener('resize', applyResponsiveState);
+
 // ========================================
 // MODO CLARO/OSCURO
 // ========================================
