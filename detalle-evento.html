@@ -245,14 +245,23 @@
 
     verGaleriaBtn.addEventListener('click', function(e) {
       e.preventDefault();
-      eventGallery.classList.toggle('hidden');
-      detailTextBox.classList.toggle('hidden');
-      
-      // Scroll a la galería si se abre
-      if (!eventGallery.classList.contains('hidden')) {
+
+      const isHidden = eventGallery.classList.contains('hidden');
+
+      if (isHidden) {
+        eventGallery.classList.remove('hidden');
+        eventGallery.classList.add('open');
+        detailTextBox.classList.add('hidden');
+        verGaleriaBtn.textContent = 'Ocultar Galería';
+
         setTimeout(() => {
           eventGallery.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
+        }, 120);
+      } else {
+        eventGallery.classList.add('hidden');
+        eventGallery.classList.remove('open');
+        detailTextBox.classList.remove('hidden');
+        verGaleriaBtn.textContent = 'Ver Galería';
       }
     });
   });
