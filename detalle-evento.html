@@ -217,16 +217,16 @@
     document.getElementById('galleryTitle').textContent = `Galería - ${detail.title}`;
     document.title = `${detail.title} | Next Level Producciones`;
 
-    // Cargar galería
+    // Cargar galería con un collage dinámico tipo álbum profesional
     const galleryGrid = document.getElementById('galleryGrid');
+    const collagePattern = ['large tall', 'wide', 'tall', 'large', 'wide', 'tall', 'wide', 'large', 'tall', 'wide'];
+
     detail.gallery.forEach((item, index) => {
       const card = document.createElement('a');
       card.href = '#';
-      card.className = 'gallery-card';
-      if (index === 0) card.classList.add('large');
-      if (index === 1 || index === 2) card.classList.add('medium');
-      if (index === 3) card.classList.add('wide');
-      
+      card.className = 'gallery-card ' + (collagePattern[index % collagePattern.length] || '');
+      card.setAttribute('aria-label', item.alt);
+
       card.innerHTML = `
         <img src="${item.img}" alt="${item.alt}">
         <div class="gallery-overlay">
@@ -234,7 +234,7 @@
           <h3>${item.alt}</h3>
         </div>
       `;
-      
+
       galleryGrid.appendChild(card);
     });
 
