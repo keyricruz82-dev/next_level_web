@@ -1180,8 +1180,8 @@ section#event-gallery {
 
 section#event-gallery .gallery-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-auto-rows: 110px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-auto-rows: minmax(120px, auto);
   gap: 14px;
   align-items: stretch;
   grid-auto-flow: dense;
@@ -1191,8 +1191,8 @@ section#event-gallery .gallery-card {
   position: relative;
   overflow: hidden;
   min-height: 120px;
-  border-radius: 18px;
-  box-shadow: 0 16px 40px rgba(6, 18, 20, 0.14);
+  border-radius: 0;
+  box-shadow: 0 14px 32px rgba(6, 18, 20, 0.14);
   transform: translateY(0);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
@@ -1207,7 +1207,7 @@ section#event-gallery .gallery-card img {
 section#event-gallery .gallery-card.large {
   grid-column: span 2;
   grid-row: span 2;
-  min-height: 240px;
+  min-height: 260px;
 }
 
 section#event-gallery .gallery-card.wide {
@@ -1216,7 +1216,7 @@ section#event-gallery .gallery-card.wide {
 
 section#event-gallery .gallery-card.tall {
   grid-row: span 2;
-  min-height: 240px;
+  min-height: 260px;
 }
 
 section#event-gallery.open {
