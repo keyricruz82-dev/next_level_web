@@ -1180,32 +1180,40 @@ section#event-gallery {
 
 section#event-gallery .gallery-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  align-items: stretch;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-auto-rows: minmax(200px, auto);
+  gap: 20px;
 }
 
 section#event-gallery .gallery-card {
-  min-height: 150px;
-  border-radius: 16px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
+  min-height: 260px;
+  border-radius: 20px;
+  box-shadow: 0 20px 55px rgba(6, 18, 20, 0.15);
   transform: translateY(0);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 section#event-gallery .gallery-card.large {
-  grid-column: span 2;
-  grid-row: span 2;
-  min-height: 260px;
+  grid-column: 1 / span 3;
+  grid-row: 1 / span 2;
+  min-height: 480px;
 }
 
-section#event-gallery .gallery-card.medium {
-  min-height: 110px;
+section#event-gallery .gallery-card.medium:nth-of-type(2) {
+  grid-column: 4 / span 3;
+  grid-row: 1;
+  min-height: 235px;
+}
+
+section#event-gallery .gallery-card.medium:nth-of-type(3) {
+  grid-column: 4 / span 3;
+  grid-row: 2;
+  min-height: 235px;
 }
 
 section#event-gallery .gallery-card.wide {
-  grid-column: span 4;
-  min-height: 130px;
+  grid-column: 1 / span 6;
+  min-height: 280px;
 }
 
 section#event-gallery.open {
@@ -1245,22 +1253,23 @@ section#event-gallery.open {
 
 @media (max-width: 1100px) {
   section#event-gallery .gallery-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 
   section#event-gallery .gallery-card.large {
-    grid-column: span 2;
-    min-height: 230px;
+    grid-column: 1 / span 3;
+    min-height: 420px;
   }
 
-  section#event-gallery .gallery-card.medium {
-    min-height: 100px;
+  section#event-gallery .gallery-card.medium:nth-of-type(2),
+  section#event-gallery .gallery-card.medium:nth-of-type(3) {
+    grid-column: 4 / span 3;
+    min-height: 200px;
   }
 
   section#event-gallery .gallery-card.wide {
-    grid-column: span 3;
-    min-height: 120px;
+    grid-column: 1 / span 6;
+    min-height: 220px;
   }
 
   .gallery-grid {
