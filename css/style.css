@@ -1181,7 +1181,7 @@ section#event-gallery {
 section#event-gallery .gallery-grid {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  grid-auto-rows: minmax(120px, auto);
+  grid-auto-rows: minmax(110px, auto);
   gap: 14px;
   align-items: stretch;
   grid-auto-flow: dense;
@@ -1207,11 +1207,12 @@ section#event-gallery .gallery-card img {
 section#event-gallery .gallery-card.large {
   grid-column: span 2;
   grid-row: span 2;
-  min-height: 260px;
+  min-height: 280px;
 }
 
 section#event-gallery .gallery-card.wide {
-  grid-column: span 2;
+  grid-column: span 3;
+  min-height: 170px;
 }
 
 section#event-gallery .gallery-card.tall {
@@ -1256,22 +1257,24 @@ section#event-gallery.open {
 
 @media (max-width: 1100px) {
   section#event-gallery .gallery-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     grid-auto-rows: 100px;
+    gap: 12px;
   }
 
   section#event-gallery .gallery-card.large {
     grid-column: span 2;
     grid-row: span 2;
-    min-height: 210px;
+    min-height: 220px;
   }
 
   section#event-gallery .gallery-card.wide {
     grid-column: span 2;
+    min-height: 150px;
   }
 
   section#event-gallery .gallery-card.tall {
-    min-height: 210px;
+    min-height: 220px;
   }
 
   .gallery-grid {
@@ -1308,7 +1311,7 @@ section#event-gallery.open {
   section#event-gallery .gallery-card.tall {
     grid-column: span 2;
     grid-row: span 1;
-    min-height: 160px;
+    min-height: 150px;
   }
 
   section#event-gallery.open {
@@ -3142,23 +3145,33 @@ footer {
   gap: 14px;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .footer-social a {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.98);
+  width: 48px;
+  height: 48px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
-.footer-social img {
-  width: 24px;
-  height: 24px;
+.footer-social a:hover {
+  transform: scale(1.08);
+  opacity: 0.95;
+}
+
+.footer-social img,
+.footer-social svg {
+  width: 28px;
+  height: 28px;
   object-fit: contain;
+  display: block;
+  filter: brightness(0) invert(1);
 }
 
 @media (max-width: 900px) {
