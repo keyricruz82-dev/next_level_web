@@ -650,6 +650,28 @@ body.menu-open {
   box-shadow: 0 22px 45px rgba(159, 204, 61, 0.28);
 }
 
+/* Estilo específico para botones secundarios tipo 'Ver Galería' */
+.cta-btn.secondary {
+  background: transparent !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255,255,255,0.95) !important;
+  padding: 12px 28px !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+}
+
+.cta-btn.secondary:hover,
+.cta-btn.secondary:active,
+.cta-btn.secondary:focus {
+  background: var(--color-secondary) !important;
+  color: #101010 !important;
+  border-color: transparent !important;
+  box-shadow: 0 12px 30px rgba(159,204,61,0.16) !important;
+  transform: translateY(-2px) !important;
+}
+
 @media (max-width: 767px) {
   .contenido h2 {
     font-size: 28px;
@@ -754,6 +776,56 @@ header {
   object-fit: cover !important;
   border-radius: 24px 24px 0 0 !important;
   margin-bottom: 16px !important;
+}
+
+/* Estilos para las imágenes principales en la página de detalle */
+.detail-page .detail-media {
+  width: 100%;
+  position: relative;
+}
+
+.detail-page .detail-media img#detailImg,
+.detail-page .detail-media img.extra-main-img {
+  width: 100%;
+  height: var(--main-img-height, 420px);
+  object-fit: cover;
+  display: block;
+  border-radius: 12px;
+}
+
+/* Por defecto (escritorio) ocultamos imágenes extra, solo se muestra la principal */
+.detail-page .detail-media img.extra-main-img {
+  display: none;
+}
+
+/* En móviles y tablets: mostrar todas las imágenes en columna, misma altura */
+@media (max-width: 1024px) {
+  .detail-page {
+    gap: 18px;
+  }
+
+  .detail-page .detail-media {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .detail-page .detail-media img#detailImg,
+  .detail-page .detail-media img.extra-main-img {
+    height: var(--main-img-height-mobile, 360px);
+    border-radius: 14px;
+  }
+
+  .detail-page .detail-media img.extra-main-img {
+    display: block;
+  }
+}
+
+@media (max-width: 540px) {
+  .detail-page .detail-media img#detailImg,
+  .detail-page .detail-media img.extra-main-img {
+    height: 320px;
+  }
 }
 
 .testimonios .card img {

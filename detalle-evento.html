@@ -40,7 +40,9 @@
 
         <div class="detail-page">
             <div class="detail-media">
-                <img id="detailImg" src="images/imag1.jpg" alt="Detalle de evento">
+                        <img id="detailImg" src="images/imag1.jpg" alt="Detalle de evento">
+                        <!-- contenedor para imágenes adicionales principales (aparece en móviles/tablets) -->
+                        <div id="extraMainImages" aria-hidden="true"></div>
                 <div class="detail-badge" id="detailBadge">Producción / Boda</div>
                 
                 <div class="detail-overlay">
@@ -249,6 +251,21 @@
 
       galleryGrid.appendChild(card);
     });
+
+    // Insertar imágenes adicionales como elementos `.extra-main-img` dentro de #extraMainImages
+    const extraMainContainer = document.getElementById('extraMainImages');
+    if (extraMainContainer && detail.gallery && detail.gallery.length) {
+      // Agregar todas las imágenes de la galería como imágenes secundarias
+      detail.gallery.forEach((it, i) => {
+        // evitar duplicar la imagen principal
+        if (it.img === detail.image) return;
+        const img = document.createElement('img');
+        img.className = 'extra-main-img';
+        img.src = it.img;
+        img.alt = it.alt || (`Imagen ${i + 1}`);
+        extraMainContainer.appendChild(img);
+      });
+    }
 
     // Manejar botón Ver Galería
     const verGaleriaBtn = document.getElementById('verGaleriaBtn');
