@@ -20,38 +20,18 @@
 }
 
 /* Light Mode */
-.light-mode {
-  --bg-primary: #E9E9E9;
-  --bg-secondary: #f5f5f5;
-  --text-primary: #232323;
-  --text-secondary: #555555;
-  --border-color: #cccccc;
-  --card-bg: #ffffff;
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-/* Reset Global */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-  font-size: 16px;
-}
-
-body {
-  background-color: var(--bg-primary);
+#menuToggle {
+  display: none;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
   color: var(--text-primary);
-  line-height: 1.8;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  font-family: 'Inter', sans-serif;
-  font-size: clamp(15px, 0.9vw + 0.9rem, 17px);
-  font-weight: 500;
-  min-height: 100vh;
-  width: 100%;
-  overflow-x: hidden;
+}
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -243,25 +223,7 @@ a.cta-btn {
   gap: 12px;
 }
 
-#modoBtn {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: var(--text-primary);
-  padding: 10px 14px;
-  border-radius: 999px;
-  cursor: pointer;
-  font-size: 18px;
-  transition: all 0.3s ease;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#modoBtn:hover {
-  background-color: rgba(255, 255, 255, 0.08);
-  transform: translateY(-1px);
-}
+/* dark-mode button removed from project; styles cleaned */
 
 #menuToggle {
   display: none;
@@ -731,7 +693,6 @@ body.light-mode header {
 
 body.light-mode .navbar ul a,
 body.light-mode .navbar h1,
-body.light-mode #modoBtn,
 body.light-mode #menuToggle {
   color: #232323 !important;
 }
@@ -748,7 +709,6 @@ header {
   color: var(--color-secondary) !important;
 }
 
-#modoBtn,
 #menuToggle {
   background: var(--card-bg) !important;
   border: 1px solid var(--border-color) !important;
@@ -1387,21 +1347,40 @@ section#event-gallery.open {
 }
 
 .overlay-logo {
+  position: absolute;
+  top: clamp(8px, 1.5vw, 24px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: none;
+  width: 100%;
 }
 
 .overlay-logo img {
-  width: clamp(60px, 11vw, 88px);
-  height: auto;
-  max-height: 96px;
-  border-radius: 0;
-  background: transparent;
-  padding: 0;
-  box-shadow: none;
-  object-fit: contain;
   display: block;
+  height: auto;
+  width: clamp(20%, 28vw, 35%);
+  max-width: 220px;
+  object-fit: contain;
+}
+
+/* Tablet adjustments: keep logo between ~15% and 25% of image width */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .overlay-logo img {
+    width: clamp(15%, 20vw, 25%);
+    max-width: 240px;
+  }
+}
+
+/* Desktop: keep logo moderate size */
+@media (min-width: 1025px) {
+  .overlay-logo img {
+    width: clamp(80px, 8vw, 160px);
+    max-width: 260px;
+  }
 }
 
 .overlay-content {
@@ -1882,11 +1861,6 @@ section#event-gallery.open {
     padding-bottom: 3px;
   }
 
-  #modoBtn {
-    padding: 6px 12px;
-    font-size: 16px;
-  }
-
   /* Hero Section */
   section {
     padding: 60px 5%;
@@ -2060,10 +2034,7 @@ section#event-gallery.open {
     font-size: 14px;
   }
 
-  #modoBtn {
-    padding: 5px 10px;
-    font-size: 12px;
-  }
+  /* dark-mode button removed */
 
   #menuToggle {
     padding: 6px 10px;
@@ -2226,7 +2197,6 @@ header {
   color: var(--color-secondary);
 }
 
-#modoBtn,
 #menuToggle {
   background: rgba(255, 255, 255, 0.98);
   border: 1px solid rgba(35, 35, 35, 0.12);
@@ -2518,10 +2488,7 @@ header {
     font-size: 12px;
   }
 
-  #modoBtn {
-    padding: 4px 8px;
-    font-size: 12px;
-  }
+  /* small screens: no dark-mode button present */
 
   .contenido h2 {
     font-size: 24px;

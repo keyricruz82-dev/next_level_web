@@ -16,37 +16,6 @@ applyResponsiveState();
 window.addEventListener('resize', applyResponsiveState);
 
 // ========================================
-// MODO CLARO/OSCURO
-// ========================================
-
-const boton = document.getElementById("modoBtn");
-
-if(!boton){
-  console.log("ERROR: no existe el botón");
-} else {
-  // Verificar preferencia guardada
-  const savedTheme = localStorage.getItem('theme');
-  if(savedTheme === 'light'){
-    document.body.classList.add("light-mode");
-    boton.textContent = "☀️";
-  } else {
-    boton.textContent = "🌙";
-  }
-
-  boton.addEventListener("click", function(){
-    document.body.classList.toggle("light-mode");
-
-    if(document.body.classList.contains("light-mode")){
-      boton.textContent = "☀️";
-      localStorage.setItem('theme', 'light');
-    } else {
-      boton.textContent = "🌙";
-      localStorage.setItem('theme', 'dark');
-    }
-  });
-}
-
-// ========================================
 // MENU TOGGLE PARA MÓVIL
 // ========================================
 

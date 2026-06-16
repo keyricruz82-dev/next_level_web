@@ -18,8 +18,7 @@
         </div>
 
         <div class="nav-right">
-            <button id="modoBtn">🌙</button>
-            <button id="menuToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="navMenu">☰</button>
+          <button id="menuToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="navMenu">☰</button>
         </div>
 
         <ul id="navMenu">
@@ -214,6 +213,16 @@
     const detailImg = document.getElementById('detailImg');
     detailImg.src = detail.image;
     detailImg.alt = detail.alt;
+
+    // Ajuste del logo sobre la imagen principal (responsive)
+    const overlayLogoImg = document.querySelector('.overlay-logo img');
+    if (overlayLogoImg) {
+      overlayLogoImg.setAttribute('aria-hidden', 'true');
+      overlayLogoImg.style.height = 'auto';
+      // asegurar que el contenedor tenga posicionamiento relativo
+      const detailMediaEl = document.querySelector('.detail-page .detail-media');
+      if (detailMediaEl) detailMediaEl.classList.add('has-overlay-logo');
+    }
 
     document.getElementById('detailPageTitle').textContent = detail.title;
     document.getElementById('detailPageSubtitle').textContent = `Descubre la descripción completa para ${detail.title}.`;
