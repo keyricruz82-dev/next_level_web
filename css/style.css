@@ -1462,6 +1462,8 @@ section#event-gallery.open {
   gap: 20px;
   align-items: center;
   text-align: center;
+  justify-content: flex-end;
+  min-height: 100%;
 }
 
 .overlay-content h2 {
