@@ -928,7 +928,7 @@ section + section {
 #testimonios,
 #actividades,
 #galeria-actividades {
-  padding-top: 110px;
+  padding-top: 0px;
 }
 
 section .container {
@@ -1114,7 +1114,7 @@ section h3 {
 .gallery-grid {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  grid-auto-rows: minmax(170px, auto);
+  grid-auto-rows: minmax(170px, 300px);
   gap: 20px;
 }
 
