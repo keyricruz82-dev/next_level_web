@@ -1100,6 +1100,7 @@ section h3 {
 
 .gallery-card {
   position: relative;
+
   display: block;
   overflow: hidden;
   border-radius: 20px;
@@ -1497,7 +1498,7 @@ section#event-gallery.open {
 }
 
 .detail-page .detail-text {
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(65, 63, 63, 0.96);
   border-radius: 28px;
   padding: 36px;
   box-shadow: 0 20px 60px rgba(6, 18, 20, 0.08);
