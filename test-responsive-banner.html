@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Responsive Banner</title>
+    <style>
+        * { margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; }
+        .test-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-result {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+        .test-result.error {
+            border-left-color: #f44336;
+        }
+        h1 { color: #333; margin-bottom: 20px; }
+        h2 { color: #666; margin: 15px 0 10px 0; font-size: 14px; }
+        code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; }
+        .resolution {
+            font-weight: bold;
+            color: #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔍 Verificación del Banner Responsivo</h1>
+        <div id="results"></div>
+        <div style="margin-top: 30px; padding: 15px; background: #e3f2fd; border-radius: 8px;">
+            <h3>ℹ️ Instrucciones:</h3>
+            <ul>
+                <li>Abre detalle-evento.html</li>
+                <li>Abre esta ventana de prueba</li>
+                <li>Redimensiona la ventana de detalle-evento.html a diferentes tamaños</li>
+                <li>Recarga esta página de prueba para ver los estilos aplicados</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        async function testBanner() {
+            const results = document.getElementById('results');
+            
+            // Simulación de pruebas en diferentes resoluciones
+            const testResolutions = [
+                { width: 400, name: 'Móvil Pequeño (400px)', expectedTitle: '24px', expectedBtn: '13px' },
+                { width: 600, name: 'Móvil (600px)', expectedTitle: '32px', expectedBtn: '14px' },
+                { width: 900, name: 'Tablet (900px)', expectedTitle: '48px', expectedBtn: '15px' },
+                { width: 1200, name: 'Desktop (1200px)', expectedTitle: '56px', expectedBtn: '16px' }
+            ];
+
+            let html = '<h2>📊 Pruebas de Responsive Design</h2>';
+            
+            for (const test of testResolutions) {
+                html += `
+                    <div class="test-result">
+                        <div class="resolution">📱 ${test.name}</div>
+                        <p style="margin: 8px 0; color: #666;">
+                            <strong>Tamaño de título esperado:</strong> <code>${test.expectedTitle}</code><br>
+                            <strong>Tamaño de botón esperado:</strong> <code>${test.expectedBtn}</code>
+                        </p>
+                        <p style="font-size: 12px; color: #999; margin-top: 8px;">
+                            Para verificar: Redimensiona detalle-evento.html a ${test.width}px y recarga esta página
+                        </p>
+                    </div>
+                `;
+            }
+
+            // Verificar si puede acceder a detalle-evento.html
+            html += `
+                <h2 style="margin-top: 30px;">🔗 Estado de Carga</h2>
+                <div class="test-result">
+                    <p><strong>Ventana actual:</strong> <code>${window.innerWidth}px × ${window.innerHeight}px</code></p>
+                    <p><strong>Ubicación:</strong> <code>${window.location.href}</code></p>
+                </div>
+            `;
+
+            results.innerHTML = html;
+        }
+
+        // Ejecutar pruebas cuando se carga la página
+        document.addEventListener('DOMContentLoaded', testBanner);
+        
+        // Reejecutar en cada resize
+        window.addEventListener('resize', testBanner);
+    </script>
+</body>
+</html>

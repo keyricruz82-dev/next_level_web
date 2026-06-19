@@ -6,7 +6,7 @@
 <link rel="icon" sizes="32x32" href="images/next.jpeg">
 <link rel="apple-touch-icon" href="images/next.jpeg">
 <title>Detalle de Evento - Next Level Producciones</title>
-<link rel="stylesheet" href="css/style.css?v=20260614">
+<link rel="stylesheet" href="css/style.css?v=20260619b">
 </head>
 <body>
 <header>
@@ -217,15 +217,116 @@
     detailImg.src = detail.image;
     detailImg.alt = detail.alt;
 
-    // Ajuste del logo sobre la imagen principal (responsive)
-    const overlayLogoImg = document.querySelector('.overlay-logo img');
-    if (overlayLogoImg) {
-      overlayLogoImg.setAttribute('aria-hidden', 'true');
-      overlayLogoImg.style.height = 'auto';
-      // asegurar que el contenedor tenga posicionamiento relativo
-      const detailMediaEl = document.querySelector('.detail-page .detail-media');
-      if (detailMediaEl) detailMediaEl.classList.add('has-overlay-logo');
+    // ========================================
+    // BANNER RESPONSIVE - Adaptación visual para móviles, tablets y desktop
+    // ========================================
+    
+    function applyBannerResponsiveStyles() {
+      const screenWidth = window.innerWidth;
+      const detailMedia = document.querySelector('.detail-page .detail-media');
+      const overlayContent = document.querySelector('.overlay-content');
+      const overlayTitle = document.getElementById('overlayTitle');
+      const verGaleriaBtn = document.getElementById('verGaleriaBtn');
+      const overlayLogo = document.querySelector('.overlay-logo');
+      const overlayLogoImg = document.querySelector('.overlay-logo img');
+      
+      if (!detailMedia || !overlayContent || !overlayTitle || !verGaleriaBtn) return;
+      
+      // Establecer clase base
+      detailMedia.classList.add('has-overlay-logo');
+      
+      // Configurar responsive según ancho de pantalla
+      let titleFontSize, btnFontSize, btnPadding, logoWidth, logoMargin, contentGap;
+      
+      if (screenWidth < 480) {
+        // Móviles pequeños (< 480px)
+        titleFontSize = '24px';
+        btnFontSize = '13px';
+        btnPadding = '10px 20px';
+        logoWidth = '35px';
+        logoMargin = '12px 0';
+        contentGap = '12px';
+      } else if (screenWidth < 768) {
+        // Móviles (480px - 768px)
+        titleFontSize = '32px';
+        btnFontSize = '14px';
+        btnPadding = '12px 24px';
+        logoWidth = '40px';
+        logoMargin = '14px 0';
+        contentGap = '14px';
+      } else if (screenWidth < 1024) {
+        // Tablets (768px - 1024px)
+        titleFontSize = '48px';
+        btnFontSize = '15px';
+        btnPadding = '14px 32px';
+        logoWidth = '50px';
+        logoMargin = '16px 0';
+        contentGap = '16px';
+      } else {
+        // Desktop (> 1024px)
+        titleFontSize = '56px';
+        btnFontSize = '16px';
+        btnPadding = '16px 40px';
+        logoWidth = '60px';
+        logoMargin = '18px 0';
+        contentGap = '18px';
+      }
+      
+      // Aplicar estilos al título
+      overlayTitle.style.fontSize = titleFontSize;
+      overlayTitle.style.fontWeight = '700';
+      overlayTitle.style.lineHeight = '1.2';
+      overlayTitle.style.textAlign = 'center';
+      overlayTitle.style.color = 'white';
+      overlayTitle.style.textShadow = '0 2px 8px rgba(0, 0, 0, 0.5)';
+      overlayTitle.style.wordWrap = 'break-word';
+      overlayTitle.style.margin = '0';
+      
+      // Aplicar estilos al botón
+      verGaleriaBtn.style.fontSize = btnFontSize;
+      verGaleriaBtn.style.padding = btnPadding;
+      verGaleriaBtn.style.whiteSpace = 'nowrap';
+      verGaleriaBtn.style.display = 'inline-block';
+      verGaleriaBtn.style.minWidth = '140px';
+      verGaleriaBtn.style.textAlign = 'center';
+      
+      // Aplicar estilos al contenedor del overlay
+      overlayContent.style.display = 'flex';
+      overlayContent.style.flexDirection = 'column';
+      overlayContent.style.alignItems = 'center';
+      overlayContent.style.justifyContent = 'center';
+      overlayContent.style.gap = contentGap;
+      
+      // Aplicar estilos al logo
+      if (overlayLogo) {
+        overlayLogo.style.display = 'flex';
+        overlayLogo.style.justifyContent = 'center';
+        overlayLogo.style.alignItems = 'center';
+        overlayLogo.style.margin = logoMargin;
+        overlayLogo.style.gap = contentGap;
+      }
+      
+      // Aplicar estilos a la imagen del logo
+      if (overlayLogoImg) {
+        overlayLogoImg.setAttribute('aria-hidden', 'true');
+        overlayLogoImg.style.width = logoWidth;
+        overlayLogoImg.style.height = 'auto';
+        overlayLogoImg.style.maxWidth = '100%';
+        overlayLogoImg.style.objectFit = 'contain';
+      }
     }
+    
+    // Aplicar estilos responsive al cargar la página
+    applyBannerResponsiveStyles();
+    
+    // Reaplica estilos responsive al cambiar el tamaño de la ventana (con debounce)
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        applyBannerResponsiveStyles();
+      }, 250);
+    });
 
     document.getElementById('detailPageTitle').textContent = detail.title;
     document.getElementById('detailPageSubtitle').textContent = `Descubre la descripción completa para ${detail.title}.`;
