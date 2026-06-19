@@ -472,9 +472,27 @@ function showMessage(message, type){
 }
 
 // ========================================
+// PROFESSIONAL MOSAIC GALLERY LAYOUT
+// ========================================
+
+function initCuratedGalleryMosaic(){
+  const workItems = document.querySelectorAll('.curated-grid .work-item');
+  if(!workItems || workItems.length === 0) return;
+
+  // Patrón profesional de mosaic: large, medium, wide, tall, etc.
+  const sizePattern = ['large', 'medium', 'medium', 'wide', 'medium', 'medium', 'large', 'medium', 'medium', 'wide', 'medium', 'medium', 'medium', 'medium', 'large', 'medium'];
+  
+  workItems.forEach((item, index) => {
+    const sizeClass = sizePattern[index % sizePattern.length];
+    item.classList.add(sizeClass);
+  });
+}
+
+// ========================================
 // INICIALIZACIÓN
 // ========================================
 
+initCuratedGalleryMosaic();
 initHeroSlider();
 initAutoSlider();
 initManualSlider();
