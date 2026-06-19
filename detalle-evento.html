@@ -184,13 +184,13 @@
         ]
       },
       bodas: {
-        title: 'Graduaciones',
-        tag: 'Producción / Graduación',
-        badge: 'Graduaciones',
-        image: 'images/2UL2.jpeg',
-        alt: 'Graduaciones',
-        intro: 'Capturamos el orgullo del momento con estilo documental y emotivo.',
-        text: 'Desde la ceremonia hasta las celebraciones posteriores, inmortalizamos logros con videos de alta calidad, entrevistas a graduados y piezas para redes sociales. La experiencia está pensada para familias y promociones.',
+        title: 'Bodas Elegantes',
+        tag: 'Producción / Boda',
+        badge: 'Bodas Elegantes',
+        image: 'images/2ULi2.jpeg',
+        alt: 'Bodas Elegantes',
+        intro: 'Una cobertura nupcial cinematográfica con cada emoción capturada.',
+        text: 'Eventos llenos de color, música y recuerdos inolvidables.',
         gallery: [
           { img: 'images/2UL2.jpeg', alt: 'Procesión de graduados' },
           { img: 'images/2UL21.jpg', alt: 'Recibiendo diploma' },
@@ -232,14 +232,18 @@
     document.getElementById('galleryTitle').textContent = `Galería - ${detail.title}`;
     document.title = `${detail.title} | Next Level Producciones`;
 
-    // Cargar galería con un collage dinámico tipo álbum profesional
+    // Cargar galería con un collage dinámico tipo álbum profesional de bodas
     const galleryGrid = document.getElementById('galleryGrid');
-    const collagePattern = ['large', 'wide', 'tall', 'large', 'wide', 'tall', 'wide', 'large', 'tall', 'wide'];
+    
+    // Patrón de tamaños para crear un mosaico profesional sin espacios vacíos
+    // grid-auto-flow: dense hace que se distribuyan automáticamente
+    const sizePattern = ['large', 'tall', 'tall', 'wide', 'wide', 'large', 'wide', 'tall', 'tall', 'large', 'wide', 'wide'];
 
     detail.gallery.forEach((item, index) => {
       const card = document.createElement('a');
       card.href = '#';
-      card.className = 'gallery-card ' + (collagePattern[index % collagePattern.length] || '');
+      const sizeClass = sizePattern[index % sizePattern.length] || '';
+      card.className = 'gallery-card' + (sizeClass ? ' ' + sizeClass : '');
       card.setAttribute('aria-label', item.alt);
 
       card.innerHTML = `
