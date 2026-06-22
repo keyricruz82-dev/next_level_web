@@ -1,6 +1,6 @@
 ﻿<html>
 <head>
-<style>
+<style>/*
 body { font-family: monospace; margin: 20px; }
 pre { background: #f5f5f5; padding: 15px; border-radius: 8px; overflow: auto; }
 .success { color: green; font-weight: bold; }
@@ -10,7 +10,7 @@ pre { background: #f5f5f5; padding: 15px; border-radius: 8px; overflow: auto; }
 <body>
 <h2>Verificación de Galería</h2>
 <p>Revisando estructura del archivo script.js...</p>
-<pre id=" result\></pre>
+<pre id="result"></pre>
 <script>
 fetch('file:///c:/xampp/xampp/htdocs/next_level_web/js/script.js')
  .then(r => r.text())
@@ -20,13 +20,14 @@ fetch('file:///c:/xampp/xampp/htdocs/next_level_web/js/script.js')
  const hasSizePattern = text.includes('sizePattern');
  
  let result = '';
- result += hasInitFunction ? '<span class=\success\>✓</span> Función initCuratedGalleryMosaic declarada\n' : '<span class=\error\>✗</span> Falta función\n';
- result += hasInitCall ? '<span class=\success\>✓</span> Función es llamada en DOMContentLoaded\n' : '<span class=\error\>✗</span> Falta llamada\n';
- result += hasSizePattern ? '<span class=\success\>✓</span> Patrón de tamaños definido\n' : '<span class=\error\>✗</span> Falta patrón\n';
+ result += hasInitFunction ? '<span class="success">✓</span> Función initCuratedGalleryMosaic declarada\n' : '<span class="error">✗</span> Falta función\n';
+ result += hasInitCall ? '<span class="success">✓</span> Función es llamada en DOMContentLoaded\n' : '<span class="error">✗</span> Falta llamada\n';
+ result += hasSizePattern ? '<span class="success">✓</span> Patrón de tamaños definido\n' : '<span class="error">✗</span> Falta patrón\n';
  
  document.getElementById('result').innerHTML = result;
  })
  .catch(e => document.getElementById('result').innerText = 'Error: ' + e);
 </script>
 </body>
+
 </html>

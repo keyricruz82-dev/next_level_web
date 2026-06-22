@@ -334,7 +334,7 @@
     document.title = `${detail.title} | Next Level Producciones`;
 
     // Cargar galería con un collage dinámico tipo álbum profesional de bodas
-    const galleryGrid = document.getElementById('galleryGrid');
+    //const galleryGrid = document.getElementById('galleryGrid');
     
     // Patrón de tamaños para crear un mosaico profesional sin espacios vacíos
     // grid-auto-flow: dense hace que se distribuyan automáticamente
@@ -357,7 +357,7 @@
 
       galleryGrid.appendChild(card);
     });
-
+/*
     // Insertar imágenes adicionales como elementos `.extra-main-img` dentro de #extraMainImages
     const extraMainContainer = document.getElementById('extraMainImages');
     if (extraMainContainer && detail.gallery && detail.gallery.length) {
@@ -371,7 +371,7 @@
         img.alt = it.alt || (`Imagen ${i + 1}`);
         extraMainContainer.appendChild(img);
       });
-    }
+    }*/
 
     // Manejar botón Ver Galería
     const verGaleriaBtn = document.getElementById('verGaleriaBtn');

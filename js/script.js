@@ -55,7 +55,7 @@ if(menuToggle && navMenu){
 
 // ========================================// PROTECCIÓN DE IMÁGENES
 // ========================================
-const allImages = document.querySelectorAll('img');
+/*const allImages = document.querySelectorAll('img');
 allImages.forEach(img => {
   img.setAttribute('draggable', 'false');
   img.addEventListener('contextmenu', event => event.preventDefault());
@@ -64,7 +64,7 @@ allImages.forEach(img => {
       event.preventDefault();
     }
   });
-});
+});*/
 
 // ========================================// SCROLL REVEAL - Animaciones al hacer scroll
 // ========================================
