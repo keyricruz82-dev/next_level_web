@@ -396,7 +396,15 @@ body.menu-open {
     font-size: clamp(2.3rem, 6vw, 3.4rem);
   }
 
+  /* AQUI ANEXO EL DEGENERE */
+
+
+
+
+  /* AQUI TERMINA EL DEGENERE */
+
   .gallery-grid {
+  
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -1227,18 +1235,14 @@ section h3 {
    DETALLE DE EVENTO - GALERÍA EXPANDIDA
    ======================================== */
 
-section#event-gallery {
+   section#event-gallery {
   width: min(1200px, 100%);
   margin: 0 auto;
-  padding: 28px 18px 42px;
-  background: linear-gradient(180deg, rgba(20, 20, 20, 0.98), rgba(36, 36, 36, 0.98));
-  border-radius: 28px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transform: scale(0.98);
-  transform-origin: top center;
-  opacity: 0;
-  transition: transform 0.35s ease, opacity 0.35s ease, padding 0.35s ease;
+  padding: 42px 24px 54px;
+  background: linear-gradient(180deg, rgba(20,20,20,.98), rgba(36,36,36,.98));
+
+  opacity: 1;
+  transform: scale(1);
 }
 
 section#event-gallery .gallery-grid {

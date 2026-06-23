@@ -6,7 +6,7 @@
 <link rel="icon" sizes="32x32" href="images/next.jpeg">
 <link rel="apple-touch-icon" href="images/next.jpeg">
 <title>Detalle de Evento - Next Level Producciones</title>
-<link rel="stylesheet" href="css/style.css?v=20260619b">
+<link rel="stylesheet" href="css/style.css?v=20260424">
 </head>
 <body>
 <header>
@@ -18,7 +18,7 @@
         </div>
 
         <div class="nav-right">
-          <button id="menuToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="navMenu">☰</button>
+            <button id="menuToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="navMenu">☰</button>
         </div>
 
         <ul id="navMenu">
@@ -40,9 +40,7 @@
 
         <div class="detail-page">
             <div class="detail-media">
-                        <img id="detailImg" src="images/imag1.jpg" alt="Detalle de evento">
-                        <!-- contenedor para imágenes adicionales principales (aparece en móviles/tablets) -->
-                        
+                <img id="detailImg" src="images/imag1.jpg" alt="Detalle de evento">
                 <div class="detail-badge" id="detailBadge">Producción / Boda</div>
                 
                 <div class="detail-overlay">
@@ -144,34 +142,33 @@
           { img: 'images/2ULI02.jpeg', alt: 'Detalles de la boda' }
         ]
       },
-      bodas: {
-        title: 'Bodas Elegantes',
-        tag: 'Producción / Bodas',
-        badge: 'Bodas Elegantes',
+      cumpleanos: {
+        title: 'Fiestas de Cumpleaños',
+        tag: 'Producción / Cumpleaños',
+        badge: 'Fiestas de Cumpleaños',
         image: 'images/2UL0.jpeg',
-        alt: 'Bodas Elegantes',
+        alt: 'Fiestas de Cumpleaños',
         intro: 'Eventos llenos de color, música y recuerdos inolvidables.',
         text: 'Diseñamos experiencias únicas para todas las edades, con cobertura de animación, entrevistas a invitados, montaje de highlights y fotografías espontáneas. Ideal para celebraciones familiares y eventos con estilo.',
         gallery: [
-          { img: 'images/2UL0.jpeg', alt: 'Momentos especiales' },
-          { img: 'images/2ULI5.jpeg', alt: 'Momentos especiales' },
-          { img: 'images/2ULI6.jpeg', alt: 'Momentos especiales' },
-          { img: 'images/2ULI01.jpeg', alt: 'Momentos especiales' },
+          { img: 'images/2UL0.jpeg', alt: 'Entrada al evento' },
+          { img: 'images/2ULI5.jpeg', alt: 'Diversión y risas' },
+          { img: 'images/2ULI6.jpeg', alt: 'Decoración' },
+          { img: 'images/2ULI01.jpeg', alt: 'Pastel de cumpleaños' },
           { img: 'images/2ULI02.jpeg', alt: 'Momentos especiales' },
-          { img: 'images/2ULI03.jpeg', alt: 'Momentos especiales' },
-          { img: 'images/2ULI5.jpeg', alt: 'Momentos especiales' },
-          { img: 'images/2ULI01.jpeg', alt: 'Momentos especiales' },
-          { img: 'images/2ULI3.jpeg', alt: 'Momentos especiales' },
-          { img: 'images/2ULI06.jpeg', alt: 'Momentos especiales' },
-          { img: 'images/2ULI11.jpeg', alt: 'Momentos especiales' }
+          { img: 'images/2ULI03.jpeg', alt: 'Familia reunida' },
+          { img: 'images/2ULI5.jpeg', alt: 'Familia reunida' },
+          { img: 'images/2ULI01.jpeg', alt: 'Familia reunida' },
+          { img: 'images/2ULI3.jpeg', alt: 'Familia reunida' },
+          { img: 'images/2ULI06.jpeg', alt: 'Familia reunida' }
         ]
       },
-      bodas: {
-        title: 'Bodas Elegantes',
-        tag: 'Producción / Bodas',
-        badge: 'Bodas Elegantes',
+      corporativos: {
+        title: 'Eventos Corporativos',
+        tag: 'Producción / Corporativo',
+        badge: 'Eventos Corporativos',
         image: 'images/2ULI1.jpeg',
-        alt: 'Bodas Elegantes',
+        alt: 'Eventos Corporativos',
         intro: 'Cobertura profesional para conferencias, lanzamientos y encuentros ejecutivos.',
         text: 'Brindamos soportes audiovisuales, edición de contenido institucional, multicámara y piezas para redes sociales. Nuestro equipo enfatiza calidad, imagen de marca y un mensaje claro para cada audiencia.',
         gallery: [
@@ -183,14 +180,14 @@
           { img: 'images/2UL11.jpg', alt: 'Clausura del evento' }
         ]
       },
-      bodas: {
-        title: 'Bodas Elegantes',
-        tag: 'Producción / Boda',
-        badge: 'Bodas Elegantes',
-        image: 'images/2ULi2.jpeg',
-        alt: 'Bodas Elegantes',
-        intro: 'Una cobertura nupcial cinematográfica con cada emoción capturada.',
-        text: 'Eventos llenos de color, música y recuerdos inolvidables.',
+      graduaciones: {
+        title: 'Graduaciones',
+        tag: 'Producción / Graduación',
+        badge: 'Graduaciones',
+        image: 'images/2UL2.jpeg',
+        alt: 'Graduaciones',
+        intro: 'Capturamos el orgullo del momento con estilo documental y emotivo.',
+        text: 'Desde la ceremonia hasta las celebraciones posteriores, inmortalizamos logros con videos de alta calidad, entrevistas a graduados y piezas para redes sociales. La experiencia está pensada para familias y promociones.',
         gallery: [
           { img: 'images/2UL2.jpeg', alt: 'Procesión de graduados' },
           { img: 'images/2UL21.jpg', alt: 'Recibiendo diploma' },
@@ -217,7 +214,6 @@
     detailImg.src = detail.image;
     detailImg.alt = detail.alt;
 
-    // ========================================
     // BANNER RESPONSIVE - Adaptación visual para móviles, tablets y desktop
     // ========================================
     
@@ -333,20 +329,16 @@
     document.getElementById('galleryTitle').textContent = `Galería - ${detail.title}`;
     document.title = `${detail.title} | Next Level Producciones`;
 
-    // Cargar galería con un collage dinámico tipo álbum profesional de bodas
-    //const galleryGrid = document.getElementById('galleryGrid');
-    
-    // Patrón de tamaños para crear un mosaico profesional sin espacios vacíos
-    // grid-auto-flow: dense hace que se distribuyan automáticamente
-    const sizePattern = ['large', 'tall', 'tall', 'wide', 'wide', 'large', 'wide', 'tall', 'tall', 'large', 'wide', 'wide'];
-
+    // Cargar galería
+    const galleryGrid = document.getElementById('galleryGrid');
     detail.gallery.forEach((item, index) => {
       const card = document.createElement('a');
       card.href = '#';
-      const sizeClass = sizePattern[index % sizePattern.length] || '';
-      card.className = 'gallery-card' + (sizeClass ? ' ' + sizeClass : '');
-      card.setAttribute('aria-label', item.alt);
-
+      card.className = 'gallery-card';
+      if (index === 0) card.classList.add('large');
+      if (index === 1 || index === 2) card.classList.add('medium');
+      if (index === 3) card.classList.add('wide');
+      
       card.innerHTML = `
         <img src="${item.img}" alt="${item.alt}">
         <div class="gallery-overlay">
@@ -354,24 +346,9 @@
           <h3>${item.alt}</h3>
         </div>
       `;
-
+      
       galleryGrid.appendChild(card);
     });
-/*
-    // Insertar imágenes adicionales como elementos `.extra-main-img` dentro de #extraMainImages
-    const extraMainContainer = document.getElementById('extraMainImages');
-    if (extraMainContainer && detail.gallery && detail.gallery.length) {
-      // Agregar todas las imágenes de la galería como imágenes secundarias
-      detail.gallery.forEach((it, i) => {
-        // evitar duplicar la imagen principal
-        if (it.img === detail.image) return;
-        const img = document.createElement('img');
-        img.className = 'extra-main-img';
-        img.src = it.img;
-        img.alt = it.alt || (`Imagen ${i + 1}`);
-        extraMainContainer.appendChild(img);
-      });
-    }*/
 
     // Manejar botón Ver Galería
     const verGaleriaBtn = document.getElementById('verGaleriaBtn');
@@ -380,23 +357,14 @@
 
     verGaleriaBtn.addEventListener('click', function(e) {
       e.preventDefault();
-
-      const isHidden = eventGallery.classList.contains('hidden');
-
-      if (isHidden) {
-        eventGallery.classList.remove('hidden');
-        eventGallery.classList.add('open');
-        detailTextBox.classList.add('hidden');
-        verGaleriaBtn.textContent = 'Ocultar Galería';
-
+      eventGallery.classList.toggle('hidden');
+      detailTextBox.classList.toggle('hidden');
+      
+      // Scroll a la galería si se abre
+      if (!eventGallery.classList.contains('hidden')) {
         setTimeout(() => {
           eventGallery.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 120);
-      } else {
-        eventGallery.classList.add('hidden');
-        eventGallery.classList.remove('open');
-        detailTextBox.classList.remove('hidden');
-        verGaleriaBtn.textContent = 'Ver Galería';
+        }, 100);
       }
     });
   });
