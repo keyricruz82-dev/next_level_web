@@ -93,36 +93,58 @@
         </div>
 
     </div>
-
-
-
-<section id="galeria-servicios">
-    <h2>Muestras de Nuestro Trabajo</h2>
-
-    <div class="slider" data-visible="4">
-        <div class="slides">
-            <div class="slide"><img src="images/U8.jpeg" alt="Trabajo 1"></div>
-            <div class="slide"><img src="images/U0.jpeg" alt="Trabajo 2"></div>
-            <div class="slide"><img src="images/U16.jpeg" alt="Trabajo 3"></div>
-            <div class="slide"><img src="images/U7.jpeg" alt="Trabajo 4"></div>
-            <div class="slide"><img src="images/U19.jpeg" alt="Trabajo 5"></div>
-            <div class="slide"><img src="images/UL29.jpeg" alt="Trabajo 6"></div>
-            <div class="slide"><img src="images/UL20.jpeg" alt="Trabajo 7"></div>
-            <div class="slide"><img src="images/UL10.jpeg" alt="Trabajo 8"></div>
-            <div class="slide"><img src="images/U4.jpeg" alt="Trabajo 9"></div>
-            <div class="slide"><img src="images/U5.jpeg" alt="Trabajo 10"></div>            
-            <div class="slide"><img src="images/U0.jpeg" alt="Trabajo 2"></div>
-            <div class="slide"><img src="images/U16.jpeg" alt="Trabajo 3"></div>
-            <div class="slide"><img src="images/U7.jpeg" alt="Trabajo 4"></div>
-            <div class="slide"><img src="images/U19.jpeg" alt="Trabajo 5"></div>
-            <div class="slide"><img src="images/UL29.jpeg" alt="Trabajo 6"></div>
-            <div class="slide"><img src="images/UL20.jpeg" alt="Trabajo 7"></div>
-            <div class="slide"><img src="images/UL10.jpeg" alt="Trabajo 8"></div>
-            <div class="slide"><img src="images/U4.jpeg" alt="Trabajo 9"></div>
-            <div class="slide"><img src="images/U5.jpeg" alt="Trabajo 10"></div>
+    <main>
+    <section id="event-detail">
+        <div class="section-intro">
+            <h2 id="detailPageTitle">Detalle del Evento</h2>
+            <p id="detailPageSubtitle">Selecciona una imagen en la galería de eventos para ver su descripción completa.</p>
         </div>
-    </div>
-</section>
+
+        <div class="detail-page">
+            <div class="detail-media">
+                <img id="detailImg" src="images/imag1.jpg" alt="Detalle de evento">
+                <div class="detail-badge" id="detailBadge">Producción / Boda</div>
+                
+                <div class="detail-overlay">
+                    <div class="overlay-logo">
+                        <img src="images/next.jpeg" alt="Logo Next Level Producciones">
+                    </div>
+                    
+                    <div class="overlay-content">
+                        <h2 id="overlayTitle">Bodas Elegantes</h2>
+                        <button id="verGaleriaBtn" class="cta-btn secondary">Ver Galería</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-copy">
+                <span class="eyebrow" id="detailTag">Producción audiovisual profesional</span>
+                <h1 id="detailTitle">Bodas Elegantes</h1>
+                <p id="detailIntro">Una cobertura nupcial cinematográfica que captura la esencia del evento.</p>
+            </div>
+
+            <div class="detail-text" id="detailTextBox">
+                <h3>Descripción</h3>
+                <p id="detailText">Ofrecemos grabación profesional, fotografía artística, iluminación y edición de alta calidad. Cada boda se documenta con planos emocionales, detalles del vestido, el primer baile y los momentos más íntimos para crear un recuerdo inolvidable.</p>
+                <div class="detail-actions">
+                    <a href="actividades.html" class="cta-btn">Volver a Eventos</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="event-gallery" class="event-gallery hidden">
+        <div class="section-intro">
+            <h2 id="galleryTitle">Galería - Bodas Elegantes</h2>
+            <p id="gallerySubtitle">Descubre más imágenes de este evento</p>
+        </div>
+
+        <div class="gallery-grid" id="galleryGrid">
+            <!-- Las imágenes se cargarán dinámicamente aquí -->
+        </div>
+    </section>
+</main>
+
 
 <div id="lightbox" role="dialog" aria-modal="true" aria-label="Galería de imágenes">
     <button id="closeLightbox" type="button" aria-label="Cerrar">×</button>
