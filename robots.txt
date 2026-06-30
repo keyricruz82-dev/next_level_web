@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Sitemap: https://nextlevelproducciones.com/sitemap.xml
+
+# Bloquear rutas de prueba o archivos no públicos si se agrega alguno en el futuro
+Disallow: /test-gallery.html
+Disallow: /test-responsive-banner.html
