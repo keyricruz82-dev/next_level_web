@@ -1011,9 +1011,12 @@ section h3 {
 
 .servicios {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(6, minmax(0px, 1fr));
   gap: 28px;
   justify-items: center;
+  grid-auto-rows: minmax(120px, auto);
+  align-items: stretch;
+  grid-auto-flow: dense;
 }
 
 .card {
@@ -1076,7 +1079,7 @@ section h3 {
   right: 20px;
   bottom: 20px;
   padding: 18px 20px;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(117, 116, 116, 0.95);
   border-radius: 20px;
   opacity: 0;
   transform: translateY(14px);
@@ -1102,7 +1105,7 @@ section h3 {
 .card-overlay h4 {
   margin: 0;
   font-size: 1rem;
-  color: var(--text-primary);
+  color: #0d0d0d;
   line-height: 1.3;
   font-weight: 800;
 }
