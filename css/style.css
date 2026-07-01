@@ -3952,7 +3952,7 @@ CURATED GALLERY FUNCIONAL - PROFESSIONAL MOSAIC
 ========================= */
 .curated-grid {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
     grid-auto-rows: minmax(120px, auto);
     gap: 16px;
     grid-auto-flow: dense;
@@ -3988,23 +3988,23 @@ CURATED GALLERY FUNCIONAL - PROFESSIONAL MOSAIC
 
 /* Size variations for mosaic effect */
 .work-item.large {
-    grid-column: span 2;
-    grid-row: span 2;
+  grid-column: span 1;
+  grid-row: span 1;
     min-height: 260px;
 }
 
 .work-item.medium {
-    grid-column: span 2;
+  grid-column: span 1;
     min-height: 140px;
 }
 
 .work-item.wide {
-    grid-column: span 3;
+  grid-column: span 1;
     min-height: 140px;
 }
 
 .work-item.tall {
-    grid-row: span 2;
+  grid-row: span 1;
     min-height: 260px;
 }
 
