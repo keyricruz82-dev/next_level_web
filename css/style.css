@@ -3186,6 +3186,20 @@ footer {
   text-align: left;
 }
 
+@media (min-width: 901px) {
+  .footer-contact {
+    grid-column: 1;
+  }
+
+  .footer-logo {
+    grid-column: 2;
+  }
+
+  .footer-links {
+    grid-column: 3;
+  }
+}
+
 .footer-contact h3,
 .footer-links h3 {
   font-size: 1.05rem;
