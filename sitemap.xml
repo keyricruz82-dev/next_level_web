@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://nextlevelproducciones.com/</loc>
+    <loc>https://nextlevelproducciones.net//</loc>
     <priority>1.00</priority>
   </url>
   <url>
-    <loc>https://nextlevelproducciones.com/quien.html</loc>
+    <loc>https://nextlevelproducciones.net/quien.html</loc>
     <priority>0.80</priority>
   </url>
   <url>
-    <loc>https://nextlevelproducciones.com/productos.html</loc>
+    <loc>https://nextlevelproducciones.net/productos.html</loc>
     <priority>0.80</priority>
   </url>
   <url>
-    <loc>https://nextlevelproducciones.com/actividades.html</loc>
+    <loc>https://nextlevelproducciones.net/actividades.html</loc>
     <priority>0.80</priority>
   </url>
   <url>
-    <loc>https://nextlevelproducciones.com/detalle-evento.html</loc>
+    <loc>https://nextlevelproducciones.net/detalle-evento.html</loc>
     <priority>0.70</priority>
   </url>
 </urlset>

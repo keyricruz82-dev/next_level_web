@@ -3573,6 +3573,94 @@ footer {
     height: 180px;
   }
 
+  .about-banner {
+    padding: 22px 18px;
+    margin: 16px 0 28px;
+  }
+
+  .about-banner h2 {
+    font-size: 1.55rem;
+    line-height: 1.2;
+  }
+
+  .about-mentor-text h2 {
+    font-size: 1.6rem;
+    line-height: 1.22;
+  }
+
+  .about-mentor-text p,
+  .about-banner p:last-child,
+  .expertise-right p {
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .testimonial-row {
+    flex-direction: column;
+    gap: 18px;
+    margin-bottom: 72px;
+    padding: 0 16px;
+  }
+
+  .testimonial-image,
+  .testimonial-content {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .testimonial-image img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    max-height: none;
+  }
+
+  .testimonial-content h2 {
+    font-size: 2.1rem;
+    line-height: 1.1;
+  }
+
+  .testimonial-content span {
+    margin-bottom: 18px;
+  }
+
+  .testimonial-content p {
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .right-text,
+  .left-text {
+    margin: 0;
+  }
+
+  .second-row {
+    flex-direction: column-reverse;
+  }
+
+  .testimonial-row:last-child .testimonial-image {
+    width: 100% !important;
+  }
+
+  .testimonial-row:last-child .testimonial-image h2 {
+    font-size: 2.1rem;
+    margin-top: 14px;
+  }
+
+  .testimonial-row:last-child .testimonial-image span {
+    display: block;
+    margin-bottom: 18px;
+    color: #9f9f9f;
+    font-size: 14px;
+    font-style: italic;
+  }
+
+  .testimonial-row:last-child .testimonial-image p {
+    font-size: 1rem;
+    line-height: 1.75;
+    color: #d0d0d0;
+  }
+
   .about-mentor-text h2 {
     font-size: 1.75rem;
   }
@@ -5668,5 +5756,100 @@ html {
     width: 32px;
     height: 32px;
     font-size: 12px;
+  }
+}
+
+/* ========================================
+   QUIÉNES SOMOS - OVERRIDES MÓVIL
+   ======================================== */
+@media (max-width: 700px) {
+  #quienes {
+    overflow-x: hidden;
+  }
+
+  .expertise-header,
+  .about-mentor-section,
+  .about-banner,
+  .testimonial-row,
+  .testimonial-image,
+  .testimonial-content {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .expertise-header,
+  .about-mentor-section,
+  .about-banner,
+  .testimonial-row {
+    grid-template-columns: 1fr !important;
+    flex-direction: column !important;
+    gap: 18px !important;
+  }
+
+  .about-mentor-section,
+  .about-banner,
+  .testimonial-row {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .about-mentor-text,
+  .about-banner,
+  .testimonial-content,
+  .testimonial-image {
+    box-sizing: border-box;
+  }
+
+  .about-mentor-text,
+  .about-banner,
+  .testimonial-content {
+    padding: 20px !important;
+  }
+
+  .about-mentor-text h2,
+  .about-banner h2,
+  .testimonial-content h2,
+  .testimonial-row:last-child .testimonial-image h2 {
+    font-size: 1.7rem !important;
+    line-height: 1.15 !important;
+    margin-bottom: 14px !important;
+  }
+
+  .about-mentor-text p,
+  .about-banner p:last-child,
+  .testimonial-content p,
+  .testimonial-row:last-child .testimonial-image p,
+  .expertise-right p {
+    font-size: 1rem !important;
+    line-height: 1.75 !important;
+  }
+
+  .about-mentor-video-pair {
+    flex-direction: column !important;
+  }
+
+  .about-mentor-video-pair .testimonial-image,
+  .about-mentor-video-pair video,
+  .testimonial-image img,
+  .about-mentor-img {
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  .testimonial-content span,
+  .testimonial-row:last-child .testimonial-image span {
+    margin-bottom: 16px !important;
+  }
+
+  .right-text,
+  .left-text {
+    margin: 0 !important;
+  }
+
+  .second-row {
+    flex-direction: column-reverse !important;
   }
 }
