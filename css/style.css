@@ -3188,12 +3188,12 @@ footer {
 
 @media (min-width: 901px) {
   .footer-container {
-    grid-template-columns: 180px 1fr 220px;
+    grid-template-columns: 220px 1fr 180px;
   }
 
   .footer-logo {
-    grid-column: 1;
-    justify-content: flex-start;
+    grid-column: 3;
+    justify-content: flex-end;
   }
 
   .footer-links {
@@ -3203,7 +3203,7 @@ footer {
   }
 
   .footer-contact {
-    grid-column: 3;
+    grid-column: 1;
     text-align: center;
     justify-self: center;
   }
