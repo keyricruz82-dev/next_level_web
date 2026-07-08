@@ -3481,6 +3481,18 @@ footer {
   gap: 18px;
 }
 
+.about-mentor-video {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  display: block;
+  object-fit: cover;
+  border-radius: 24px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.24);
+  border: 1px solid rgba(255,255,255,0.07);
+  background: #000;
+}
+
 .about-mentor-video-pair {
   display: flex;
   align-items: stretch;
@@ -3540,6 +3552,10 @@ footer {
   .about-mentor-img:last-child {
     height: 210px;
   }
+
+  .about-mentor-video {
+    min-height: 260px;
+  }
 }
 
 @media (max-width: 700px) {
@@ -3571,6 +3587,10 @@ footer {
   .about-mentor-img:last-child {
     width: 100%;
     height: 180px;
+  }
+
+  .about-mentor-video {
+    min-height: 220px;
   }
 
   .about-banner {
@@ -5837,6 +5857,14 @@ html {
     max-height: none !important;
     aspect-ratio: 4 / 3;
     object-fit: cover;
+  }
+
+  .about-mentor-video {
+    width: 100% !important;
+    min-height: 220px !important;
+    height: auto !important;
+    aspect-ratio: 4 / 3;
+    display: block;
   }
 
   .testimonial-content span,
