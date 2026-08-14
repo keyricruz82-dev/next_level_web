@@ -185,9 +185,8 @@
 			refs.contentArea.innerHTML = `
 				<section class="hero-panel mb-4">
 					<div class="hero-copy">
-						<p class="hero-eyebrow mb-2">Dashboard privado</p>
+						<p class="hero-eyebrow mb-2">Panel Administrativo privado</p>
 						<h1 class="h3 mb-2">Publicaciones</h1>
-						<p class="text-secondary mb-0">Sesion validada para ${escapeHtml(state.user.email || "Administrador")}. Desde aqui puedes crear, editar, eliminar, publicar o pasar a borrador publicaciones y administrar sus imagenes en Supabase Storage.</p>
 					</div>
 					<div class="hero-actions">
 						<button class="btn btn-primary" data-action="new-publication">Nueva publicacion</button>
