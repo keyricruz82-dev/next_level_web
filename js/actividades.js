@@ -19,21 +19,41 @@ document.addEventListener("DOMContentLoaded", async () => {
             .replace(/'/g, "&#039;");
     }
 
-    function formatDate(value) {
-        if (!value) {
+    function formatEventDate(fecha, hora) {
+        if (!fecha) {
             return "";
         }
 
-        const date = new Date(value);
+        const [year, month, day] = fecha.split("-");
+        const date = new Date(Number(year), Number(month) - 1, Number(day));
+
         if (Number.isNaN(date.getTime())) {
-            return "";
+            return fecha;
         }
 
-        return date.toLocaleDateString("es-SV", {
+        const formattedDate = date.toLocaleDateString("es-SV", {
             day: "2-digit",
             month: "short",
             year: "numeric"
         });
+
+        if (!hora) {
+            return formattedDate;
+        }
+
+        const [hours, minutes] = hora.split(":");
+        const time = new Date(2000, 0, 1, Number(hours), Number(minutes));
+
+        if (Number.isNaN(time.getTime())) {
+            return formattedDate;
+        }
+
+        const formattedTime = time.toLocaleTimeString("es-SV", {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+        return `${formattedDate}, ${formattedTime}`;
     }
 
     function renderEmptyState(message) {
@@ -57,7 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const { data, error } = await supabase
             .from("publicaciones")
-            .select("id, titulo, descripcion, imagen_url, fecha_evento, estado")
+            .select("id, titulo, descripcion, imagen_url, fecha_evento, hora_evento, estado")
             .eq("estado", "publicado")
             .order("fecha_evento", { ascending: false });
 
@@ -80,7 +100,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const title = publication.titulo || "Evento";
             const description = (publication.descripcion || "").replace(/\s+/g, " ").trim();
             const imageUrl = publication.imagen_url || "images/next.jpeg";
-            const formattedDate = formatDate(publication.fecha_evento);
+            const formattedDate = formatEventDate(publication.fecha_evento, publication.hora_evento);
             const variant = variants[index % variants.length];
             const safeTitle = escapeHtml(title);
             const safeDescription = escapeHtml(description);

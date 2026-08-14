@@ -144,7 +144,7 @@
 						<small class="text-secondary">${escapeHtml(item.descripcion.slice(0, 80))}${item.descripcion.length > 80 ? "..." : ""}</small>
 					</td>
 					<td><span class="badge badge-estado ${item.estado === "publicado" ? "text-bg-success" : "text-bg-warning"}">${escapeHtml(capitalize(item.estado))}</span></td>
-					<td>${escapeHtml(formatDate(item.fecha_evento))}</td>
+					<td>${escapeHtml(formatEventDate(item.fecha_evento, item.hora_evento))}</td>
 					<td class="text-end">
 						<div class="btn-group btn-group-sm" role="group">
 							<button class="btn btn-outline-primary" data-action="edit-publication">Editar</button>
@@ -620,23 +620,41 @@
 		return value ? value.charAt(0).toUpperCase() + value.slice(1) : value;
 	}
 
-	function formatDate(value) {
-		if (!value) {
+	function formatEventDate(fecha, hora) {
+		if (!fecha) {
 			return "-";
 		}
 
-		const date = new Date(value);
+		const [year, month, day] = String(fecha).split("-");
+		const date = new Date(Number(year), Number(month) - 1, Number(day));
+
 		if (Number.isNaN(date.getTime())) {
-			return value;
+			return fecha;
 		}
 
-		return date.toLocaleString("es-SV", {
-			year: "numeric",
-			month: "short",
+		const formattedDate = date.toLocaleDateString("es-SV", {
 			day: "2-digit",
+			month: "short",
+			year: "numeric"
+		});
+
+		if (!hora) {
+			return formattedDate;
+		}
+
+		const [hours, minutes] = String(hora).split(":");
+		const time = new Date(2000, 0, 1, Number(hours), Number(minutes));
+
+		if (Number.isNaN(time.getTime())) {
+			return formattedDate;
+		}
+
+		const formattedTime = time.toLocaleTimeString("es-SV", {
 			hour: "2-digit",
 			minute: "2-digit"
 		});
+
+		return `${formattedDate}, ${formattedTime}`;
 	}
 
 	function formatDateInput(value) {
