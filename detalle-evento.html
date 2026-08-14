@@ -26,6 +26,24 @@
 <meta name="twitter:image" content="https://nextlevelproducciones.net/images/next.jpeg">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"Next Level Producciones","description":"Next Level Producciones ofrece producción audiovisual profesional, fotografía de eventos, video social y cobertura de bodas en El Salvador.","url":"https://nextlevelproducciones.net/","logo":"https://nextlevelproducciones.net/images/next.jpeg","telephone":"+50377251450","address":{"@type":"PostalAddress","addressLocality":"San Miguel","addressCountry":"SV"},"sameAs":["https://www.facebook.com/share/1CRGc8frAp/?mibextid=wwXIfr","https://www.instagram.com/nextlevelproducciones_?igsh=bDBrcGkyNmp5aXZk","https://www.tiktok.com/@nextlevelproducciones?_r=1&_t=ZS-95vGeT53f7P","https://www.youtube.com/@NextLevelProducciones"],"hasOfferCatalog":{"@type":"OfferCatalog","name":"Servicios de producción audiovisual","itemListElement":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"Fotografía de Eventos"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Producción de Video"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Sesiones Fotográficas"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Transmisiones en Vivo"}}]}}</script>
 <link rel="stylesheet" href="css/style.css?v=20260424">
+<style>
+    .video-container {
+        width: 100%;
+        max-width: 850px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .video-container iframe {
+        width: 100%;
+        max-width: 850px;
+        aspect-ratio: 16 / 9;
+        height: auto;
+        display: block;
+    }
+</style>
 </head>
 <body>
 <header>
@@ -68,7 +86,7 @@
                     </div>
                     
                     <div class="overlay-content">
-                        <h2 id="overlayTitle">Bodas Elegantes</h2>
+                        <h2 id="overlayTitle">Evento</h2>
                         <button id="verGaleriaBtn" class="cta-btn secondary">Ver Galería</button>
                     </div>
                 </div>
@@ -76,13 +94,13 @@
 
             <div class="detail-copy">
                 <span class="eyebrow" id="detailTag">Producción audiovisual profesional</span>
-                <h1 id="detailTitle">Bodas Elegantes</h1>
-                <p id="detailIntro">Una cobertura nupcial cinematográfica que captura la esencia del evento.</p>
+                <h1 id="detailTitle">Evento</h1>
+                <p id="detailIntro">Descubre la historia y los momentos más importantes de este evento.</p>
             </div>
 
             <div class="detail-text" id="detailTextBox">
                 <h3>Descripción</h3>
-                <p id="detailText">Ofrecemos grabación profesional, fotografía artística, iluminación y edición de alta calidad. Cada boda se documenta con planos emocionales, detalles del vestido, el primer baile y los momentos más íntimos para crear un recuerdo inolvidable.</p>
+                <p id="detailText">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
                 <div class="detail-actions">
                     <a href="actividades.html" class="cta-btn">Volver a Eventos</a>
                 </div>
@@ -90,10 +108,16 @@
         </div>
     </section>
 
+    <section id="event-video" class="event-video hidden">
+        <div id="videoContainer" class="video-container">
+            <!-- El video se cargará dinámicamente aquí -->
+        </div>
+    </section>
+
     <section id="event-gallery" class="event-gallery hidden">
         <div class="section-intro">
-            <h2 id="galleryTitle">Galería - Bodas Elegantes</h2>
-            <p id="gallerySubtitle">Descubre más imágenes de este evento</p>
+            <h2 id="galleryTitle"></h2>
+            <p id="gallerySubtitle"></p>
         </div>
 
         <div class="gallery-grid" id="galleryGrid">
@@ -144,103 +168,622 @@
     <button id="btnTop">↑</button>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="admin/js/config.js"></script>
 <script src="js/script.js?v=20260424"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const details = {
-      bodas: {
-        title: 'Bodas Elegantes',
-        tag: 'Producción / Boda',
-        badge: 'Bodas Elegantes',
-        image: 'images/2ULI08.jpeg',
-        alt: 'Bodas Elegantes',
-        intro: 'Una cobertura nupcial cinematográfica que captura la esencia del evento.',
-        text: 'Ofrecemos grabación profesional, fotografía artística, iluminación y edición de alta calidad. Cada boda se documenta con planos emocionales, detalles del vestido, el primer baile y los momentos más íntimos para crear un recuerdo inolvidable.',
-        gallery: [
-          { img: 'images/2ULI08.jpeg', alt: 'Detalle de la novia' },
-          { img: 'images/2ULI5.jpeg', alt: 'Ceremonia' },
-          { img: 'images/2ULI01.jpeg', alt: 'Primer baile' },
-          { img: 'images/2ULI6.jpeg', alt: 'Celebración' },
-          { img: 'images/2UL0.jpeg', alt: 'Momento familiar' },
-          { img: 'images/2ULI08.jpeg', alt: 'Detalle de la novia' },
-          { img: 'images/2ULI08.jpeg', alt: 'Detalle de la novia' },
-          { img: 'images/2ULI02.jpeg', alt: 'Detalles de la boda' }
+  document.addEventListener('DOMContentLoaded', async function () {
+    const params = new URLSearchParams(window.location.search);
+    const publicationId = params.get('id');
+    const legacyEventKey = params.get('evento');
 
+    const detailPageTitle = document.getElementById('detailPageTitle');
+    const detailPageSubtitle = document.getElementById('detailPageSubtitle');
+    const detailTitle = document.getElementById('detailTitle');
+    const overlayTitle = document.getElementById('overlayTitle');
+    const detailTag = document.getElementById('detailTag');
+    const detailIntro = document.getElementById('detailIntro');
+    const detailText = document.getElementById('detailText');
+    const detailBadge = document.getElementById('detailBadge');
+    const detailImg = document.getElementById('detailImg');
+    const galleryGrid = document.getElementById('galleryGrid');
+    const eventGallery = document.getElementById('event-gallery');
+    const eventVideo = document.getElementById('event-video');
+    const videoContainer = document.getElementById('videoContainer');
+    const galleryTitle = document.getElementById('galleryTitle');
+    const gallerySubtitle = document.getElementById('gallerySubtitle');
+    const detailTextBox = document.getElementById('detailTextBox');
+    const verGaleriaBtn = document.getElementById('verGaleriaBtn');
+    let currentPublication = null;
+
+    const legacyCatalog = {
+      evento: {
+        title: 'Evento',
+        tag: 'Producción audiovisual profesional',
+        badge: 'Evento',
+        image: 'images/2ULI08.jpeg',
+        alt: 'Evento',
+        intro: 'Descubre la historia y los momentos más importantes de este evento.',
+        text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+        gallery: [
+          { img: 'images/2ULI08.jpeg', alt: 'Detalle del evento' },
+          { img: 'images/2ULI5.jpeg', alt: 'Momento del evento' },
+          { img: 'images/2ULI01.jpeg', alt: 'Escena destacada' },
+          { img: 'images/2ULI6.jpeg', alt: 'Celebración' },
+          { img: 'images/2UL0.jpeg', alt: 'Familia' },
+          { img: 'images/2ULI02.jpeg', alt: 'Detalle del evento' }
         ]
       },
       corporativos: {
-        title: 'Eventos Corporativos',
-        tag: 'Producción / Corporativo',
-        badge: 'Eventos Corporativos',
+        title: 'Evento',
+        tag: 'Producción audiovisual profesional',
+        badge: 'Evento',
         image: 'images/2ULI1.jpeg',
-        alt: 'Eventos Corporativos',
-        intro: 'Cobertura profesional para conferencias, lanzamientos y encuentros ejecutivos.',
-        text: 'Brindamos soportes audiovisuales, edición de contenido institucional, multicámara y piezas para redes sociales. Nuestro equipo enfatiza calidad, imagen de marca y un mensaje claro para cada audiencia.',
+        alt: 'Evento',
+        intro: 'Descubre la historia y los momentos más importantes de este evento.',
+        text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
         gallery: [
-          { img: 'images/2ULI1.jpeg', alt: 'Inicio del evento' },
-          { img: 'images/2ULI14.jpeg', alt: 'Presentador principal' },
-          { img: 'images/2ULI10.jpeg', alt: 'Preparativos del evento' },
-          { img: 'images/2UL0.jpeg', alt: 'Networking' },
-          { img: 'images/2ULI11.jpeg', alt: 'Panel de discusión' },
-          { img: 'images/2ULI12.jpeg', alt: 'Invitados corporativos' }
+          { img: 'images/2ULI1.jpeg', alt: 'Evento' },
+          { img: 'images/2ULI14.jpeg', alt: 'Evento' },
+          { img: 'images/2ULI10.jpeg', alt: 'Evento' },
+          { img: 'images/2UL0.jpeg', alt: 'Evento' },
+          { img: 'images/2ULI11.jpeg', alt: 'Evento' },
+          { img: 'images/2ULI12.jpeg', alt: 'Evento' }
         ]
       },
       graduaciones: {
-        title: 'Graduaciones',
-        tag: 'Producción / Graduación',
-        badge: 'Graduaciones',
+        title: 'Evento',
+        tag: 'Producción audiovisual profesional',
+        badge: 'Evento',
         image: 'images/2ULI08.jpeg',
-        alt: 'Graduaciones',
-        intro: 'Momentos de triunfo inmortalizados con estilo y emoción.',
-        text: 'Capturamos la alegría del día de graduación con cobertura documental y fotografía artística. Creamos piezas que resaltan el logro, la familia y la celebración de cada graduado.',
+        alt: 'Evento',
+        intro: 'Descubre la historia y los momentos más importantes de este evento.',
+        text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
         gallery: [
-          { img: 'images/2ULI08.jpeg', alt: 'Graduación en el escenario' },
-          { img: 'images/2UL0.jpeg', alt: 'Familia celebrando' },
-          { img: 'images/2ULI3.jpeg', alt: 'Recibiendo diploma' },
-          { img: 'images/2ULI06.jpeg', alt: 'Momentos de alegría' },
-          { img: 'images/2ULI11.jpeg', alt: 'Fotos con amigos' },
-          { img: 'images/2ULI5.jpeg', alt: 'Celebración' }
+          { img: 'images/2ULI08.jpeg', alt: 'Evento' },
+          { img: 'images/2UL0.jpeg', alt: 'Evento' },
+          { img: 'images/2ULI3.jpeg', alt: 'Evento' },
+          { img: 'images/2ULI06.jpeg', alt: 'Evento' },
+          { img: 'images/2ULI11.jpeg', alt: 'Evento' },
+          { img: 'images/2ULI5.jpeg', alt: 'Evento' }
         ]
       }
     };
 
-    const params = new URLSearchParams(window.location.search);
-    const key = params.get('evento') || 'bodas';
-    const detail = details[key] || details.bodas;
+    function setFallbackState(message, titleText) {
+      if (detailPageTitle) {
+        detailPageTitle.textContent = titleText || 'Evento no encontrado';
+      }
 
-    document.getElementById('detailTitle').textContent = detail.title;
-    document.getElementById('overlayTitle').textContent = detail.title;
-    document.getElementById('detailTag').textContent = detail.tag;
-    document.getElementById('detailIntro').textContent = detail.intro;
-    document.getElementById('detailText').textContent = detail.text;
-    document.getElementById('detailBadge').textContent = detail.badge;
+      if (detailPageSubtitle) {
+        detailPageSubtitle.textContent = message;
+      }
 
-    const detailImg = document.getElementById('detailImg');
-    detailImg.src = detail.image;
-    detailImg.alt = detail.alt;
+      if (detailTitle) {
+        detailTitle.textContent = titleText || 'Evento no encontrado';
+      }
 
-    // BANNER RESPONSIVE - Adaptación visual para móviles, tablets y desktop
-    // ========================================
-    
+      if (overlayTitle) {
+        overlayTitle.textContent = titleText || 'Evento no encontrado';
+      }
+
+      if (detailTag) {
+        detailTag.textContent = 'Producción audiovisual profesional';
+      }
+
+      if (detailIntro) {
+        detailIntro.textContent = message;
+      }
+
+      if (detailText) {
+        detailText.textContent = 'No se pudo cargar la información de este evento.';
+      }
+
+      if (detailBadge) {
+        detailBadge.textContent = titleText || 'Evento';
+      }
+
+      if (detailImg) {
+        detailImg.src = 'images/next.jpeg';
+        detailImg.alt = titleText || 'Evento no encontrado';
+      }
+
+      if (galleryGrid) {
+        galleryGrid.innerHTML = '';
+      }
+
+      if (eventGallery) {
+        eventGallery.classList.add('hidden');
+      }
+
+      if (detailTextBox) {
+        detailTextBox.classList.remove('hidden');
+      }
+    }
+
+    function formatDate(value) {
+      if (!value) {
+        return '';
+      }
+
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return '';
+      }
+
+      return date.toLocaleDateString('es-SV', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function getYouTubeVideoId(videoUrl) {
+      if (!videoUrl || typeof videoUrl !== 'string') {
+        return null;
+      }
+
+      try {
+        const url = new URL(videoUrl);
+        const host = url.hostname.toLowerCase().replace(/^www\./, '');
+
+        if (host === 'youtu.be') {
+          const videoId = url.pathname.replace('/', '').split('/')[0];
+          return videoId || null;
+        }
+
+        if (host.includes('youtube.com')) {
+          const videoId = url.searchParams.get('v');
+          if (videoId) {
+            return videoId;
+          }
+
+          const pathname = url.pathname.replace(/\/+$/, '');
+          const shortMatch = pathname.match(/\/(?:shorts|embed|live)\/([^/?#]+)/);
+          if (shortMatch) {
+            return shortMatch[1];
+          }
+        }
+      } catch (error) {
+        return null;
+      }
+
+      return null;
+    }
+
+    function getVideoEmbedUrl(videoUrl) {
+      if (!videoUrl || typeof videoUrl !== 'string') {
+        return null;
+      }
+
+      const videoId = getYouTubeVideoId(videoUrl);
+      if (videoId) {
+        return `https://www.youtube.com/embed/${videoId}`;
+      }
+
+      try {
+        const url = new URL(videoUrl);
+        const host = url.hostname.toLowerCase().replace(/^www\./, '');
+
+        if (host.includes('vimeo.com')) {
+          const match = url.pathname.match(/\/([0-9]+)/);
+          if (match) {
+            return `https://player.vimeo.com/video/${match[1]}`;
+          }
+        }
+      } catch (error) {
+        return null;
+      }
+
+      return null;
+    }
+
+    function renderVideo(videoUrl, container = videoContainer) {
+      if (!container) {
+        return;
+      }
+
+      const currentVideo = container.querySelector('.detail-video');
+      if (currentVideo) {
+        currentVideo.remove();
+      }
+
+      if (!videoUrl || typeof videoUrl !== 'string' || !videoUrl.trim()) {
+        return;
+      }
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'detail-video';
+      wrapper.style.position = 'relative';
+      wrapper.style.width = '100%';
+      wrapper.style.maxWidth = '100%';
+      wrapper.style.aspectRatio = '16 / 9';
+      wrapper.style.borderRadius = '12px';
+      wrapper.style.overflow = 'hidden';
+      wrapper.style.background = '#111827';
+      wrapper.style.boxShadow = '0 10px 30px rgba(17, 24, 39, 0.22)';
+
+      const embedUrl = getVideoEmbedUrl(videoUrl);
+
+      if (embedUrl) {
+        const iframe = document.createElement('iframe');
+        iframe.src = embedUrl;
+        iframe.title = 'Video del evento';
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        iframe.allowFullscreen = true;
+        iframe.loading = 'lazy';
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = '0';
+        wrapper.appendChild(iframe);
+      } else {
+        const link = document.createElement('a');
+        link.href = videoUrl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = 'Ver video del evento';
+        link.style.display = 'inline-flex';
+        link.style.alignItems = 'center';
+        link.style.justifyContent = 'center';
+        link.style.width = '100%';
+        link.style.height = '100%';
+        link.style.padding = '0.85rem 1rem';
+        link.style.borderRadius = '10px';
+        link.style.background = '#111827';
+        link.style.color = '#fff';
+        link.style.textDecoration = 'none';
+        link.style.fontWeight = '600';
+        wrapper.appendChild(link);
+      }
+
+      container.appendChild(wrapper);
+    }
+
+    function normalizeAdditionalImages(images, mainImageUrl) {
+      if (!images) {
+        return [];
+      }
+
+      let parsedImages = images;
+      if (typeof parsedImages === 'string') {
+        try {
+          parsedImages = JSON.parse(parsedImages);
+        } catch (error) {
+          parsedImages = [];
+        }
+      }
+
+      if (!Array.isArray(parsedImages)) {
+        return [];
+      }
+
+      const mainUrl = typeof mainImageUrl === 'string' ? mainImageUrl.trim() : '';
+
+      return parsedImages
+        .map((item) => {
+          if (typeof item === 'string') {
+            return item.trim();
+          }
+
+          if (item && typeof item === 'object') {
+            return (item.img || item.url || item.src || '').trim();
+          }
+
+          return '';
+        })
+        .filter((url) => {
+          if (!url) {
+            return false;
+          }
+
+          return url !== mainUrl;
+        });
+    }
+
+    function renderGallery(items) {
+      if (!galleryGrid || !eventGallery) {
+        return;
+      }
+
+      galleryGrid.innerHTML = '';
+
+      if (!Array.isArray(items) || !items.length) {
+        eventGallery.classList.add('hidden');
+        return;
+      }
+
+      items.forEach((item, index) => {
+        const imgSrc = typeof item === 'string' ? item : (item && item.img) || '';
+        const altText = typeof item === 'string' ? 'Imagen del evento' : (item && item.alt) || 'Imagen del evento';
+
+        if (!imgSrc) {
+          return;
+        }
+
+        const card = document.createElement('a');
+        card.href = '#';
+        card.className = 'gallery-card';
+
+        if (index === 0) {
+          card.classList.add('large');
+        }
+        if (index === 1 || index === 2) {
+          card.classList.add('medium');
+        }
+        if (index === 3) {
+          card.classList.add('wide');
+        }
+
+        card.innerHTML = `
+          <img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(altText)}">
+          <div class="gallery-overlay">
+            <span>Galería</span>
+            <h3>${escapeHtml(altText)}</h3>
+          </div>
+        `;
+
+        galleryGrid.appendChild(card);
+      });
+
+      eventGallery.classList.remove('hidden');
+    }
+
+    function clearExtraSections() {
+      if (videoContainer) {
+        videoContainer.innerHTML = '';
+      }
+
+      if (galleryGrid) {
+        galleryGrid.innerHTML = '';
+      }
+
+      if (eventVideo) {
+        eventVideo.classList.add('hidden');
+      }
+
+      if (eventGallery) {
+        eventGallery.classList.add('hidden');
+      }
+    }
+
+    function updateDynamicSectionTitles(publication) {
+      if (!publication) {
+        return;
+      }
+
+      const title = publication.titulo || 'Evento';
+
+      if (galleryTitle) {
+        galleryTitle.textContent = `Galería - ${title}`;
+      }
+
+      if (gallerySubtitle) {
+        gallerySubtitle.textContent = `Descubre más imágenes de ${title}.`;
+      }
+    }
+
+    function fillPublication(publication) {
+      currentPublication = publication;
+
+      const title = publication.titulo || 'Evento';
+      const description = publication.descripcion || 'Sin descripción disponible.';
+      const imageUrl = publication.imagen_url || 'images/next.jpeg';
+      const formattedDate = formatDate(publication.fecha_evento);
+
+      if (detailPageTitle) {
+        detailPageTitle.textContent = title;
+      }
+
+      if (detailPageSubtitle) {
+        detailPageSubtitle.textContent = formattedDate
+          ? `Fecha: ${formattedDate} • Descubre la descripción completa para ${title}.`
+          : `Descubre la descripción completa para ${title}.`;
+      }
+
+      if (detailTitle) {
+        detailTitle.textContent = title;
+      }
+
+      if (overlayTitle) {
+        overlayTitle.textContent = title;
+      }
+
+      if (detailTag) {
+        detailTag.textContent = 'Producción audiovisual profesional';
+      }
+
+      if (detailIntro) {
+        detailIntro.textContent = description;
+      }
+
+      if (detailText) {
+        detailText.textContent = description;
+      }
+
+      if (detailBadge) {
+        detailBadge.textContent = title;
+      }
+
+      if (detailImg) {
+        detailImg.src = imageUrl;
+        detailImg.alt = title;
+      }
+
+      updateDynamicSectionTitles(publication);
+
+      if (galleryGrid) {
+        galleryGrid.innerHTML = '';
+      }
+
+      if (videoContainer) {
+        videoContainer.innerHTML = '';
+      }
+
+      if (eventVideo) {
+        eventVideo.classList.add('hidden');
+      }
+
+      if (eventGallery) {
+        eventGallery.classList.add('hidden');
+      }
+
+      if (detailTextBox) {
+        detailTextBox.classList.remove('hidden');
+      }
+
+      document.title = `${title} | Next Level Producciones`;
+    }
+
+    function loadLegacyEvent(key) {
+      const fallbackEntry = legacyCatalog[key] || legacyCatalog.evento;
+      if (!fallbackEntry) {
+        return false;
+      }
+
+      const title = fallbackEntry.title;
+      const description = fallbackEntry.text;
+      const imageUrl = fallbackEntry.image;
+
+      if (detailPageTitle) {
+        detailPageTitle.textContent = title;
+      }
+
+      if (detailPageSubtitle) {
+        detailPageSubtitle.textContent = `Descubre la descripción completa para ${title}.`;
+      }
+
+      if (detailTitle) {
+        detailTitle.textContent = title;
+      }
+
+      if (overlayTitle) {
+        overlayTitle.textContent = title;
+      }
+
+      if (detailTag) {
+        detailTag.textContent = fallbackEntry.tag;
+      }
+
+      if (detailIntro) {
+        detailIntro.textContent = fallbackEntry.intro;
+      }
+
+      if (detailText) {
+        detailText.textContent = description;
+      }
+
+      if (detailBadge) {
+        detailBadge.textContent = fallbackEntry.badge;
+      }
+
+      if (detailImg) {
+        detailImg.src = imageUrl;
+        detailImg.alt = fallbackEntry.alt;
+      }
+
+      document.title = `${title} | Next Level Producciones`;
+      renderGallery(fallbackEntry.gallery || []);
+      return true;
+    }
+
+    async function loadPublicationFromSupabase() {
+      if (!publicationId) {
+        return false;
+      }
+
+      try {
+        if (!window.APP_CONFIG || !window.APP_CONFIG.SUPABASE_URL) {
+          throw new Error('APP_CONFIG no está definido.');
+        }
+
+        if (!window.supabase || !window.supabase.createClient) {
+          throw new Error('Supabase SDK no disponible.');
+        }
+
+        if (!window.supabaseClient) {
+          window.supabaseClient = window.supabase.createClient(
+            window.APP_CONFIG.SUPABASE_URL,
+            window.APP_CONFIG.SUPABASE_ANON_KEY
+          );
+        }
+
+        const { data, error } = await window.supabaseClient
+          .from(window.APP_CONFIG.TABLES.PUBLICACIONES)
+          .select('id,titulo,descripcion,imagen_url,imagenes_adicionales,video_url,fecha_evento,estado')
+          .eq('id', publicationId)
+          .eq('estado', 'publicado')
+          .maybeSingle();
+
+        if (error) {
+          throw error;
+        }
+
+        if (!data) {
+          return false;
+        }
+
+        fillPublication(data);
+        return true;
+      } catch (error) {
+        console.error('Error cargando detalle del evento desde Supabase:', error);
+        return false;
+      }
+    }
+
+    async function initializeDetail() {
+      if (publicationId) {
+        const loaded = await loadPublicationFromSupabase();
+        if (loaded) {
+          return;
+        }
+        setFallbackState('Este evento no está disponible o no está publicado.');
+        return;
+      }
+
+      if (legacyEventKey) {
+        const loaded = loadLegacyEvent(legacyEventKey);
+        if (loaded) {
+          return;
+        }
+      }
+
+      setFallbackState('No se encontró el evento solicitado.');
+    }
+
+    initializeDetail();
+
     function applyBannerResponsiveStyles() {
       const screenWidth = window.innerWidth;
       const detailMedia = document.querySelector('.detail-page .detail-media');
       const overlayContent = document.querySelector('.overlay-content');
-      const overlayTitle = document.getElementById('overlayTitle');
-      const verGaleriaBtn = document.getElementById('verGaleriaBtn');
+      const overlayTitleElement = document.getElementById('overlayTitle');
+      const verGaleriaButton = document.getElementById('verGaleriaBtn');
       const overlayLogo = document.querySelector('.overlay-logo');
       const overlayLogoImg = document.querySelector('.overlay-logo img');
-      
-      if (!detailMedia || !overlayContent || !overlayTitle || !verGaleriaBtn) return;
-      
-      // Establecer clase base
+
+      if (!detailMedia || !overlayContent || !overlayTitleElement || !verGaleriaButton) {
+        return;
+      }
+
       detailMedia.classList.add('has-overlay-logo');
-      
-      // Configurar responsive según ancho de pantalla
-      let titleFontSize, btnFontSize, btnPadding, logoWidth, logoMargin, contentGap;
-      
+
+      let titleFontSize;
+      let btnFontSize;
+      let btnPadding;
+      let logoWidth;
+      let logoMargin;
+      let contentGap;
+
       if (screenWidth < 480) {
-        // Móviles pequeños (< 480px)
         titleFontSize = '24px';
         btnFontSize = '13px';
         btnPadding = '10px 20px';
@@ -248,7 +791,6 @@
         logoMargin = '12px 0';
         contentGap = '12px';
       } else if (screenWidth < 768) {
-        // Móviles (480px - 768px)
         titleFontSize = '32px';
         btnFontSize = '14px';
         btnPadding = '12px 24px';
@@ -256,7 +798,6 @@
         logoMargin = '14px 0';
         contentGap = '14px';
       } else if (screenWidth < 1024) {
-        // Tablets (768px - 1024px)
         titleFontSize = '48px';
         btnFontSize = '15px';
         btnPadding = '14px 32px';
@@ -264,7 +805,6 @@
         logoMargin = '16px 0';
         contentGap = '16px';
       } else {
-        // Desktop (> 1024px)
         titleFontSize = '56px';
         btnFontSize = '16px';
         btnPadding = '16px 40px';
@@ -272,33 +812,29 @@
         logoMargin = '18px 0';
         contentGap = '18px';
       }
-      
-      // Aplicar estilos al título
-      overlayTitle.style.fontSize = titleFontSize;
-      overlayTitle.style.fontWeight = '700';
-      overlayTitle.style.lineHeight = '1.2';
-      overlayTitle.style.textAlign = 'center';
-      overlayTitle.style.color = 'white';
-      overlayTitle.style.textShadow = '0 2px 8px rgba(0, 0, 0, 0.5)';
-      overlayTitle.style.wordWrap = 'break-word';
-      overlayTitle.style.margin = '0';
-      
-      // Aplicar estilos al botón
-      verGaleriaBtn.style.fontSize = btnFontSize;
-      verGaleriaBtn.style.padding = btnPadding;
-      verGaleriaBtn.style.whiteSpace = 'nowrap';
-      verGaleriaBtn.style.display = 'inline-block';
-      verGaleriaBtn.style.minWidth = '140px';
-      verGaleriaBtn.style.textAlign = 'center';
-      
-      // Aplicar estilos al contenedor del overlay
+
+      overlayTitleElement.style.fontSize = titleFontSize;
+      overlayTitleElement.style.fontWeight = '700';
+      overlayTitleElement.style.lineHeight = '1.2';
+      overlayTitleElement.style.textAlign = 'center';
+      overlayTitleElement.style.color = 'white';
+      overlayTitleElement.style.textShadow = '0 2px 8px rgba(0, 0, 0, 0.5)';
+      overlayTitleElement.style.wordWrap = 'break-word';
+      overlayTitleElement.style.margin = '0';
+
+      verGaleriaButton.style.fontSize = btnFontSize;
+      verGaleriaButton.style.padding = btnPadding;
+      verGaleriaButton.style.whiteSpace = 'nowrap';
+      verGaleriaButton.style.display = 'inline-block';
+      verGaleriaButton.style.minWidth = '140px';
+      verGaleriaButton.style.textAlign = 'center';
+
       overlayContent.style.display = 'flex';
       overlayContent.style.flexDirection = 'column';
       overlayContent.style.alignItems = 'center';
       overlayContent.style.justifyContent = 'center';
       overlayContent.style.gap = contentGap;
-      
-      // Aplicar estilos al logo
+
       if (overlayLogo) {
         overlayLogo.style.display = 'flex';
         overlayLogo.style.justifyContent = 'center';
@@ -306,8 +842,7 @@
         overlayLogo.style.margin = logoMargin;
         overlayLogo.style.gap = contentGap;
       }
-      
-      // Aplicar estilos a la imagen del logo
+
       if (overlayLogoImg) {
         overlayLogoImg.setAttribute('aria-hidden', 'true');
         overlayLogoImg.style.width = logoWidth;
@@ -316,62 +851,64 @@
         overlayLogoImg.style.objectFit = 'contain';
       }
     }
-    
-    // Aplicar estilos responsive al cargar la página
+
     applyBannerResponsiveStyles();
-    
-    // Reaplica estilos responsive al cambiar el tamaño de la ventana (con debounce)
+
     let resizeTimer;
-    window.addEventListener('resize', function() {
+    window.addEventListener('resize', function () {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(function() {
+      resizeTimer = setTimeout(function () {
         applyBannerResponsiveStyles();
       }, 250);
     });
 
-    document.getElementById('detailPageTitle').textContent = detail.title;
-    document.getElementById('detailPageSubtitle').textContent = `Descubre la descripción completa para ${detail.title}.`;
-    document.getElementById('galleryTitle').textContent = `Galería - ${detail.title}`;
-    document.title = `${detail.title} | Next Level Producciones`;
+    if (verGaleriaBtn && eventGallery && eventVideo && detailTextBox) {
+      verGaleriaBtn.addEventListener('click', function (event) {
+        event.preventDefault();
 
-    // Cargar galería
-    const galleryGrid = document.getElementById('galleryGrid');
-    detail.gallery.forEach((item, index) => {
-      const card = document.createElement('a');
-      card.href = '#';
-      card.className = 'gallery-card';
-      if (index === 0) card.classList.add('large');
-      if (index === 1 || index === 2) card.classList.add('medium');
-      if (index === 3) card.classList.add('wide');
-      
-      card.innerHTML = `
-        <img src="${item.img}" alt="${item.alt}">
-        <div class="gallery-overlay">
-          <span>Galería</span>
-          <h3>${item.alt}</h3>
-        </div>
-      `;
-      
-      galleryGrid.appendChild(card);
-    });
+        const hasVideo = Boolean(currentPublication && currentPublication.video_url && String(currentPublication.video_url).trim());
+        const additionalImages = currentPublication
+          ? normalizeAdditionalImages(currentPublication.imagenes_adicionales, currentPublication.imagen_url)
+          : [];
+        const hasImages = Array.isArray(additionalImages) && additionalImages.length > 0;
 
-    // Manejar botón Ver Galería
-    const verGaleriaBtn = document.getElementById('verGaleriaBtn');
-    const eventGallery = document.getElementById('event-gallery');
-    const detailTextBox = document.getElementById('detailTextBox');
+        if (eventGallery.classList.contains('hidden') && eventVideo.classList.contains('hidden')) {
+          if (!hasVideo && !hasImages) {
+            return;
+          }
 
-    verGaleriaBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      eventGallery.classList.toggle('hidden');
-      detailTextBox.classList.toggle('hidden');
-      
-      // Scroll a la galería si se abre
-      if (!eventGallery.classList.contains('hidden')) {
-        setTimeout(() => {
-          eventGallery.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
-      }
-    });
+          if (hasVideo) {
+            eventVideo.classList.remove('hidden');
+            renderVideo(currentPublication.video_url, videoContainer);
+          } else {
+            eventVideo.classList.add('hidden');
+            if (videoContainer) {
+              videoContainer.innerHTML = '';
+            }
+          }
+
+          if (hasImages) {
+            eventGallery.classList.remove('hidden');
+            renderGallery(additionalImages);
+          } else {
+            eventGallery.classList.add('hidden');
+            if (galleryGrid) {
+              galleryGrid.innerHTML = '';
+            }
+          }
+
+          setTimeout(function () {
+            const targetSection = hasVideo ? eventVideo : eventGallery;
+            if (targetSection) {
+              targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }, 100);
+          return;
+        }
+
+        clearExtraSections();
+      });
+    }
   });
 </script>
 
