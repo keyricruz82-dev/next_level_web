@@ -2,6 +2,85 @@ window.PublicacionesService = (function createPublicacionesService() {
     const tableName = window.APP_CONFIG.TABLES.PUBLICACIONES;
     const bucketName = window.APP_CONFIG.STORAGE.PUBLICACIONES_BUCKET;
 
+    function createImageElementFromFile(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onload = () => {
+                const img = new Image();
+
+                img.onload = () => resolve(img);
+                img.onerror = () => reject(new Error("No se pudo procesar la imagen."));
+                img.src = reader.result;
+            };
+
+            reader.onerror = () => reject(new Error("No se pudo leer la imagen."));
+            reader.readAsDataURL(file);
+        });
+    }
+
+    async function optimizeImageFile(file, maxDimension = 1600, quality = 0.8) {
+        if (!file || !(file instanceof File) || !file.type || !file.type.startsWith("image/")) {
+            return file;
+        }
+
+        if (file.size <= 700 * 1024) {
+            return file;
+        }
+
+        let objectUrl = "";
+
+        try {
+            objectUrl = URL.createObjectURL(file);
+            const img = await createImageElementFromFile(file);
+            const width = img.width;
+            const height = img.height;
+            const scale = Math.min(1, maxDimension / Math.max(width, height));
+
+            if (scale >= 1) {
+                return file;
+            }
+
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.max(1, Math.round(width * scale));
+            canvas.height = Math.max(1, Math.round(height * scale));
+
+            const context = canvas.getContext("2d");
+            if (!context) {
+                return file;
+            }
+
+            context.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            const outputType = file.type === "image/webp" ? "image/webp" : "image/jpeg";
+            const blob = await new Promise((resolve) => {
+                canvas.toBlob(resolve, outputType, quality);
+            });
+
+            if (!blob) {
+                return file;
+            }
+
+            const optimizedFile = new File(
+                [blob],
+                file.name.replace(/\.[^/.]+$/, ".jpg"),
+                {
+                    type: outputType,
+                    lastModified: Date.now()
+                }
+            );
+
+            return optimizedFile.size < file.size ? optimizedFile : file;
+        } catch (error) {
+            console.warn("No se pudo optimizar la imagen; se conserva el original:", error);
+            return file;
+        } finally {
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl);
+            }
+        }
+    }
+
     function normalizePublicacion(row) {
         return {
             id: row.id,
@@ -53,28 +132,68 @@ window.PublicacionesService = (function createPublicacionesService() {
             return { publicUrl: "" };
         }
 
-        const imagePath = buildImagePath(file.name);
+        const originalFile = file;
+        const optimizedFile = await optimizeImageFile(file);
 
-        const { error: uploadError } = await window.supabaseClient
-            .storage
-            .from(bucketName)
-            .upload(imagePath, file, {
-                cacheControl: "3600",
-                upsert: false
-            });
+        console.log("[uploadImage] tamaño original:", originalFile.size);
+        console.log("[uploadImage] mime original:", originalFile.type || "unknown");
+        console.log("[uploadImage] tamaño optimizado:", optimizedFile.size);
+        console.log("[uploadImage] mime optimizado:", optimizedFile.type || "unknown");
 
-        if (uploadError) {
-            throw uploadError;
+        const imagePath = buildImagePath(optimizedFile.name || originalFile.name);
+
+        try {
+            const { error: uploadError } = await window.supabaseClient
+                .storage
+                .from(bucketName)
+                .upload(imagePath, optimizedFile, {
+                    cacheControl: "3600",
+                    upsert: false
+                });
+
+            console.log("[uploadImage] resultado intento optimizado:", uploadError ? "error" : "ok");
+
+            if (uploadError) {
+                console.error("[uploadImage] falló archivo optimizado:", uploadError);
+
+                const fallbackPath = buildImagePath(originalFile.name);
+                const { error: fallbackError } = await window.supabaseClient
+                    .storage
+                    .from(bucketName)
+                    .upload(fallbackPath, originalFile, {
+                        cacheControl: "3600",
+                        upsert: false
+                    });
+
+                console.log("[uploadImage] resultado fallback original:", fallbackError ? "error" : "ok");
+
+                if (fallbackError) {
+                    console.error("[uploadImage] falló archivo original:", fallbackError);
+                    throw fallbackError;
+                }
+
+                const { data: fallbackData } = window.supabaseClient
+                    .storage
+                    .from(bucketName)
+                    .getPublicUrl(fallbackPath);
+
+                return {
+                    publicUrl: fallbackData.publicUrl
+                };
+            }
+
+            const { data } = window.supabaseClient
+                .storage
+                .from(bucketName)
+                .getPublicUrl(imagePath);
+
+            return {
+                publicUrl: data.publicUrl
+            };
+        } catch (error) {
+            console.error("[uploadImage] error inesperado en upload:", error);
+            throw error;
         }
-
-        const { data } = window.supabaseClient
-            .storage
-            .from(bucketName)
-            .getPublicUrl(imagePath);
-
-        return {
-            publicUrl: data.publicUrl
-        };
     }
 
     async function uploadAdditionalImages(files) {
@@ -286,7 +405,8 @@ window.PublicacionesService = (function createPublicacionesService() {
         imageFile,
         existingImageUrl,
         additionalImageFiles = [],
-        existingAdditionalImages = []
+        existingAdditionalImages = [],
+        removedAdditionalImageUrls = []
     ) {
         let imageUrl = existingImageUrl || "";
         let newAdditionalImageUrls = [];
@@ -351,6 +471,10 @@ window.PublicacionesService = (function createPublicacionesService() {
                 existingImageUrl !== imageUrl
             ) {
                 await removeImageByUrl(existingImageUrl);
+            }
+
+            if (Array.isArray(removedAdditionalImageUrls) && removedAdditionalImageUrls.length > 0) {
+                await removeImagesByUrls(removedAdditionalImageUrls);
             }
 
             return normalizePublicacion(data);

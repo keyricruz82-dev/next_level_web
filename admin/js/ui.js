@@ -229,7 +229,7 @@ window.UI = (function createUI() {
                     <p class="text-secondary">Esta seccion esta lista para ampliar el CMS en futuras fases.</p>
                     <ul class="mb-0 text-secondary">
                         <li>Galeria de imagenes</li>
-                        <li>Productos</li>
+                        <li>Servicios</li>
                         <li>Eventos</li>
                         <li>Configuracion general del sitio</li>
                         <li>Nuevos modulos administrativos</li>

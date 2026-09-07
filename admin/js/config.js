@@ -7,7 +7,9 @@ window.APP_CONFIG = {
 	ADMIN_EMAIL: "info@nextlevelproducciones.net",
 
 	TABLES: {
-		PUBLICACIONES: "publicaciones"
+		PUBLICACIONES: "publicaciones",
+		PRODUCTOS: "productos",
+		SITE_MEDIA: "site_media"
 	},
 
 	STORAGE: {

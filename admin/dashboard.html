@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
+    <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" aria-live="polite" aria-atomic="true"></div>
+
     <div id="dashboardApp" class="admin-shell">
         <header class="topbar border-bottom bg-white">
             <div class="container-fluid d-flex align-items-center justify-content-between py-2 px-3 px-lg-4">
@@ -41,8 +43,11 @@
                     <p class="sidebar-copy mb-0">Gestiona el contenido privado de Next Level Producciones.</p>
                 </div>
                 <nav class="nav flex-column p-3 gap-2">
-                    <button class="btn sidebar-link active" data-view="publicaciones" type="button">Publicaciones</button>
-                    <button id="logoutSidebar" class="btn sidebar-link text-danger mt-2" type="button">Cerrar sesion</button>
+                    <button class="btn sidebar-link active" data-view="inicio" type="button"> Inicio </button>
+                    <button class="btn sidebar-link" data-view="publicaciones" type="button"> Publicaciones </button>
+                    <button class="btn sidebar-link" data-view="productos" type="button"> Servicios </button>
+                    <button class="btn sidebar-link" data-view="quienes-somos" type="button"> Quiénes Somos </button>
+                    <button id="logoutSidebar" class="btn sidebar-link text-danger mt-2" type="button"> Cerrar sesión </button>
                 </nav>
             </aside>
 
@@ -124,6 +129,7 @@
 
                             <div class="col-12">
                                 <p class="mb-2 small text-secondary">Vista previa de imágenes adicionales</p>
+                                <div id="additionalImagesSummary" class="small text-secondary mb-2">Imágenes guardadas: 0 · Nuevas seleccionadas: 0 · En eliminación: 0</div>
                                 <div id="additionalImagesPreview" class="d-flex flex-wrap gap-2"></div>
                             </div>
                         </div>
@@ -141,12 +147,208 @@
         </div>
     </div>
 
+    <div class="modal fade" id="productoModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <form id="productoForm" novalidate>
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="productoModalLabel">Nuevo servicio</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" id="productoCloseButton"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <input type="hidden" id="productoId">
+                        <input type="hidden" id="existingProductoImageUrl">
+
+                        <div id="productoFormError" class="alert alert-danger d-none" role="alert"></div>
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="productoTitulo" class="form-label">Titulo</label>
+                                <input type="text" id="productoTitulo" class="form-control" maxlength="160" required>
+                                <div class="invalid-feedback">El titulo es obligatorio.</div>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="productoDescripcion" class="form-label">Descripcion</label>
+                                <textarea id="productoDescripcion" class="form-control" rows="5" maxlength="1200" required></textarea>
+                                <div class="invalid-feedback">La descripcion es obligatoria.</div>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="productoImagen" class="form-label">Imagen del servicio</label>
+                                <input type="file" id="productoImagen" class="form-control" accept="image/jpeg,image/png,image/webp">
+                                <div class="form-text text-secondary">Selecciona una imagen JPG, PNG o WebP. Solo se permite una imagen.</div>
+                                <div class="invalid-feedback">La imagen principal es obligatoria.</div>
+                            </div>
+
+                            <div id="productoImagePreviewWrapper" class="col-12 d-none">
+                                <p class="mb-2 small text-secondary">Vista previa de la imagen del servicio</p>
+                                <img id="productoImagePreview" src="" alt="Vista previa de la imagen del servicio" class="img-fluid rounded border" style="max-height:220px;">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="productoTextoBadge" class="form-label">Texto del badge</label>
+                                <input type="text" id="productoTextoBadge" class="form-control" maxlength="80" placeholder="Evento">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="productoTextoMeta" class="form-label">Texto meta</label>
+                                <input type="text" id="productoTextoMeta" class="form-control" maxlength="80" placeholder="Haga su reserva">
+                            </div>
+
+                            <div class="col-12 mt-2">
+                                <div class="border rounded p-3 bg-light-subtle">
+                                    <h6 class="mb-3">Diseño del texto</h6>
+                                    <div id="productoTextPreview" class="border rounded p-3 bg-white">
+                                        <div id="productoPreviewTitulo" style="text-align:left; font-size:1.4rem; font-weight:800; color:#111827;">Título de ejemplo</div>
+                                        <div id="productoPreviewDescripcion" style="text-align:left; font-size:1rem; font-weight:400; color:#4b5563; margin-top:0.5rem;">Descripción de ejemplo</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <h6 class="mb-2">Título</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <label for="productoTituloFuente" class="form-label small">Tipo de letra</label>
+                                        <select id="productoTituloFuente" class="form-select">
+                                            <option value="">Sin personalizar</option>
+                                            <option value="'Poppins', sans-serif">Poppins</option>
+                                            <option value="'Inter', sans-serif">Inter</option>
+                                            <option value="Georgia, 'Times New Roman', serif">Georgia</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label for="productoTituloAlineacion" class="form-label small">Alineación</label>
+                                        <select id="productoTituloAlineacion" class="form-select">
+                                            <option value="">Sin personalizar</option>
+                                            <option value="left">Izquierda</option>
+                                            <option value="center">Centro</option>
+                                            <option value="right">Derecha</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label for="productoTituloTamano" class="form-label small">Tamaño</label>
+                                        <select id="productoTituloTamano" class="form-select">
+                                            <option value="">Sin personalizar</option>
+                                            <option value="small">Pequeño</option>
+                                            <option value="medium">Mediano</option>
+                                            <option value="large">Grande</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label for="productoTituloPeso" class="form-label small">Peso</label>
+                                        <select id="productoTituloPeso" class="form-select">
+                                            <option value="">Sin personalizar</option>
+                                            <option value="normal">Normal</option>
+                                            <option value="semibold">Seminegrita</option>
+                                            <option value="bold">Negrita</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label for="productoTituloEstilo" class="form-label small">Estilo</label>
+                                        <select id="productoTituloEstilo" class="form-select">
+                                            <option value="">Sin personalizar</option>
+                                            <option value="normal">Normal</option>
+                                            <option value="italic">Cursiva</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label for="productoTituloColor" class="form-label small">Color</label>
+                                        <input type="color" id="productoTituloColor" class="form-control form-control-color" value="#111827" title="Color del título">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <h6 class="mb-2">Descripción</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <label for="productoDescripcionFuente" class="form-label small">Tipo de letra</label>
+                                        <select id="productoDescripcionFuente" class="form-select">
+                                            <option value="">Sin personalizar</option>
+                                            <option value="'Poppins', sans-serif">Poppins</option>
+                                            <option value="'Inter', sans-serif">Inter</option>
+                                            <option value="Georgia, 'Times New Roman', serif">Georgia</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label for="productoDescripcionAlineacion" class="form-label small">Alineación</label>
+                                        <select id="productoDescripcionAlineacion" class="form-select">
+                                            <option value="">Sin personalizar</option>
+                                            <option value="left">Izquierda</option>
+                                            <option value="center">Centro</option>
+                                            <option value="right">Derecha</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label for="productoDescripcionTamano" class="form-label small">Tamaño</label>
+                                        <select id="productoDescripcionTamano" class="form-select">
+                                            <option value="">Sin personalizar</option>
+                                            <option value="small">Pequeño</option>
+                                            <option value="medium">Mediano</option>
+                                            <option value="large">Grande</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label for="productoDescripcionPeso" class="form-label small">Peso</label>
+                                        <select id="productoDescripcionPeso" class="form-select">
+                                            <option value="">Sin personalizar</option>
+                                            <option value="normal">Normal</option>
+                                            <option value="semibold">Seminegrita</option>
+                                            <option value="bold">Negrita</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label for="productoDescripcionEstilo" class="form-label small">Estilo</label>
+                                        <select id="productoDescripcionEstilo" class="form-select">
+                                            <option value="">Sin personalizar</option>
+                                            <option value="normal">Normal</option>
+                                            <option value="italic">Cursiva</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label for="productoDescripcionColor" class="form-label small">Color</label>
+                                        <input type="color" id="productoDescripcionColor" class="form-control form-control-color" value="#4b5563" title="Color de la descripción">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="productoEstado" class="form-label">Estado</label>
+                                <select id="productoEstado" class="form-select" required>
+                                    <option value="borrador">Borrador</option>
+                                    <option value="publicado">Publicado</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="productoOrden" class="form-label">Orden</label>
+                                <input type="number" id="productoOrden" class="form-control" min="0" step="1" value="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" id="cancelProductoBtn">Cancelar</button>
+                        <button type="submit" class="btn btn-primary d-flex align-items-center gap-2" id="saveProductoBtn">
+                            <span class="spinner-border spinner-border-sm d-none" id="saveProductoSpinner" aria-hidden="true"></span>
+                            <span id="saveProductoText">Guardar servicio</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/publicaciones.js"></script>
+    <script src="js/productos.js"></script>
     <script src="js/dashboard.js"></script>
 </body>
 </html> 

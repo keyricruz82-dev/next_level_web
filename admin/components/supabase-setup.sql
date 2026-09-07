@@ -21,6 +21,25 @@ create index if not exists publicaciones_estado_fecha_evento_idx
 create index if not exists publicaciones_fecha_creacion_idx
     on public.publicaciones (fecha_creacion desc);
 
+create table if not exists public.site_media (
+    id uuid primary key default gen_random_uuid(),
+    section text not null check (section in ('curated_grid', 'promo_banner')),
+    position integer not null check (position between 1 and 4),
+    image_url text not null,
+    storage_path text not null,
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now(),
+    unique(section, position)
+);
+
+create index if not exists site_media_section_position_idx
+    on public.site_media (section, position);
+
+create index if not exists site_media_updated_at_idx
+    on public.site_media (updated_at desc);
+
+alter table public.site_media enable row level security;
+
 alter table public.publicaciones enable row level security;
 
 drop policy if exists "Public can read active publicaciones" on public.publicaciones;
@@ -103,3 +122,20 @@ using (
     bucket_id = 'publicaciones'
     and (auth.jwt() ->> 'email') = 'info@nextlevelproducciones.net'
 );
+
+-- Policies for site image metadata
+
+drop policy if exists "Public can read site media" on public.site_media;
+create policy "Public can read site media"
+on public.site_media
+for select
+to anon
+using (true);
+
+drop policy if exists "Admin can manage site media" on public.site_media;
+create policy "Admin can manage site media"
+on public.site_media
+for all
+to authenticated
+using ((auth.jwt() ->> 'email') = 'info@nextlevelproducciones.net')
+with check ((auth.jwt() ->> 'email') = 'info@nextlevelproducciones.net');
