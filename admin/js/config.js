@@ -9,7 +9,9 @@ window.APP_CONFIG = {
 	TABLES: {
 		PUBLICACIONES: "publicaciones",
 		PRODUCTOS: "productos",
-		SITE_MEDIA: "site_media"
+		SITE_MEDIA: "site_media",
+		QUIENES_SOMOS_CONFIG: "quienes_somos_config",
+		QUIENES_SOMOS_TESTIMONIOS: "quienes_somos_testimonios"
 	},
 
 	STORAGE: {

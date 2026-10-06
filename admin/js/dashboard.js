@@ -3,7 +3,7 @@
 		user: null,
 		publicaciones: [],
 		productos: [],
-		currentView: "publicaciones"
+		currentView: "inicio"
 	};
 
 	const DEFAULT_PROMO_BANNER_IMAGE = { position: 1, image_url: "images/servi.png" };
@@ -114,12 +114,7 @@
 		}
 
 		const toastId = `toast-${Date.now()}`;
-		const toneClass = type === "danger"
-			? "text-bg-danger"
-			: type === "warning"
-				? "text-bg-warning"
-				: "text-bg-success";
-
+		const toneClass = type === "danger" ? "text-bg-danger" : type === "warning" ? "text-bg-warning" : "text-bg-success";
 		const wrapper = document.createElement("div");
 		wrapper.innerHTML = `
 			<div id="${toastId}" class="toast align-items-center ${toneClass} border-0" role="status" aria-live="polite" aria-atomic="true">
@@ -251,8 +246,8 @@
 			button.classList.toggle("active", button.dataset.view === view);
 		});
 	}
-	async function navigate(view) { const validViews = 
-		[ "inicio", "publicaciones", "productos", "quienes-somos"
+	async function navigate(view) {
+    const validViews = [ "inicio", "inicio-web", "publicaciones", "productos", "quienes-somos"
     ];
 
     const targetView = validViews.includes(view)
@@ -262,9 +257,15 @@
     state.currentView = targetView;
     setActiveNav(targetView);
     refs.sidebar.classList.remove("is-open");
+    refs.contentArea.classList.remove("inicio-web-view");
 
     if (targetView === "inicio") {
         await renderInicio();
+        return;
+    }
+
+    if (targetView === "inicio-web") {
+        await renderInicioWeb();
         return;
     }
 
@@ -279,6 +280,203 @@
     }
 
     await renderPublicaciones();
+}
+
+async function renderQuienesSomos() {
+	try {
+		const [configMap, testimonials] = await Promise.all([
+			window.QuienesSomosService.listConfig().catch(() => window.QuienesSomosService.getDefaultConfig()),
+			window.QuienesSomosService.listTestimonials(true).catch(() => window.QuienesSomosService.getDefaultTestimonials())
+		]);
+
+		const values = {
+			...window.QuienesSomosService.getDefaultConfig(),
+			...configMap
+		};
+
+		const sectionFields = [
+			{
+				section: "Presentación",
+				fields: [
+					["expertise_subtitulo", "Subtítulo"],
+					["expertise_titulo", "Título"],
+					["expertise_parrafo_1", "Párrafo 1"],
+					["expertise_parrafo_2", "Párrafo 2"]
+				]
+			},
+			{
+				section: "Historia",
+				fields: [
+					["about_kicker", "Kicker"],
+					["about_titulo", "Título"],
+					["about_parrafo_1", "Párrafo 1"],
+					["about_parrafo_2", "Párrafo 2"],
+					["about_parrafo_3", "Párrafo 3"],
+					["about_video_1", "Video 1"],
+					["about_video_2", "Video 2"],
+					["about_video_3", "Video 3"]
+				]
+			},
+			{
+				section: "Nuestra energía",
+				fields: [
+					["about_banner_tag", "Tag"],
+					["about_banner_titulo", "Título"],
+					["about_banner_descripcion", "Descripción"]
+				]
+			}
+		];
+
+		const sectionsMarkup = sectionFields.map(({ section, fields }) => `
+			<div class="quienes-somos-section-card">
+				<div class="quienes-somos-section-title">${escapeHtml(section)}</div>
+				<div class="quienes-somos-grid">
+					${fields.map(([key, label]) => {
+						const inputType = key.includes("video") ? "text" : "text";
+						const isLongText = [
+							"expertise_parrafo_1",
+							"expertise_parrafo_2",
+							"about_parrafo_1",
+							"about_parrafo_2",
+							"about_parrafo_3",
+							"about_banner_descripcion"
+						].includes(key);
+
+						const control = isLongText
+							? `<textarea class="form-control" rows="4" data-quienes-config-key="${key}">${escapeHtml(values[key] || "")}</textarea>`
+							: `<input type="${inputType}" class="form-control" data-quienes-config-key="${key}" value="${escapeHtml(values[key] || "")}">`;
+
+						return `
+							<div>
+								<label class="quienes-somos-form-label">${escapeHtml(label)}</label>
+								${control}
+							</div>
+						`;
+					}).join("")}
+				</div>
+			</div>
+		`).join("");
+
+		const testimonialMarkup = [1, 2, 3].map((position) => {
+			const item = (testimonials || []).find((entry) => Number(entry.position) === position) || {
+				titulo: "",
+				nombre_ubicacion: "",
+				texto: "",
+				image_url: "",
+				position
+			};
+
+			return `
+				<div class="quienes-somos-testimonial-card">
+					<div class="quienes-somos-section-title">Testimonio ${position}</div>
+					<div class="row g-3">
+						<div class="col-12 col-md-6">
+							<label class="quienes-somos-form-label">Título</label>
+							<input type="text" class="form-control" data-quienes-testimonio-position="${position}" data-quienes-testimonio-field="titulo" value="${escapeHtml(item.titulo || "")}">
+						</div>
+						<div class="col-12 col-md-6">
+							<label class="quienes-somos-form-label">Nombre y ubicación</label>
+							<input type="text" class="form-control" data-quienes-testimonio-position="${position}" data-quienes-testimonio-field="nombre_ubicacion" value="${escapeHtml(item.nombre_ubicacion || "")}">
+						</div>
+						<div class="col-12">
+							<label class="quienes-somos-form-label">Texto</label>
+							<textarea class="form-control" rows="4" data-quienes-testimonio-position="${position}" data-quienes-testimonio-field="texto">${escapeHtml(item.texto || "")}</textarea>
+						</div>
+						<div class="col-12">
+							<label class="quienes-somos-form-label">Imagen URL</label>
+							<input type="text" class="form-control" data-quienes-testimonio-position="${position}" data-quienes-testimonio-field="image_url" value="${escapeHtml(item.image_url || "")}">
+						</div>
+					</div>
+					<div class="quienes-somos-form-actions">
+						<button class="btn btn-primary" type="button" data-action="guardar-quienes-somos-testimonio" data-position="${position}">Guardar testimonio ${position}</button>
+					</div>
+				</div>
+			`;
+		}).join("");
+
+		refs.contentArea.innerHTML = `
+			<section class="hero-panel mb-4">
+				<div class="hero-copy">
+					<p class="hero-eyebrow mb-2">NEXT LEVEL PRODUCCIONES</p>
+					<h1 class="h3 mb-2">Quiénes Somos</h1>
+					<p class="text-secondary mb-0">Actualiza la presentación, historia y testimonios de la página de Quiénes Somos.</p>
+				</div>
+				<div class="hero-actions">
+					<button class="btn btn-primary" type="button" data-action="guardar-quienes-somos">Guardar cambios</button>
+				</div>
+			</section>
+
+			<div class="quienes-somos-editor">
+				${sectionsMarkup}
+				${testimonialMarkup}
+			</div>
+		`;
+	} catch (error) {
+		console.error("Error cargando Quiénes Somos:", error);
+		refs.contentArea.innerHTML = `
+			<section class="hero-panel mb-4">
+				<div class="hero-copy">
+					<p class="hero-eyebrow mb-2">Dashboard privado</p>
+					<h1 class="h3 mb-2">Quiénes Somos</h1>
+					<p class="text-danger mb-2">No se pudo cargar la sección de Quiénes Somos.</p>
+					<p class="text-secondary mb-0">${escapeHtml(error && error.message ? error.message : "Error desconocido al consultar Supabase.")}</p>
+				</div>
+			</section>
+		`;
+	}
+}
+
+async function guardarQuienesSomosConfig() {
+	const form = refs.contentArea.querySelector("[data-quienes-config-key]");
+	if (!form) {
+		return;
+	}
+
+	const entries = {};
+	refs.contentArea.querySelectorAll("[data-quienes-config-key]").forEach((element) => {
+		const key = element.dataset.quienesConfigKey;
+		if (!key) {
+			return;
+		}
+		entries[key] = element.value;
+	});
+
+	try {
+		await window.QuienesSomosService.saveConfigEntries(entries);
+		showToast("La información de Quiénes Somos se actualizó correctamente.", "success");
+		await renderQuienesSomos();
+	} catch (error) {
+		console.error("Error guardando la configuración de Quiénes Somos:", error);
+		showToast("No se pudo guardar la información de Quiénes Somos.", "danger");
+	}
+}
+
+async function guardarQuienesSomosTestimonio(position) {
+	const targetPosition = Number(position || 0);
+	if (!targetPosition) {
+		return;
+	}
+
+	const row = refs.contentArea.querySelector(`[data-quienes-testimonio-position="${targetPosition}"]`);
+	if (!row) {
+		return;
+	}
+
+	const payload = {
+		titulo: refs.contentArea.querySelector(`[data-quienes-testimonio-position="${targetPosition}"][data-quienes-testimonio-field="titulo"]`)?.value || "",
+		nombre_ubicacion: refs.contentArea.querySelector(`[data-quienes-testimonio-position="${targetPosition}"][data-quienes-testimonio-field="nombre_ubicacion"]`)?.value || "",
+		texto: refs.contentArea.querySelector(`[data-quienes-testimonio-position="${targetPosition}"][data-quienes-testimonio-field="texto"]`)?.value || "",
+		image_url: refs.contentArea.querySelector(`[data-quienes-testimonio-position="${targetPosition}"][data-quienes-testimonio-field="image_url"]`)?.value || ""
+	};
+
+	try {
+		await window.QuienesSomosService.saveTestimonial(targetPosition, payload);
+		showToast(`El testimonio ${targetPosition} se guardó correctamente.`, "success");
+		await renderQuienesSomos();
+	} catch (error) {
+		console.error("Error guardando testimonio de Quiénes Somos:", error);
+		showToast(`No se pudo guardar el testimonio ${targetPosition}.`, "danger");
+	}
 }
 
 	function getFilteredPublicaciones() {
@@ -552,7 +750,7 @@
 					<div class="hero-panel mb-3">
 						<div class="hero-copy">
 							<p class="hero-eyebrow mb-2">Imágenes del sitio</p>
-							<h2 class="h4 mb-0">Imágenes de productos</h2>
+							<h2 class="h4 mb-0">Imágenes de servicios</h2>
 						</div>
 					</div>
 
@@ -582,9 +780,7 @@
 			console.error("Error cargando imágenes del sitio:", error);
 			return `
 				<section class="mb-4">
-					<div class="alert alert-warning mb-0" role="alert">
-						No se pudieron cargar las imágenes del sitio. Revisa la configuración de Supabase y la tabla <strong>site_media</strong>.
-					</div>
+					<div class="alert alert-warning mb-0" role="alert"> No se pudieron cargar las imágenes del sitio. Revisa la configuración de Supabase y la tabla <strong>site_media</strong>. </div>
 				</section>
 			`;
 		}
@@ -649,7 +845,7 @@
 			refs.contentArea.innerHTML = `
 				<section class="hero-panel mb-4">
 					<div class="hero-copy">
-						<p class="hero-eyebrow mb-2">Panel Administrativo privado</p>
+						<p class="hero-eyebrow mb-2">NEXT LEVEL PRODUCCIONES</p>
 						<h1 class="h3 mb-2">Servicios</h1>
 					</div>
 					<div class="hero-actions">
@@ -1017,162 +1213,1908 @@
 	}
 
 	async function renderInicio() {
+    refs.contentArea.classList.remove("inicio-web-view");
+    refs.contentArea.innerHTML = `
+        <section class="hero-panel admin-home-panel mb-4">
+            <div class="hero-copy">
+                <p class="hero-eyebrow mb-2">
+                    Panel Administrativo privado
+                </p>
+
+                <h1 class="h2 mb-3">
+                    Bienvenido
+                </h1>
+
+                <p class="text-secondary mb-0">
+                    Administra y actualiza el contenido de
+                    <strong>Next Level Producciones</strong>
+                    desde las diferentes secciones disponibles.
+                </p>
+            </div>
+        </section>
+
+        <section class="admin-home-access">
+            <div class="row g-3">
+
+                <!-- INICIO WEB -->
+                <div class="col-12 col-md-6">
+                    <button
+                        type="button"
+                        class="card admin-access-card h-100 w-100 text-start"
+                        data-action="go-inicio-web"
+                    >
+                        <div class="card-body d-flex flex-column">
+
+                            <div class="admin-access-icon">
+                                🌐
+                            </div>
+
+                            <h2 class="h5 mb-2">
+                                Inicio 
+                            </h2>
+
+                            <p class="text-secondary mb-4">
+                                Administra y actualiza el contenido
+                                de la página principal del sitio web.
+                            </p>
+
+                            <span class="admin-access-action mt-auto">
+                                Administrar página principal
+                                <span aria-hidden="true">→</span>
+                            </span>
+
+                        </div>
+                    </button>
+                </div>
+
+                <!-- PUBLICACIONES -->
+                <div class="col-12 col-md-6">
+                    <button type="button"
+                        class="card admin-access-card h-100 w-100 text-start"
+                        data-action="go-publicaciones" >
+                        <div class="card-body d-flex flex-column">
+
+                            <div class="admin-access-icon">
+                                📋
+                            </div>
+                            <h2 class="h5 mb-2"> Eventos </h2>
+                            <p class="text-secondary mb-4">
+                                Administra actividades, eventos y publicaciones.
+                            </p>
+                            <span class="admin-access-action mt-auto">
+                                Administrar Eventos
+                                <span aria-hidden="true">→</span>
+                            </span>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- SERVICIOS -->
+                <div class="col-12 col-md-6">
+                    <button type="button"
+                        class="card admin-access-card h-100 w-100 text-start"
+                        data-action="go-productos" >
+                        <div class="card-body d-flex flex-column">
+                            <div class="admin-access-icon"> 🎬 </div>
+                            <h2 class="h5 mb-2"> Servicios </h2>
+                            <p class="text-secondary mb-4">
+                                Gestiona los servicios, imágenes y contenido de esta sección.
+                            </p>
+
+                            <span class="admin-access-action mt-auto">
+                                Administrar servicios
+                                <span aria-hidden="true">→</span>
+                            </span>
+
+                        </div>
+                    </button>
+                </div>
+
+                <!-- QUIÉNES SOMOS -->
+                <div class="col-12 col-md-6">
+                    <button type="button"
+                        class="card admin-access-card h-100 w-100 text-start"
+                        data-action="go-quienes" >
+                        <div class="card-body d-flex flex-column">
+                            <div class="admin-access-icon"> 👥 </div>
+                            <h2 class="h5 mb-2"> Quiénes Somos </h2>
+                            <p class="text-secondary mb-4">
+                                Administra la información deNext Level Producciones.
+                            </p>
+
+                            <span class="admin-access-action mt-auto">
+                                Administrar información
+                                <span aria-hidden="true">→</span>
+                            </span>
+                        </div>
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <div class="section-note mt-4">
+            <span class="section-chip">
+                Next Level Producciones
+            </span>
+
+            <span class="section-chip">
+                CMS Administrativo
+            </span>
+        </div>
+    `;
+}
+async function loadInicioWebSavedTexts() {
+    const elementos = [
+        "hero_eyebrow",
+        "hero_titulo",
+        "hero_boton",
+        "banner1_tag",
+        "banner1_titulo",
+        "banner1_descripcion",
+        "banner2_tag",
+        "banner2_titulo",
+        "banner2_descripcion",
+        "galeria_titulo"
+    ];
+
+    const textos = {};
+
+    for (const elemento of elementos) {
+        try {
+            const resultado =
+                await window.InicioWebService.getText(elemento);
+
+            if (resultado?.contenido) {
+                textos[elemento] = resultado.contenido;
+            }
+        } catch (error) {
+            console.error(
+                `Error al cargar el texto de Inicio Web (${elemento}):`,
+                error
+            );
+        }
+    }
+
+    window.inicioWebSavedTexts = textos;
+
+    return textos;
+}
+
+async function renderInicioWeb() {
+    refs.contentArea.classList.add("inicio-web-view");
+    let galleryImages = [];
+    let expertiseItems = [];
+    let expertiseError = null;
+
     try {
-        const [publicationStats, productos] = await Promise.all([
-            PublicacionesService.getStats(),
-            ProductosService.list()
-        ]);
+        galleryImages = await window.InicioWebService.listGallery();
+    } catch (error) {
+        console.error("Error cargando galería de Inicio Web:", error);
+        galleryImages = [];
+    }
 
-        const totalServicios = Array.isArray(productos)
-            ? productos.length
-            : 0;
+    try {
+        expertiseItems = await window.InicioWebService.listExpertise();
+    } catch (error) {
+        console.error("Error cargando expertise de Inicio Web:", error);
+        expertiseItems = [];
+        expertiseError = error && error.message ? error.message : "No se pudo cargar la sección de Expertise.";
+    }
 
-        const serviciosPublicados = Array.isArray(productos)
-            ? productos.filter(
-                (item) => String(item.estado || "").toLowerCase() === "publicado"
-            ).length
-            : 0;
-
-        const serviciosBorrador = totalServicios - serviciosPublicados;
-
-        refs.contentArea.innerHTML = `
-            <section class="hero-panel mb-4">
-                <div class="hero-copy">
-                    <p class="hero-eyebrow mb-2">Panel Administrativo privado</p>
-                    <h1 class="h3 mb-2">Inicio</h1>
-                    <p class="text-secondary mb-0">
-                        Bienvenido al panel administrativo de Next Level Producciones.
-                        Desde aquí puedes gestionar el contenido de tu sitio web.
-                    </p>
+    const galleryItems = (galleryImages || []).map((item) => `
+        <div class="col-12 col-md-4 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="position-relative">
+                    <img src="${escapeHtml(item.image_url || "")}" alt="Imagen de galería" class="img-fluid w-100" style="height: 220px; object-fit: cover; border-radius: 0.75rem 0.75rem 0 0;">
                 </div>
-            </section>
-
-            <div class="row g-3 mb-4">
-                <div class="col-12 col-md-4">
-                    <div class="card card-stat h-100">
-                        <div class="card-body">
-                            <p class="text-secondary mb-2">Publicaciones</p>
-                            <p class="value mb-1">${publicationStats.total ?? 0}</p>
-                            <small class="text-secondary">
-                                ${publicationStats.publicadas ?? 0} publicadas ·
-                                ${publicationStats.borradores ?? 0} borradores
-                            </small>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-4">
-                    <div class="card card-stat h-100">
-                        <div class="card-body">
-                            <p class="text-secondary mb-2">Servicios</p>
-                            <p class="value mb-1">${totalServicios}</p>
-                            <small class="text-secondary">
-                                ${serviciosPublicados} publicados ·
-                                ${serviciosBorrador} borradores
-                            </small>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-4">
-                    <div class="card card-stat h-100">
-                        <div class="card-body">
-                            <p class="text-secondary mb-2">Estado del panel</p>
-                            <p class="value mb-1 text-success">Activo</p>
-                            <small class="text-secondary">
-                                Sesión administrativa autorizada
-                            </small>
-                        </div>
+                <div class="card-body d-flex flex-column gap-2">
+                    <span class="badge ${item.is_visible ? "text-bg-success" : "text-bg-secondary"} align-self-start">
+                        ${item.is_visible ? "Activa" : "Inactiva"}
+                    </span>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm ${item.is_visible ? "btn-outline-secondary" : "btn-outline-success"} w-100" data-action="inicio-web-gallery-toggle" data-id="${item.id}" data-visible="${String(Boolean(item.is_visible))}">
+                            ${item.is_visible ? "Desactivar" : "Activar"}
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-action="inicio-web-gallery-delete" data-id="${item.id}" data-storage-path="${escapeHtml(item.storage_path || "")}">
+                            Eliminar
+                        </button>
                     </div>
                 </div>
             </div>
+        </div>
+    `).join("");
 
-            <section class="mb-4">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <div>
-                        <p class="hero-eyebrow mb-1">Accesos rápidos</p>
-                        <h2 class="h5 mb-0">Gestionar contenido</h2>
+    function isValidExpertiseVideoUrl(value) {
+        const rawUrl = typeof value === "string" ? value.trim() : "";
+
+        if (!rawUrl) {
+            return false;
+        }
+
+        try {
+            const parsedUrl = new URL(rawUrl, window.location.href);
+            const protocol = parsedUrl.protocol.toLowerCase();
+            return ["http:", "https:", "blob:", "data:"].includes(protocol);
+        } catch (error) {
+            return false;
+        }
+    }
+
+    function buildExpertiseVideoPreviewMarkup(item) {
+        const fallbackVideoUrl = "videos/vid.mp4";
+        const rawVideoUrl = typeof item?.video_url === "string" ? item.video_url.trim() : "";
+        const hasVideoUrl = isValidExpertiseVideoUrl(rawVideoUrl);
+
+        const safeService = window.InicioWebService || {};
+        const videoType = hasVideoUrl && typeof safeService.detectExpertiseVideoType === "function"
+            ? safeService.detectExpertiseVideoType(rawVideoUrl)
+            : "direct-video";
+        const safeVideoUrl = escapeHtml(hasVideoUrl ? rawVideoUrl : fallbackVideoUrl);
+
+        try {
+            if (videoType === "direct-video") {
+                return `
+                    <video
+                        controls
+                        muted
+                        playsinline
+                        preload="metadata"
+                        src="${safeVideoUrl}"
+                        class="img-fluid w-100"
+                        style="height: 220px; object-fit: cover; border-radius: 0.75rem 0.75rem 0 0; background: #0b1220;"
+                    ></video>
+                `;
+            }
+
+            if (["youtube", "vimeo"].includes(videoType)) {
+                const embedUrl = typeof safeService.getExpertiseVideoEmbedUrl === "function"
+                    ? safeService.getExpertiseVideoEmbedUrl(rawVideoUrl || fallbackVideoUrl)
+                    : "";
+
+                if (embedUrl) {
+                    return `
+                        <div class="position-relative w-100 overflow-hidden" style="height: 220px; border-radius: 0.75rem 0.75rem 0 0; background: #0b1220;">
+                            <iframe
+                                src="${escapeHtml(embedUrl)}"
+                                class="w-100 h-100 border-0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                allowfullscreen
+                                loading="lazy"
+                                referrerpolicy="strict-origin-when-cross-origin"
+                                title="Video de expertise"
+                            ></iframe>
+                        </div>
+                    `;
+                }
+            }
+
+            if (["tiktok", "instagram", "facebook"].includes(videoType)) {
+                const linkValue = escapeHtml(rawVideoUrl || fallbackVideoUrl);
+                return `
+                    <div class="d-flex align-items-center justify-content-center text-center px-3" style="height: 220px; background: linear-gradient(135deg, #111827, #0b1220); border-radius: 0.75rem 0.75rem 0 0; color: #e5e7eb;">
+                        <div>
+                            <div class="fw-semibold mb-2">Enlace de video no compatible para vista previa.</div>
+                            <a href="${linkValue}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light">Abrir enlace</a>
+                        </div>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error("Error renderizando la vista previa de expertise:", error);
+        }
+
+        return `
+            <video
+                controls
+                muted
+                playsinline
+                preload="metadata"
+                src="${safeVideoUrl}"
+                class="img-fluid w-100"
+                style="height: 220px; object-fit: cover; border-radius: 0.75rem 0.75rem 0 0; background: #0b1220;"
+            ></video>
+        `;
+    }
+
+    const hasCustomVideo = Array.isArray(expertiseItems) && (
+        window.InicioWebService &&
+        typeof window.InicioWebService.isCustomExpertiseVideo === "function"
+            ? expertiseItems.some((item) => window.InicioWebService.isCustomExpertiseVideo(item))
+            : false
+    );
+
+    let expertiseItemsHtml = "";
+
+    if (expertiseError) {
+        expertiseItemsHtml = `
+            <div class="col-12">
+                <div class="border rounded-3 p-4 text-center text-warning bg-warning-subtle">
+                    No se pudo cargar la sección de Expertise. Inténtalo nuevamente más tarde.
+                </div>
+            </div>
+        `;
+    } else {
+        try {
+            expertiseItemsHtml = (expertiseItems || []).map((item) => {
+                const isVideo = item && item.media_type === "video";
+                const previewUrl = isVideo
+                    ? null
+                    : (window.InicioWebService && typeof window.InicioWebService.buildExpertisePublicImageUrl === "function"
+                        ? window.InicioWebService.buildExpertisePublicImageUrl(item.id)
+                        : "");
+
+                const previewMarkup = isVideo
+                    ? buildExpertiseVideoPreviewMarkup(item)
+                    : `<img src="${escapeHtml(previewUrl)}" alt="${escapeHtml(item.alt_text || "Imagen de expertise")}" class="img-fluid w-100" style="height: 220px; object-fit: cover; border-radius: 0.75rem 0.75rem 0 0;">`;
+
+                return `
+                    <div class="col-12 col-md-4 col-xl-3">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="position-relative">
+                                ${previewMarkup}
+                            </div>
+                            <div class="card-body d-flex flex-column gap-2">
+                                <div class="small text-uppercase fw-semibold text-secondary mb-1">
+                                    ${isVideo ? "VIDEO PERSONALIZADO" : "IMAGEN"}
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center gap-2">
+                                    <span class="badge ${item.is_visible ? "text-bg-success" : "text-bg-secondary"} align-self-start">
+                                        ${item.is_visible ? "Visible" : "Oculto"}
+                                    </span>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-sm ${item.is_visible ? "btn-outline-secondary" : "btn-outline-success"} w-100" data-action="inicio-web-expertise-toggle" data-id="${item.id}" data-visible="${String(Boolean(item.is_visible))}">
+                                        ${item.is_visible ? "Ocultar" : "Mostrar"}
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" data-action="inicio-web-expertise-delete" data-id="${item.id}" data-media-type="${item.media_type || "image"}">
+                                        Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        } catch (error) {
+            console.error("Error renderizando la lista de expertise:", error);
+            expertiseItemsHtml = `
+                <div class="col-12">
+                    <div class="border rounded-3 p-4 text-center text-warning bg-warning-subtle">
+                        No se pudo renderizar the sección de Expertise por un error de contenido.
                     </div>
                 </div>
+            `;
+        }
+    }
 
+    refs.contentArea.innerHTML = `
+        <section class="hero-panel mb-4">
+            <div class="hero-copy">
+                <p class="hero-eyebrow mb-2"> INICIO WEB </p>
+                <h1 class="h3 mb-2"> Página principal </h1>
+                <p class="text-secondary mb-0"> Personaliza el contenido y estilo visual de la página principal de Next Level Producciones. </p>
+            </div>
+        </section>
+
+        <section class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+                    <div>
+                        <p class="text-secondary text-uppercase small fw-semibold mb-1"> Apariencia </p>
+                        <h2 class="h5 mb-1"> Tipografía </h2>
+                        <p class="text-secondary small mb-0"> Personaliza la apariencia de los textos de la página principal. </p>
+                    </div>
+                    <span class="badge text-bg-secondary"> Editor visual </span>
+                </div>
+                <div class="mb-4">
+                    <label for="inicioWebElementoTexto" class="form-label fw-semibold"> Elemento </label>
+                    <select id="inicioWebElementoTexto" class="form-select" data-inicio-web-control="elemento">
+                        <option value="hero_eyebrow"> Hero · Texto pequeño </option>
+                        <option value="hero_titulo"> Hero · Título </option>
+                        <option value="hero_boton"> Hero · Botón </option>
+                        <option value="banner1_titulo"> Banner 1 · Título </option>
+                        <option value="banner1_tag"> Banner 1 · Etiqueta </option>
+                        <option value="banner1_descripcion"> Banner 1 · Descripción </option>
+                        <option value="banner2_titulo"> Banner 2 · Título </option>
+                        <option value="banner2_tag"> Banner 2 · Etiqueta </option>
+                        <option value="banner2_descripcion"> Banner 2 · Descripción </option>
+                        <option value="galeria_titulo"> Galería · Título </option>
+                    </select>
+                </div>
                 <div class="row g-3">
                     <div class="col-12 col-md-6">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column">
-                                <h3 class="h5 mb-2">Publicaciones</h3>
-                                <p class="text-secondary mb-4">
-                                    Administra las actividades, eventos y publicaciones
-                                    que aparecen en el sitio web.
-                                </p>
-                                <div class="mt-auto">
-                                    <button
-                                        class="btn btn-primary"
-                                        data-action="go-publicaciones"
-                                        type="button"
-                                    >
-                                        Administrar publicaciones
-                                    </button>
-                                </div>
-                            </div>
+                        <label for="inicioWebFuente" class="form-label"> Fuente </label>
+                        <select id="inicioWebFuente" class="form-select" data-inicio-web-control="fuente">
+                            <option value="inherit"> Predeterminada del sitio </option>
+                            <option value="Inter"> Inter </option>
+                            <option value="Poppins"> Poppins </option>
+                            <option value="Montserrat"> Montserrat </option>
+                            <option value="Roboto"> Roboto </option>
+                            <option value="Open Sans"> Open Sans </option>
+                            <option value="Lato"> Lato </option>
+                            <option value="Playfair Display"> Playfair Display </option>
+                            <option value="Oswald"> Oswald </option>
+                            <option value="Raleway"> Raleway </option>
+                            <option value="Nunito"> Nunito </option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label for="inicioWebPeso" class="form-label"> Peso </label>
+                        <select id="inicioWebPeso" class="form-select" data-inicio-web-control="peso">
+                            <option value="300">Light</option>
+                            <option value="400" selected>Regular</option>
+                            <option value="500">Medium</option>
+                            <option value="600">SemiBold</option>
+                            <option value="700">Bold</option>
+                            <option value="800">ExtraBold</option>
+                            <option value="900">Black</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label for="inicioWebTamano" class="form-label"> Tamaño </label>
+                        <div class="input-group">
+                            <input id="inicioWebTamano" type="number" class="form-control" data-inicio-web-control="tamano" value="48" min="8" max="160" step="1">
+                            <span class="input-group-text"> px </span>
                         </div>
                     </div>
 
                     <div class="col-12 col-md-6">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column">
-                                <h3 class="h5 mb-2">Servicios</h3>
-                                <p class="text-secondary mb-4">
-                                    Gestiona los servicios, imágenes y contenido
-                                    que se muestran en la página de servicios.
-                                </p>
-                                <div class="mt-auto">
-                                    <button
-                                        class="btn btn-primary"
-                                        data-action="go-productos"
-                                        type="button"
-                                    >
-                                        Administrar servicios
-                                    </button>
-                                </div>
-                            </div>
+                        <label for="inicioWebAlineacion" class="form-label"> Alineación </label>
+                        <select id="inicioWebAlineacion" class="form-select" data-inicio-web-control="alineacion">
+                            <option value="left">Izquierda</option>
+                            <option value="center">Centro</option>
+                            <option value="right">Derecha</option>
+                            <option value="justify">Justificado</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <label for="inicioWebEstilo" class="form-label"> Estilo </label>
+                        <select id="inicioWebEstilo" class="form-select" data-inicio-web-control="estilo">
+                            <option value="normal">Normal</option>
+                            <option value="italic">Cursiva</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <label for="inicioWebTransformacion" class="form-label"> Transformación </label>
+                        <select id="inicioWebTransformacion" class="form-select" data-inicio-web-control="transformacion">
+                            <option value="none">Normal</option>
+                            <option value="uppercase">MAYÚSCULAS</option>
+                            <option value="lowercase">minúsculas</option>
+                            <option value="capitalize">Tipo título</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <label for="inicioWebColor" class="form-label"> Color </label>
+                        <input id="inicioWebColor" type="color" class="form-control form-control-color w-100" data-inicio-web-control="color" value="#ffffff" title="Seleccionar color">
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label for="inicioWebLineHeight" class="form-label"> Altura de línea </label>
+                        <input id="inicioWebLineHeight" type="number" class="form-control" data-inicio-web-control="lineHeight" value="1.2" min="0.8" max="3" step="0.1">
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label for="inicioWebLetterSpacing" class="form-label"> Espaciado entre letras </label>
+                        <div class="input-group">
+                            <input id="inicioWebLetterSpacing" type="number" class="form-control" data-inicio-web-control="letterSpacing" value="0" min="-10" max="20" step="0.1">
+                            <span class="input-group-text"> px </span>
                         </div>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <div class="section-note">
-                <span class="section-chip">
-                    Next Level Producciones
+        <section class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                    <div>
+                        <p class="text-secondary text-uppercase small fw-semibold mb-1"> Vista previa </p>
+                        <h2 class="h5 mb-0"> Así se verá el texto </h2>
+                    </div>
+                </div>
+                <div id="inicioWebTypographyPreview" class="rounded-3 p-4 p-md-5 text-center" style="min-height:180px; display:flex; align-items:center; justify-content:center; background:rgba(11,18,32,.22);">
+                    <div id="inicioWebTypographyPreviewText"> Transforma tus Ideas en Arte Visual. </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-outline-secondary" data-action="inicio-web-reset-typography"> Restaurar </button>
+            <button type="button" class="btn btn-primary" data-action="inicio-web-save-typography"> Guardar cambios </button>
+        </div>
+
+        <section id="inicioWebTextEditor" class="card border-0 shadow-sm mt-4">
+            <div class="card-body">
+                <div class="mb-4">
+                    <p class="text-secondary text-uppercase small fw-semibold mb-1"> Contenido </p>
+                    <h2 class="h5 mb-1"> Editar texto </h2>
+                    <p class="text-secondary small mb-0"> Modifica el contenido del elemento seleccionado de la página principal. </p>
+                </div>
+
+                <div class="mb-3">
+                    <label for="inicioWebTextoElemento" class="form-label fw-semibold"> Elemento </label>
+                    <select id="inicioWebTextoElemento" class="form-select"></select>
+                </div>
+                <div class="mb-4">
+                    <label for="inicioWebTextoContenido" class="form-label fw-semibold"> Texto </label>
+                    <textarea id="inicioWebTextoContenido" class="form-control" rows="6" placeholder="Escribe el texto..."></textarea>
+                    <div class="form-text"> Puedes modificar el texto que aparecerá en la página principal. </div>
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-outline-secondary" data-action="inicio-web-close-text"> Cerrar </button>
+                    <button type="button" class="btn btn-primary" data-action="inicio-web-save-text"> Guardar texto</button>
+                </div>
+            </div>
+        </section>
+		<section>
+		</section>
+		<section class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+                    <div>
+                        <p class="text-secondary text-uppercase small fw-semibold mb-1"> Fondos </p>
+                        <h2 class="h5 mb-1"> Fondos de banners </h2>
+                        <p class="text-secondary small mb-0"> Ajusta el degradado visual de los banners principales. </p>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-12 col-md-6">
+                        <div class="border rounded-3 p-3 h-100">
+                            <h3 class="h6 mb-3">Banner 1</h3>
+                            <div class="mb-3">
+                                <label for="banner1BackgroundColor1" class="form-label">Color del degradado 1</label>
+                                <input id="banner1BackgroundColor1" type="color" class="form-control form-control-color w-100" value="#090c11" aria-label="Color del degradado 1 del banner 1">
+                            </div>
+                            <div class="mb-3">
+                                <label for="banner1BackgroundColor2" class="form-label">Color del degradado 2</label>
+                                <input id="banner1BackgroundColor2" type="color" class="form-control form-control-color w-100" value="#454a52" aria-label="Color del degradado 2 del banner 1">
+                            </div>
+                            <div class="mb-3">
+                                <label for="banner1BackgroundColor3" class="form-label">Color del degradado 3</label>
+                                <div class="input-group">
+                                    <input id="banner1BackgroundColor3" type="color" class="form-control form-control-color w-100" value="#000080" aria-label="Color del degradado 3 del banner 1">
+                                    <input id="banner1BackgroundHex3" type="text" class="form-control" value="#000080" aria-label="HEX del color 3 del banner 1" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$" placeholder="#000080">
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary w-100" data-action="save-banner1-background">Guardar Banner 1</button>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <div class="border rounded-3 p-3 h-100">
+                            <h3 class="h6 mb-3">Banner 2</h3>
+                            <div class="mb-3">
+                                <label for="banner2BackgroundColor1" class="form-label">Color del degradado 1</label>
+                                <input id="banner2BackgroundColor1" type="color" class="form-control form-control-color w-100" value="#090c11" aria-label="Color del degradado 1 del banner 2">
+                            </div>
+                            <div class="mb-3">
+                                <label for="banner2BackgroundColor2" class="form-label">Color del degradado 2</label>
+                                <input id="banner2BackgroundColor2" type="color" class="form-control form-control-color w-100" value="#454a52" aria-label="Color del degradado 2 del banner 2">
+                            </div>
+                            <div class="mb-3">
+                                <label for="banner2BackgroundColor3" class="form-label">Color del degradado 3</label>
+                                <div class="input-group">
+                                    <input id="banner2BackgroundColor3" type="color" class="form-control form-control-color w-100" value="#000080" aria-label="Color del degradado 3 del banner 2">
+                                    <input id="banner2BackgroundHex3" type="text" class="form-control" value="#000080" aria-label="HEX del color 3 del banner 2" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$" placeholder="#000080">
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary w-100" data-action="save-banner2-background">Guardar Banner 2</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+                    <div>
+                        <p class="text-secondary text-uppercase small fw-semibold mb-1"> Galería </p>
+                        <h2 class="h5 mb-1"> Inicio Web · Galería </h2>
+                        <p class="text-secondary small mb-0"> Administra las imágenes activas de la galería principal. </p>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-sm" data-action="inicio-web-gallery-add">Agregar imagen</button>
+                    <input type="file" class="d-none" accept="image/jpeg,image/png,image/webp" multiple data-inicio-web-gallery-input>
+                </div>
+
+                <div class="small text-secondary mb-3 d-none" data-inicio-web-gallery-status></div>
+
+                <div class="row g-3" id="inicioWebGalleryList">
+                    ${galleryItems || `
+                        <div class="col-12">
+                            <div class="border rounded-3 p-4 text-center text-secondary">
+                                Aún no hay imágenes en la galería. Agrega la primera imagen para comenzar.
+                            </div>
+                        </div>
+                    `}
+                </div>
+            </div>
+        </section>
+
+        <section class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+                    <div>
+                        <p class="text-secondary text-uppercase small fw-semibold mb-1"> Expertise </p>
+                        <h2 class="h5 mb-1"> Inicio Web · Expertise </h2>
+                        <p class="text-secondary small mb-0"> Administra imágenes y videos del slider principal de expertise. </p>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button type="button" class="btn btn-primary btn-sm" data-action="inicio-web-expertise-add-image">Agregar imagen</button>
+                        ${hasCustomVideo ? "" : `<button type="button" class="btn btn-outline-primary btn-sm" data-action="inicio-web-expertise-add-video">Agregar video</button>`}
+                    </div>
+                    <input type="file" class="d-none" accept="image/jpeg,image/png,image/webp" multiple data-inicio-web-expertise-image-input>
+                    <input type="file" class="d-none" accept="video/mp4,video/webm,video/ogg" data-inicio-web-expertise-video-input>
+                </div>
+
+                <div class="small text-secondary mb-3 d-none" data-inicio-web-expertise-status></div>
+
+                <div class="row g-3" id="inicioWebExpertiseList">
+                    ${expertiseItemsHtml || `
+                        <div class="col-12">
+                            <div class="border rounded-3 p-4 text-center text-secondary">
+                                Aún no hay elementos en expertise. Agrega la primera imagen o video.
+                            </div>
+                        </div>
+                    `}
+                </div>
+            </div>
+        </section>
+    `;
+
+    const typographyConfigSection = refs.contentArea.querySelector("#inicioWebElementoTexto")?.closest("section.card.border-0.shadow-sm.mb-4");
+    const typographyPreviewSection = refs.contentArea.querySelector("#inicioWebTypographyPreview")?.closest("section.card.border-0.shadow-sm.mb-4");
+    const typographyEditor = document.getElementById("inicioWebTextEditor");
+    const typographyActions = refs.contentArea.querySelector("[data-action='inicio-web-save-typography']")?.closest("div.d-flex.justify-content-end.gap-2");
+
+    if (typographyConfigSection && typographyPreviewSection && typographyEditor && typographyActions) {
+        const typographyWrapper = document.createElement("div");
+        typographyWrapper.className = "inicio-web-accordion-item mb-4";
+
+        const typographyHeader = document.createElement("button");
+        typographyHeader.type = "button";
+        typographyHeader.className = "btn btn-light border shadow-sm w-100 text-start d-flex align-items-center justify-content-between gap-3 px-3 py-3";
+        typographyHeader.dataset.inicioWebAccordionToggle = "true";
+        typographyHeader.setAttribute("aria-expanded", "false");
+        typographyHeader.innerHTML = `
+            <span class="d-flex align-items-start gap-2 flex-grow-1 min-width-0">
+                <span class="text-primary fw-bold">✦</span>
+                <span class="d-block text-start">
+                    <span class="d-block small text-uppercase text-secondary fw-semibold">Apariencia</span>
+                    <span class="d-block fw-semibold text-dark">Tipografía</span>
+                    <span class="d-block small text-secondary mt-1">Personaliza el texto y la apariencia de la página principal.</span>
                 </span>
-                <span class="section-chip">
-                    CMS Administrativo
+            </span>
+            <span class="accordion-chevron text-secondary fw-bold" aria-hidden="true">›</span>
+        `;
+
+        const typographyContent = document.createElement("div");
+        typographyContent.className = "inicio-web-accordion-body";
+        typographyContent.style.display = "none";
+
+        const typographyLayout = document.createElement("div");
+        typographyLayout.className = "inicio-web-typography-layout";
+
+        const typographyConfigGroup = document.createElement("div");
+        typographyConfigGroup.className = "inicio-web-typography-group inicio-web-typography-config";
+
+        const typographyEditorGroup = document.createElement("div");
+        typographyEditorGroup.className = "inicio-web-typography-group inicio-web-typography-editor";
+
+        const typographyPreviewGroup = document.createElement("div");
+        typographyPreviewGroup.className = "inicio-web-typography-group inicio-web-typography-preview";
+
+        const typographyActionsGroup = document.createElement("div");
+        typographyActionsGroup.className = "inicio-web-typography-actions";
+
+        const parent = refs.contentArea;
+        parent.insertBefore(typographyWrapper, typographyConfigSection);
+
+        typographyConfigGroup.appendChild(typographyConfigSection);
+        typographyEditorGroup.appendChild(typographyEditor);
+        typographyPreviewGroup.appendChild(typographyPreviewSection);
+        typographyActionsGroup.appendChild(typographyActions);
+
+        typographyLayout.appendChild(typographyConfigGroup);
+        typographyLayout.appendChild(typographyEditorGroup);
+        typographyLayout.appendChild(typographyPreviewGroup);
+        typographyLayout.appendChild(typographyActionsGroup);
+
+        typographyContent.appendChild(typographyLayout);
+        typographyWrapper.appendChild(typographyHeader);
+        typographyWrapper.appendChild(typographyContent);
+    }
+
+    const accordionSections = Array.from(refs.contentArea.querySelectorAll("section.card.border-0.shadow-sm.mb-4"));
+
+    accordionSections.forEach((section) => {
+        if (section.closest(".inicio-web-accordion-item") || section.closest(".inicio-web-typography-layout")) {
+            return;
+        }
+
+        const eyebrow = section.querySelector("p.text-secondary.text-uppercase.small.fw-semibold")?.textContent.trim() || "Sección";
+        const title = section.querySelector("h2, h3, h4, h5")?.textContent.trim() || "Sección";
+        const description = Array.from(section.querySelectorAll("p.text-secondary.small"))
+            .map((element) => element.textContent.trim())
+            .find((text) => text && text !== eyebrow && text !== title) || "";
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "inicio-web-accordion-item mb-4";
+
+        const header = document.createElement("button");
+        header.type = "button";
+        header.className = "btn btn-light border shadow-sm w-100 text-start d-flex align-items-center justify-content-between gap-3 px-3 py-3";
+        header.dataset.inicioWebAccordionToggle = "true";
+        header.setAttribute("aria-expanded", "false");
+        header.innerHTML = `
+            <span class="d-flex align-items-start gap-2 flex-grow-1 min-width-0">
+                <span class="text-primary fw-bold">✦</span>
+                <span class="d-block text-start">
+                    <span class="d-block small text-uppercase text-secondary fw-semibold">${escapeHtml(eyebrow)}</span>
+                    <span class="d-block fw-semibold text-dark">${escapeHtml(title)}</span>
+                    ${description ? `<span class="d-block small text-secondary mt-1">${escapeHtml(description)}</span>` : ""}
                 </span>
+            </span>
+            <span class="accordion-chevron text-secondary fw-bold" aria-hidden="true">›</span>
+        `;
+
+        const content = document.createElement("div");
+        content.className = "inicio-web-accordion-body";
+        content.style.display = "none";
+
+        const parent = section.parentNode;
+        if (parent) {
+            parent.insertBefore(wrapper, section);
+        }
+
+        wrapper.appendChild(header);
+        wrapper.appendChild(content);
+        content.appendChild(section);
+    });
+
+    const accordionButtons = refs.contentArea.querySelectorAll("[data-inicio-web-accordion-toggle]");
+
+    accordionButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            const wrapper = button.closest(".inicio-web-accordion-item");
+            const content = wrapper?.querySelector(".inicio-web-accordion-body");
+            const chevron = button.querySelector(".accordion-chevron");
+            const isOpen = button.getAttribute("aria-expanded") === "true";
+
+            accordionButtons.forEach((otherButton) => {
+                const otherWrapper = otherButton.closest(".inicio-web-accordion-item");
+                const otherContent = otherWrapper?.querySelector(".inicio-web-accordion-body");
+                const otherChevron = otherButton.querySelector(".accordion-chevron");
+                otherButton.setAttribute("aria-expanded", "false");
+                otherButton.classList.remove("active");
+                if (otherContent) {
+                    otherContent.style.display = "none";
+                }
+                if (otherChevron) {
+                    otherChevron.textContent = "›";
+                }
+            });
+
+            if (isOpen) {
+                button.setAttribute("aria-expanded", "false");
+                button.classList.remove("active");
+                if (content) {
+                    content.style.display = "none";
+                }
+                if (chevron) {
+                    chevron.textContent = "›";
+                }
+                return;
+            }
+
+            button.setAttribute("aria-expanded", "true");
+            button.classList.add("active");
+            if (content) {
+                content.style.display = "block";
+            }
+            if (chevron) {
+                chevron.textContent = "⌄";
+            }
+        });
+    });
+
+    console.log(
+        "[BANNER FLOW DEBUG] renderInicioWeb terminó de generar el HTML"
+    );
+
+    const galleryInput = refs.contentArea.querySelector("[data-inicio-web-gallery-input]");
+    const addGalleryButton = refs.contentArea.querySelector("[data-action='inicio-web-gallery-add']");
+    const galleryStatus = refs.contentArea.querySelector("[data-inicio-web-gallery-status]");
+    const galleryList = refs.contentArea.querySelector("#inicioWebGalleryList");
+
+    addGalleryButton?.addEventListener("click", () => {
+        galleryInput?.click();
+    });
+
+    galleryInput?.addEventListener("change", async (event) => {
+        const selectedFiles = Array.from(event.target.files || []).filter((file) => file && file.type && [
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+        ].includes(file.type));
+
+        if (!selectedFiles.length) {
+            event.target.value = "";
+            return;
+        }
+
+        const button = refs.contentArea.querySelector("[data-action='inicio-web-gallery-add']");
+
+        if (button) {
+            button.disabled = true;
+            button.textContent = "Subiendo...";
+        }
+
+        if (galleryStatus) {
+            galleryStatus.classList.remove("d-none");
+            galleryStatus.textContent = `Subiendo ${selectedFiles.length} imagen(es)...`;
+        }
+
+        try {
+            const result = await window.InicioWebService.uploadGalleryImages(selectedFiles);
+
+            const fileNames = result.failed.length
+                ? ` Fallaron: ${result.failed.join(", ")}.`
+                : "";
+
+            if (result.failed.length) {
+                showToast(
+                    `Se agregaron ${result.created.length} imagen(es).${fileNames}`,
+                    "warning"
+                );
+            } else {
+                showToast(
+                    result.created.length > 1
+                        ? `Se agregaron ${result.created.length} imágenes correctamente.`
+                        : "La imagen se agregó correctamente.",
+                    "success"
+                );
+            }
+
+            await renderInicioWeb();
+        } catch (error) {
+            console.error("Error agregando imágenes de la galería:", error);
+            showToast(
+                error && error.message ? error.message : "No se pudo agregar la imagen.",
+                "danger"
+            );
+        } finally {
+            if (button) {
+                button.disabled = false;
+                button.textContent = "Agregar imagen";
+            }
+
+            if (galleryStatus) {
+                galleryStatus.classList.add("d-none");
+                galleryStatus.textContent = "";
+            }
+
+            event.target.value = "";
+        }
+    });
+
+    galleryList?.addEventListener("click", async (event) => {
+        const actionButton = event.target.closest("[data-action]");
+        if (!actionButton) {
+            return;
+        }
+
+        const action = actionButton.dataset.action;
+
+        if (action === "inicio-web-gallery-toggle") {
+            const id = actionButton.dataset.id;
+            const isVisible = actionButton.dataset.visible === "true";
+
+            try {
+                await window.InicioWebService.updateGalleryVisibility(id, !isVisible);
+                showToast(isVisible ? "La imagen quedó desactivada." : "La imagen quedó activa.", "success");
+                await renderInicioWeb();
+            } catch (error) {
+                console.error("Error cambiando visibilidad de la imagen:", error);
+                showToast(error && error.message ? error.message : "No se pudo cambiar el estado de la imagen.", "danger");
+            }
+            return;
+        }
+
+        if (action === "inicio-web-gallery-delete") {
+            const id = actionButton.dataset.id;
+            const storagePath = actionButton.dataset.storagePath || "";
+
+            const confirmed = window.confirm("¿Eliminar esta imagen de la galería? Esta acción también eliminará el archivo de almacenamiento.");
+            if (!confirmed) {
+                return;
+            }
+
+            try {
+                await window.InicioWebService.deleteGalleryImage(id, storagePath);
+                showToast("La imagen se eliminó correctamente.", "success");
+                await renderInicioWeb();
+            } catch (error) {
+                console.error("Error eliminando imagen de la galería:", error);
+                showToast(error && error.message ? error.message : "No se pudo eliminar la imagen.", "danger");
+            }
+        }
+    });
+
+    const expertiseImageInput = refs.contentArea.querySelector("[data-inicio-web-expertise-image-input]");
+    const expertiseVideoInput = refs.contentArea.querySelector("[data-inicio-web-expertise-video-input]");
+    const expertiseImageButton = refs.contentArea.querySelector("[data-action='inicio-web-expertise-add-image']");
+    const expertiseStatus = refs.contentArea.querySelector("[data-inicio-web-expertise-status]");
+    const expertiseList = refs.contentArea.querySelector("#inicioWebExpertiseList");
+
+    expertiseImageButton?.addEventListener("click", () => {
+        expertiseImageInput?.click();
+    });
+
+    expertiseImageInput?.addEventListener("change", async (event) => {
+        const selectedFiles = Array.from(event.target.files || []).filter((file) => file && file.type && ["image/jpeg", "image/png", "image/webp"].includes(file.type));
+
+        if (!selectedFiles.length) {
+            event.target.value = "";
+            return;
+        }
+
+        expertiseImageButton.disabled = true;
+        expertiseImageButton.textContent = "Subiendo...";
+
+        if (expertiseStatus) {
+            expertiseStatus.classList.remove("d-none");
+            expertiseStatus.textContent = `Subiendo ${selectedFiles.length} imagen(es)...`;
+        }
+
+        try {
+            const result = await window.InicioWebService.uploadExpertiseImages(selectedFiles);
+            if (result.failed.length) {
+                showToast(`Se agregaron ${result.created.length} imagen(es). Fallaron: ${result.failed.join(", ")}.`, "warning");
+            } else {
+                showToast(result.created.length > 1 ? `Se agregaron ${result.created.length} imágenes correctamente.` : "La imagen se agregó correctamente.", "success");
+            }
+            await renderInicioWeb();
+        } catch (error) {
+            console.error("Error agregando imágenes de expertise:", error);
+            showToast(error && error.message ? error.message : "No se pudo agregar la imagen.", "danger");
+        } finally {
+            expertiseImageButton.disabled = false;
+            expertiseImageButton.textContent = "Agregar imagen";
+            if (expertiseStatus) {
+                expertiseStatus.classList.add("d-none");
+                expertiseStatus.textContent = "";
+            }
+            event.target.value = "";
+        }
+    });
+
+    expertiseVideoInput?.addEventListener("change", async (event) => {
+        const [selectedFile] = Array.from(event.target.files || []);
+
+        if (!selectedFile) {
+            event.target.value = "";
+            return;
+        }
+
+        const maxBytes = 2 * 1024 * 1024;
+        if (selectedFile.size > maxBytes) {
+            event.target.value = "";
+            showToast("El video no puede superar los 2 MB.", "danger");
+            return;
+        }
+
+        if (expertiseStatus) {
+            expertiseStatus.classList.remove("d-none");
+            expertiseStatus.textContent = "Subiendo video...";
+        }
+
+        try {
+            const created = await window.InicioWebService.createExpertiseVideoFile(selectedFile);
+            showToast(created ? "El video se agregó correctamente." : "No se pudo agregar el video.", "success");
+            await renderInicioWeb();
+        } catch (error) {
+            console.error("Error creando video de expertise desde archivo:", error);
+            showToast(error && error.message ? error.message : "No se pudo crear el video.", "danger");
+        } finally {
+            if (expertiseStatus) {
+                expertiseStatus.classList.add("d-none");
+                expertiseStatus.textContent = "";
+            }
+            event.target.value = "";
+        }
+    });
+
+    const expertiseVideoChoiceContainer = () => {
+        const button = refs.contentArea.querySelector("[data-action='inicio-web-expertise-add-video']");
+        const cardBody = button?.closest(".card-body");
+        if (!cardBody) {
+            return null;
+        }
+
+        return cardBody.querySelector("[data-inicio-web-expertise-choice]");
+    };
+
+    const removeExpertiseVideoChoice = () => {
+        const existing = expertiseVideoChoiceContainer();
+        if (existing) {
+            existing.remove();
+        }
+    };
+
+    const showExpertiseVideoChoice = () => {
+        const button = refs.contentArea.querySelector("[data-action='inicio-web-expertise-add-video']");
+        const cardBody = button?.closest(".card-body");
+        if (!cardBody) {
+            return;
+        }
+
+        removeExpertiseVideoChoice();
+
+        const panel = document.createElement("div");
+        panel.dataset.inicioWebExpertiseChoice = "true";
+        panel.className = "mt-3 border rounded-3 p-3 bg-light";
+        panel.innerHTML = `
+            <div class="fw-semibold small text-uppercase text-secondary mb-3">AGREGAR VIDEO</div>
+            <div class="d-grid gap-2">
+                <button type="button" class="btn btn-outline-primary btn-sm text-start" data-action="inicio-web-expertise-use-url">USAR URL</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm text-start" data-action="inicio-web-expertise-upload-file">SUBIR ARCHIVO</button>
+                <div class="small text-secondary">Video máximo: 2 MB</div>
             </div>
         `;
-    } catch (error) {
-        console.error("Error cargando inicio:", error);
 
-        refs.contentArea.innerHTML = `
-            <section class="hero-panel">
-                <div class="hero-copy">
-                    <p class="hero-eyebrow mb-2">Panel Administrativo privado</p>
-                    <h1 class="h3 mb-2">Inicio</h1>
-                    <p class="text-danger mb-2">
-                        No se pudo cargar el resumen del panel.
-                    </p>
-                    <p class="text-secondary mb-0">
-                        ${escapeHtml(
-                            error && error.message
-                                ? error.message
-                                : "Error desconocido."
-                        )}
-                    </p>
-                </div>
-            </section>
+        const list = cardBody.querySelector("#inicioWebExpertiseList");
+        if (list) {
+            list.before(panel);
+        }
+    };
+
+    const showExpertiseUrlForm = () => {
+        const button = refs.contentArea.querySelector("[data-action='inicio-web-expertise-add-video']");
+        const cardBody = button?.closest(".card-body");
+        if (!cardBody) {
+            return;
+        }
+
+        removeExpertiseVideoChoice();
+
+        const panel = document.createElement("div");
+        panel.className = "mt-3 border rounded-3 p-3 bg-light";
+        panel.innerHTML = `
+            <div class="fw-semibold small text-uppercase text-secondary mb-3">URL DEL VIDEO</div>
+            <input
+                type="url"
+                class="form-control mb-3"
+                placeholder="Pega aquí la URL del video..."
+                data-inicio-web-expertise-url-input
+            >
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-action="inicio-web-expertise-cancel-url">Cancelar</button>
+                <button type="button" class="btn btn-primary btn-sm" data-action="inicio-web-expertise-save-url">Guardar video</button>
+            </div>
         `;
+
+        const list = cardBody.querySelector("#inicioWebExpertiseList");
+        if (list) {
+            list.before(panel);
+        }
+    };
+
+    refs.contentArea.querySelector("[data-action='inicio-web-expertise-add-video']")?.addEventListener("click", () => {
+        showExpertiseVideoChoice();
+    });
+
+    refs.contentArea.addEventListener("click", async (event) => {
+        const actionButton = event.target.closest("[data-action]");
+        if (!actionButton) {
+            return;
+        }
+
+        const action = actionButton.dataset.action;
+
+        if (action === "inicio-web-expertise-use-url") {
+            showExpertiseUrlForm();
+            return;
+        }
+
+        if (action === "inicio-web-expertise-upload-file") {
+            removeExpertiseVideoChoice();
+            expertiseVideoInput?.click();
+            return;
+        }
+
+        if (action === "inicio-web-expertise-cancel-url") {
+            removeExpertiseVideoChoice();
+            return;
+        }
+
+        if (action === "inicio-web-expertise-save-url") {
+            const form = actionButton.closest(".border.rounded-3.bg-light");
+            const urlValue = form ? form.querySelector("[data-inicio-web-expertise-url-input]")?.value || "" : "";
+            const trimmedUrl = typeof urlValue === "string" ? urlValue.trim() : "";
+
+            if (!trimmedUrl) {
+                showToast("Debes ingresar una URL válida para el video.", "danger");
+                return;
+            }
+
+            try {
+                const parsedUrl = new URL(trimmedUrl);
+                if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+                    throw new Error("La URL debe empezar con http:// o https://");
+                }
+            } catch (error) {
+                showToast("La URL del video no es válida.", "danger");
+                return;
+            }
+
+            try {
+                const created = await window.InicioWebService.createExpertiseVideo({
+                    videoUrl: trimmedUrl,
+                    altText: ""
+                });
+
+                removeExpertiseVideoChoice();
+                showToast(created ? "El video se agregó correctamente." : "No se pudo agregar el video.", "success");
+                await renderInicioWeb();
+            } catch (error) {
+                console.error("Error creando video de expertise por URL:", error);
+                showToast(error && error.message ? error.message : "No se pudo crear el video.", "danger");
+            }
+            return;
+        }
+    });
+
+    expertiseList?.addEventListener("click", async (event) => {
+        const actionButton = event.target.closest("[data-action]");
+        if (!actionButton) {
+            return;
+        }
+
+        const action = actionButton.dataset.action;
+
+        if (action === "inicio-web-expertise-toggle") {
+            const id = actionButton.dataset.id;
+            const isVisible = actionButton.dataset.visible === "true";
+
+            try {
+                await window.InicioWebService.updateExpertiseVisibility(id, !isVisible);
+                showToast(isVisible ? "El elemento quedó oculto." : "El elemento quedó visible.", "success");
+                await renderInicioWeb();
+            } catch (error) {
+                console.error("Error cambiando visibilidad de expertise:", error);
+                showToast(error && error.message ? error.message : "No se pudo cambiar el estado del elemento.", "danger");
+            }
+            return;
+        }
+
+        if (action === "inicio-web-expertise-delete") {
+            const id = actionButton.dataset.id;
+            const mediaType = actionButton.dataset.mediaType || "image";
+            const confirmed = window.confirm(mediaType === "video" ? "¿Eliminar este video de expertise?" : "¿Eliminar esta imagen de expertise? Esta acción también borrará el archivo del Storage.");
+
+            if (!confirmed) {
+                return;
+            }
+
+            try {
+                const item = (expertiseItems || []).find((entry) => String(entry.id) === String(id));
+                if (!item) {
+                    throw new Error("No se encontró el elemento a eliminar.");
+                }
+
+                await window.InicioWebService.deleteExpertiseItem(item);
+                showToast("El elemento de expertise se eliminó correctamente.", "success");
+                await renderInicioWeb();
+            } catch (error) {
+                console.error("Error eliminando elemento de expertise:", error);
+                showToast(error && error.message ? error.message : "No se pudo eliminar el elemento de expertise.", "danger");
+            }
+        }
+    });
+
+    bindInicioWebTypographyControls();
+    await loadInicioWebSavedTexts();
+    updateInicioWebTypographyPreview();
+
+    const resetButton = refs.contentArea.querySelector("[data-action='inicio-web-reset-typography']");
+    const saveButton = refs.contentArea.querySelector( "[data-action='inicio-web-save-typography']");
+    resetButton?.addEventListener( "click",resetInicioWebTypography );
+    saveButton?.addEventListener( "click", saveInicioWebTypography);
+    openInicioWebTextEditor();
+
+    console.log(
+        "[BANNER FLOW DEBUG] buscando botón Banner 1"
+    );
+    const banner1SaveButton = refs.contentArea.querySelector("[data-action='save-banner1-background']");
+    console.log(
+        "[BANNER FLOW DEBUG] banner1SaveButton:",
+        banner1SaveButton
+    );
+    const banner2SaveButton = refs.contentArea.querySelector("[data-action='save-banner2-background']");
+
+    banner1SaveButton?.addEventListener("click", async () => {
+        console.log("[BANNER CLICK DEBUG] click recibido en Banner 1");
+
+        await saveInicioWebBannerBackground("banner1_background");
+    });
+    console.log(
+        "[BANNER FLOW DEBUG] listener Banner 1 registrado"
+    );
+
+    banner2SaveButton?.addEventListener("click", async () => {
+        await saveInicioWebBannerBackground("banner2_background");
+    });
+
+    syncBannerBackgroundColorInputs(
+        document.getElementById("banner1BackgroundColor3"),
+        document.getElementById("banner1BackgroundHex3")
+    );
+    syncBannerBackgroundColorInputs(
+        document.getElementById("banner2BackgroundColor3"),
+        document.getElementById("banner2BackgroundHex3")
+    );
+
+    loadInicioWebTypographyStyle();
+    loadBannerBackgroundStyles();
+}
+
+
+async function loadInicioWebTypographyStyle() { const elemento =
+        document.getElementById( "inicioWebElementoTexto"
+        )?.value;
+    if (!elemento) {
+        return;
+    }
+
+    try {
+        const style =
+            await window.InicioWebService.getStyle( elemento );
+
+        const setValue = (selector, value) => {
+            const control = document.querySelector(selector);
+
+            if (control) { control.value = value; }
+        };
+
+        setValue( "[data-inicio-web-control='fuente']", style.fuente );
+        setValue( "[data-inicio-web-control='peso']", String(style.peso));
+        setValue( "[data-inicio-web-control='tamano']", style.tamano );
+        setValue( "[data-inicio-web-control='alineacion']", style.alineacion );
+        setValue( "[data-inicio-web-control='estilo']", style.estilo );
+        setValue( "[data-inicio-web-control='transformacion']", style.transformacion );
+        setValue( "[data-inicio-web-control='color']", style.color );
+        setValue( "[data-inicio-web-control='lineHeight']", style.line_height );
+        setValue( "[data-inicio-web-control='letterSpacing']", style.letter_spacing );
+        updateInicioWebTypographyPreview();
+
+    } catch (error) { console.error( "Error al cargar estilo de Inicio Web:", error );
+        showToast(
+            "No se pudo cargar el estilo guardado.", "danger"
+        );
+    }
+}
+async function saveInicioWebTypography() {
+    const elemento =
+        document.getElementById(
+            "inicioWebElementoTexto"
+        )?.value;
+
+    if (!elemento) {
+        return;
+    }
+
+    const getValue = (selector, fallback = "") =>
+        document.querySelector(selector)?.value ??
+        fallback;
+
+    const style = {
+        elemento,
+        fuente: getValue(
+            "[data-inicio-web-control='fuente']", "inherit"
+        ),
+
+        peso: Number( getValue("[data-inicio-web-control='peso']", 400) ),
+        tamano: Number( getValue("[data-inicio-web-control='tamano']", 48) ),
+        alineacion: getValue("[data-inicio-web-control='alineacion']","left"),
+        estilo: getValue("[data-inicio-web-control='estilo']","normal" ),
+        transformacion: getValue("[data-inicio-web-control='transformacion']", "none" ),
+        color: getValue("[data-inicio-web-control='color']", "#ffffff" ),
+        line_height: Number( getValue("[data-inicio-web-control='lineHeight']", 1.2)),
+        letter_spacing: Number(getValue("[data-inicio-web-control='letterSpacing']", 0))
+    };
+
+    try {
+        await window.InicioWebService.saveStyle(
+            style
+        );
+
+        showToast(
+            "Cambios de tipografía guardados correctamente.",
+            "success"
+        );
+
+    } catch (error) {
+        console.error("Error al guardar estilo de Inicio Web:", error );
+        showToast( "No se pudieron guardar los cambios.", "danger");
     }
 }
 
+
+function isValidBannerHexColor(value) {
+    return /^#[0-9a-fA-F]{6}$/.test((value || "").trim());
+}
+
+function syncBannerBackgroundColorInputs(colorInput, hexInput) {
+    if (!colorInput || !hexInput) {
+        return;
+    }
+
+    const setExplicitState = (isExplicit) => {
+        colorInput.dataset.hasThirdColor = isExplicit ? "true" : "false";
+        hexInput.dataset.hasThirdColor = isExplicit ? "true" : "false";
+    };
+
+    const syncFromColorInput = () => {
+        const value = (colorInput.value || "").trim();
+        if (isValidBannerHexColor(value)) {
+            hexInput.value = value;
+            setExplicitState(true);
+            return;
+        }
+
+        if (hexInput.value.trim() === "") {
+            setExplicitState(false);
+        }
+    };
+
+    const syncFromHexInput = () => {
+        const value = (hexInput.value || "").trim();
+
+        if (value === "") {
+            setExplicitState(false);
+            return;
+        }
+
+        if (isValidBannerHexColor(value)) {
+            colorInput.value = value;
+            setExplicitState(true);
+            return;
+        }
+
+        setExplicitState(false);
+    };
+
+    colorInput.addEventListener("input", syncFromColorInput);
+    colorInput.addEventListener("change", syncFromColorInput);
+
+    hexInput.addEventListener("input", syncFromHexInput);
+    hexInput.addEventListener("change", syncFromHexInput);
+}
+
+async function loadBannerBackgroundStyles() {
+    const bannerMap = {
+        banner1_background: {
+            color1: document.getElementById("banner1BackgroundColor1"),
+            color2: document.getElementById("banner1BackgroundColor2"),
+            color3: document.getElementById("banner1BackgroundColor3"),
+            hex3: document.getElementById("banner1BackgroundHex3")
+        },
+        banner2_background: {
+            color1: document.getElementById("banner2BackgroundColor1"),
+            color2: document.getElementById("banner2BackgroundColor2"),
+            color3: document.getElementById("banner2BackgroundColor3"),
+            hex3: document.getElementById("banner2BackgroundHex3")
+        }
+    };
+
+    for (const [elemento, controls] of Object.entries(bannerMap)) {
+        try {
+            const style = await window.InicioWebService.getStyle(elemento);
+
+            if (controls.color1) {
+                controls.color1.value = style.background_color_1 || "#090c11";
+            }
+
+            if (controls.color2) {
+                controls.color2.value = style.background_color_2 || "#454a52";
+            }
+
+            const hasThirdColor = isValidBannerHexColor(style.background_color_3 || "");
+
+            if (controls.color3) {
+                controls.color3.value = hasThirdColor ? style.background_color_3 : (controls.color3.value || "#000000");
+                controls.color3.dataset.hasThirdColor = hasThirdColor ? "true" : "false";
+            }
+
+            if (controls.hex3) {
+                controls.hex3.value = hasThirdColor ? style.background_color_3 : "";
+                controls.hex3.dataset.hasThirdColor = hasThirdColor ? "true" : "false";
+                controls.hex3.placeholder = "#000080";
+            }
+        } catch (error) {
+            console.error(`Error al cargar fondo de ${elemento}:`, error);
+        }
+    }
+}
+
+function getBannerBackgroundControls(elemento) {
+    const bannerMap = {
+        banner1_background: {
+            color1: document.getElementById("banner1BackgroundColor1"),
+            color2: document.getElementById("banner1BackgroundColor2"),
+            color3: document.getElementById("banner1BackgroundColor3"),
+            hex3: document.getElementById("banner1BackgroundHex3"),
+            button: document.querySelector("[data-action='save-banner1-background']")
+        },
+        banner2_background: {
+            color1: document.getElementById("banner2BackgroundColor1"),
+            color2: document.getElementById("banner2BackgroundColor2"),
+            color3: document.getElementById("banner2BackgroundColor3"),
+            hex3: document.getElementById("banner2BackgroundHex3"),
+            button: document.querySelector("[data-action='save-banner2-background']")
+        }
+    };
+
+    return bannerMap[elemento] || null;
+}
+
+async function saveInicioWebBannerBackground(elemento) {
+    const controls = getBannerBackgroundControls(elemento);
+
+    if (!controls) {
+        throw new Error(`Elemento de fondo de banner no válido: ${elemento}`);
+    }
+
+    const button = controls.button;
+    const originalButtonText = button?.textContent || "Guardar";
+    const color1 = (controls.color1?.value || "").trim();
+    const color2 = (controls.color2?.value || "").trim();
+    const hasColor3 = controls.color3?.dataset.hasThirdColor === "true" || controls.hex3?.dataset.hasThirdColor === "true";
+    const color3Hex = hasColor3 ? ((controls.hex3?.value || controls.color3?.value || "").trim()) : "";
+    const color3 = hasColor3 && isValidBannerHexColor(color3Hex) ? color3Hex : null;
+
+    if (button) {
+        button.disabled = true;
+        button.textContent = "Guardando...";
+    }
+
+    try {
+        if (!/^#[0-9a-fA-F]{6}$/.test(color1)) {
+            throw new Error("El color principal del degradado no tiene un formato hexadecimal válido.");
+        }
+
+        if (!/^#[0-9a-fA-F]{6}$/.test(color2)) {
+            throw new Error("El color secundario del degradado no tiene un formato hexadecimal válido.");
+        }
+
+        const supabase = window.supabaseClient || window.supabase;
+
+        if (!supabase || typeof supabase.from !== "function") {
+            throw new Error("No se encontró un cliente de Supabase activo para guardar el fondo del banner.");
+        }
+
+        const payload = {
+            elemento,
+            background_color_1: color1,
+            background_color_2: color2,
+            background_color_3: color3
+        };
+
+        const { data, error } = await supabase
+            .from("inicio_web_styles")
+            .upsert(payload, {
+                onConflict: "elemento"
+            });
+
+        if (error) {
+            throw error;
+        }
+
+        const label = elemento === "banner1_background" ? "Banner 1" : "Banner 2";
+        showToast(`✓ Fondo del ${label} guardado correctamente.`, "success");
+        return true;
+    } catch (error) {
+        const label = elemento === "banner1_background" ? "Banner 1" : "Banner 2";
+        console.error("[Inicio Web] Error guardando fondo del banner:", error);
+        showToast(`✕ No se pudo guardar el fondo del ${label}: ${error?.message || error || "Error desconocido"}`, "danger");
+        return false;
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.textContent = originalButtonText;
+        }
+    }
+}
+
+async function saveBannerBackgroundStyle(elemento) {
+    return saveInicioWebBannerBackground(elemento);
+}
+
+async function resetInicioWebTypography() {
+    const elemento =
+        document.getElementById(
+            "inicioWebElementoTexto"
+        )?.value;
+
+    if (!elemento) {
+        return;
+    }
+
+    try {
+        await window.InicioWebService.resetStyle(
+            elemento
+        );
+
+        await loadInicioWebTypographyStyle();
+
+        showToast("Tipografía restaurada correctamente.","success");
+
+    } catch (error) {
+        console.error(
+            "Error al restaurar estilo de Inicio Web:",
+            error
+        );
+
+        showToast(
+            "No se pudo restaurar la tipografía.",
+            "danger"
+        );
+    }
+}
+
+function openInicioWebTextEditor() {
+    const textos = {
+		hero_eyebrow: "Texto pequeño del Hero",
+        hero_titulo: "Título principal del Hero",
+        hero_boton: "Texto del botón del Hero",
+        banner1_tag: "Etiqueta del Banner 1",
+        banner1_titulo: "Título del Banner 1",
+        banner1_descripcion: "Descripción del Banner 1",
+        banner2_tag: "Etiqueta del Banner 2",
+        banner2_titulo: "Título del Banner 2",
+        banner2_descripcion: "Descripción del Banner 2",
+        galeria_titulo: "Título de la galería"
+    };
+
+    const elemento = document.getElementById( "inicioWebElementoTexto")?.value;
+    const contenido = document.getElementById( "inicioWebTextoContenido");
+    if (!contenido) {
+        return;
+    }
+    contenido.value = "";
+
+    const editor = document.getElementById( "inicioWebTextEditor" );
+    if (!editor) {
+        return;
+    }
+    const select = document.getElementById( "inicioWebTextoElemento" );
+
+    if (select) {
+        select.innerHTML = Object.entries(textos)
+            .map(
+                ([value, label]) =>
+                    `<option value="${value}">
+                        ${label}
+                    </option>`
+            )
+            .join("");
+
+        if (elemento && textos[elemento]) {
+            select.value = elemento;
+        }
+    }
+
+    editor.classList.remove("d-none");
+
+    loadInicioWebTextContent();
+	bindInicioWebTextEditor();
+}
+
+function closeInicioWebTextEditor() {
+    const editor = document.getElementById("inicioWebTextEditor");
+
+    if (editor) {
+        editor.classList.add("d-none");
+    }
+}
+
+async function loadInicioWebTextContent() {
+    const select = document.getElementById( "inicioWebTextoElemento" );
+    const contenido = document.getElementById( "inicioWebTextoContenido" );
+
+    if (!select || !contenido) {
+        return;
+    }
+
+    const elemento = select.value;
+
+    if (!elemento) {
+        contenido.value = "";
+        return;
+    }
+
+    try {
+        const resultado =
+            await window.InicioWebService.getText(elemento);
+
+        contenido.value = resultado?.contenido || "";
+
+    } catch (error) {
+        console.error(
+            "Error al cargar el texto de Inicio Web:",
+            error
+        );
+
+        contenido.value = "";
+
+        showToast(
+            "No se pudo cargar el texto seleccionado.",
+            "danger"
+        );
+    }
+}
+
+async function saveInicioWebTextContent() {
+    const select = document.getElementById(
+        "inicioWebTextoElemento"
+    );
+
+    const contenido = document.getElementById(
+        "inicioWebTextoContenido"
+    );
+
+    if (!select || !contenido) {
+        return;
+    }
+
+    const elemento = select.value;
+    const texto = contenido.value.trim();
+
+    if (!elemento) {
+        showToast(
+            "Selecciona un elemento de texto.",
+            "warning"
+        );
+        return;
+    }
+
+    if (!texto) {
+        showToast(
+            "El texto no puede quedar vacío.",
+            "warning"
+        );
+        return;
+    }
+
+    try {
+        await window.InicioWebService.saveText(elemento, texto);
+		window.inicioWebSavedTexts =
+			window.inicioWebSavedTexts || {};
+		window.inicioWebSavedTexts[elemento] = texto;
+		// Actualizar el contenido del editor
+		contenido.value = texto;
+		// Actualizar inmediatamente la vista previa con el nuevo texto
+		const elementoTipografia = document.getElementById( "inicioWebElementoTexto" )?.value;
+		if (elementoTipografia === elemento) {
+			 updateInicioWebTypographyPreview();
+			}
+		const selectorPrincipal = document.getElementById("inicioWebElementoTexto");
+		if (selectorPrincipal) {
+			const opcion = selectorPrincipal.querySelector(
+				`option[value="${elemento}"]`
+			);
+			if (opcion) {
+				opcion.dataset.contenido = texto;
+			}
+		}
+		showToast( "Texto guardado correctamente.","success" );
+		closeInicioWebTextEditor();
+
+    } catch (error) {
+        console.error( "Error al guardar texto de Inicio Web:", error );
+		const mensaje =
+        error?.message ||
+        error?.details ||
+        error?.hint ||
+        "Error desconocido";
+
+        showToast(
+            `Error al guardar: ${mensaje}`,
+            "danger"
+        );
+    }
+}
+
+function bindInicioWebTypographyControls() {
+    const elementoSelect = document.getElementById("inicioWebElementoTexto");
+
+    if (elementoSelect && !elementoSelect.dataset.typographyBound) {
+        elementoSelect.addEventListener("change", async () => {
+            await loadInicioWebTypographyStyle();
+            openInicioWebTextEditor();
+            updateInicioWebTypographyPreview();
+        });
+        elementoSelect.dataset.typographyBound = "true";
+    }
+
+    document.querySelectorAll("[data-inicio-web-control]").forEach((control) => {
+        const controlName = control.dataset.inicioWebControl;
+
+        if (!controlName || controlName === "elemento" || control.dataset.typographyBound === "true") {
+            return;
+        }
+
+        control.addEventListener("input", updateInicioWebTypographyPreview);
+        control.addEventListener("change", updateInicioWebTypographyPreview);
+        control.dataset.typographyBound = "true";
+    });
+}
+
+function bindInicioWebTextEditor() {
+    const select = document.getElementById( "inicioWebTextoElemento" );
+    const saveButton = document.querySelector( "[data-action='inicio-web-save-text']");
+
+    if (select && !select.dataset.textEditorBound) {
+        select.addEventListener( "change", loadInicioWebTextContent );
+        select.dataset.textEditorBound = "true";
+    }
+
+    if (
+        saveButton &&
+        !saveButton.dataset.textEditorBound
+    ) {
+        saveButton.addEventListener( "click", saveInicioWebTextContent);
+        saveButton.dataset.textEditorBound = "true";
+    }
+}
+
+function updateInicioWebTypographyPreview() {
+    const preview = document.getElementById(
+        "inicioWebTypographyPreviewText"
+    );
+
+    if (!preview) {
+        return;
+    }
+
+    const elemento =
+        document.getElementById("inicioWebElementoTexto")?.value ||
+        "hero_titulo";
+
+    const previewTexts = {
+        hero_eyebrow: "ARTE EN MOVIMIENTO",
+        hero_titulo: "Transforma tus Ideas en Arte Visual.",
+        hero_boton: "Reserva tu sesión",
+        banner1_tag: "VIVE NUESTRA EXPERIENCIA",
+        banner1_titulo: "Narrativa Visual a Medida",
+        banner1_descripcion:
+            "Creamos tus recuerdos más preciados en diversos géneros con un compromiso de experiencia y precisión.",
+        banner2_tag: "VIVE NUESTRA EXPERIENCIA",
+        banner2_titulo:
+            "Cada detalle cuenta cuando se trata de llevar un evento al siguiente nivel.",
+        banner2_descripcion:
+            "Next Level Producciones transforma tus ideas en arte visual. Desde videos impactantes hasta fotografías memorables y transmisiones en vivo, capturamos lo extraordinario en cada momento. ¡Imagina, nosotros lo hacemos realidad!",
+        galeria_titulo: "Galería"
+    };
+
+    /*
+     * Primero intenta utilizar el texto guardado
+     * que fue cargado desde Supabase.
+     */
+    const textosGuardados =
+        window.inicioWebSavedTexts || {};
+
+    const contenidoEditor =
+        document
+            .getElementById("inicioWebTextoContenido")
+            ?.value
+            ?.trim();
+
+    const elementoEditor =
+        document.getElementById("inicioWebTextoElemento")
+            ?.value;
+
+    let texto;
+
+    /*
+     * Si el editor está abierto y corresponde al
+     * elemento seleccionado, utiliza su contenido.
+     */
+    if (
+        elementoEditor === elemento &&
+        contenidoEditor
+    ) {
+        texto = contenidoEditor;
+    }
+    /*
+     * Si existe un texto guardado en Supabase,
+     * utilizarlo antes que el texto predeterminado.
+     */
+    else if (
+        textosGuardados[elemento]
+    ) {
+        texto = textosGuardados[elemento];
+    }
+    /*
+     * Finalmente utiliza el texto original como
+     * valor predeterminado.
+     */
+    else {
+        texto =
+            previewTexts[elemento] ||
+            "Transforma tus Ideas en Arte Visual.";
+    }
+
+    preview.textContent = texto;
+
+    const fuente =
+        document.querySelector(
+            "[data-inicio-web-control='fuente']"
+        )?.value || "inherit";
+
+    const peso =
+        document.querySelector(
+            "[data-inicio-web-control='peso']"
+        )?.value || "400";
+
+    const tamano =
+        document.querySelector(
+            "[data-inicio-web-control='tamano']"
+        )?.value || "48";
+
+    const alineacion =
+        document.querySelector(
+            "[data-inicio-web-control='alineacion']"
+        )?.value || "left";
+
+    const estilo =
+        document.querySelector(
+            "[data-inicio-web-control='estilo']"
+        )?.value || "normal";
+
+    const color =
+        document.querySelector(
+            "[data-inicio-web-control='color']"
+        )?.value || "#ffffff";
+
+    const transformacion =
+        document.querySelector(
+            "[data-inicio-web-control='transformacion']"
+        )?.value || "none";
+
+    const lineHeight =
+        document.querySelector(
+            "[data-inicio-web-control='lineHeight']"
+        )?.value || "1.2";
+
+    const letterSpacing =
+        document.querySelector(
+            "[data-inicio-web-control='letterSpacing']"
+        )?.value || "0";
+
+    Object.assign(preview.style, {
+        fontFamily:
+            fuente === "inherit"
+                ? "inherit"
+                : `"${fuente}", sans-serif`,
+        fontWeight: peso,
+        fontSize: `${tamano}px`,
+        textAlign: alineacion,
+        fontStyle: estilo,
+        color,
+        textTransform: transformacion,
+        lineHeight,
+        letterSpacing: `${letterSpacing}px`
+    });
+}
 	async function renderPublicaciones() {
 		try {
 			const [stats, publicaciones] = await Promise.all([
@@ -1193,7 +3135,8 @@
 						<p class="mb-0 fw-semibold">${escapeHtml(item.titulo)}</p>
 						<small class="text-secondary">${escapeHtml(item.descripcion.slice(0, 80))}${item.descripcion.length > 80 ? "..." : ""}</small>
 					</td>
-					<td><span class="badge badge-estado ${item.estado === "publicado" ? "text-bg-success" : "text-bg-warning"}">${escapeHtml(capitalize(item.estado))}</span></td>
+					<td>
+					<span class="badge badge-estado ${item.estado === "publicado" ? "text-bg-success" : "text-bg-warning"}">${escapeHtml(capitalize(item.estado))}</span></td>
 					<td>${escapeHtml(formatEventDate(item.fecha_evento, item.hora_evento))}</td>
 					<td class="text-end">
 						<div class="btn-group btn-group-sm" role="group">
@@ -1205,97 +3148,116 @@
 				</tr>
 			`).join("");
 			const tableContent = filteredPublicaciones.length > 0
-				? `
-					<div class="table-wrap p-2 p-md-3">
-						<div class="table-responsive">
-							<table class="table align-middle mb-0">
-								<thead>
-									<tr>
-										<th style="width:90px;">Imagen</th>
-										<th>Titulo</th>
-										<th>Estado</th>
-										<th>Fecha del evento</th>
-										<th class="text-end">Acciones</th>
-									</tr>
-								</thead>
-								<tbody>${rows}</tbody>
-							</table>
-						</div>
-					</div>
-				`
-				: `
-					<div class="empty-state">
-						<p class="text-secondary text-uppercase small fw-semibold mb-2">Publicaciones</p>
-						<h3 class="h5 mb-2">No se encontraron publicaciones</h3>
-						<p class="text-secondary mb-4">No hay resultados para "${escapeHtml(stateFilters.search)}" con el filtro seleccionado.</p>
-						<button class="btn btn-primary" data-action="new-publication">Crear nueva publicacion</button>
-					</div>
-				`;
-
-			refs.contentArea.innerHTML = `
-				<section class="hero-panel mb-4">
-					<div class="hero-copy">
-						<p class="hero-eyebrow mb-2">Panel Administrativo privado</p>
-						<h1 class="h3 mb-2">Publicaciones</h1>
-					</div>
-					<div class="hero-actions">
-						<button class="btn btn-primary" data-action="new-publication">Nueva publicacion</button>
-					</div>
-				</section>
-
-				<div class="row g-3 mb-4">
-					<div class="col-12 col-md-4"><div class="card card-stat h-100"><div class="card-body"><p class="text-secondary mb-2">Total</p><p class="value mb-0">${stats.total}</p></div></div></div>
-					<div class="col-12 col-md-4"><div class="card card-stat h-100"><div class="card-body"><p class="text-secondary mb-2">Publicadas</p><p class="value mb-0 text-success">${stats.publicadas ?? 0}</p></div></div></div>
-					<div class="col-12 col-md-4"><div class="card card-stat h-100"><div class="card-body"><p class="text-secondary mb-2">Borradores</p><p class="value mb-0 text-warning">${stats.borradores ?? 0}</p></div></div></div>
+			? `
+        <div class="table-wrap p-2 p-md-3">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width:90px;">Imagen</th>
+                            <th>Titulo</th>
+                            <th>Estado</th>
+                            <th>Fecha del evento</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>
+        </div>
+    `
+    : `
+        <div class="empty-state">
+            <p class="text-secondary text-uppercase small fw-semibold mb-2"> Publicaciones </p>
+			<h3 class="h5 mb-2"> No se encontraron publicaciones </h3>
+			<p class="text-secondary mb-4">  No hay resultados para "${escapeHtml(stateFilters.search)}" con el filtro seleccionado. </p>
+			<button class="btn btn-primary" data-action="new-publication" > Crear nueva publicacion </button>
+        </div>
+    `;
+	refs.contentArea.innerHTML = `
+	<section class="hero-panel mb-4">
+	<div class="hero-copy"> <p class="hero-eyebrow mb-2">NEXT LEVEL PRODUCCIONES</p><h1 class="h3 mb-2">Publicaciones</h1> </div>
+	<div class="hero-actions"> <button class="btn btn-primary" data-action="new-publication">Nueva publicacion</button></div>
+	</section>
+	<div class="row g-3 mb-4">
+	<div class="col-12 col-md-4"><div class="card card-stat h-100"><div class="card-body"><p class="text-secondary mb-2">Total</p><p class="value mb-0">${stats.total}</p></div></div
+	></div>
+	<div class="col-12 col-md-4"><div class="card card-stat h-100"><div class="card-body"><p class="text-secondary mb-2">Publicadas</p><p class="value mb-0 text-success">${stats.publicadas ?? 0}</p></div></div></div>
+	<div class="col-12 col-md-4"><div class="card card-stat h-100"><div class="card-body"><p class="text-secondary mb-2">Borradores</p><p class="value mb-0 text-warning">${stats.borradores ?? 0}</p></div></div></div>
+	</div>
+	<div class="section-note mb-4">
+	<span class="section-chip">Tabla: ${escapeHtml(APP_CONFIG.TABLES.PUBLICACIONES)}</span>
+	<span class="section-chip">Bucket: ${escapeHtml(APP_CONFIG.STORAGE.PUBLICACIONES_BUCKET)}</span>
+	</div>
+	<div class="row g-2 mb-3 align-items-end">
+	<div class="col-12 col-md-8">
+	<label for="publicationSearch" class="form-label small mb-1 text-secondary">Buscar por titulo</label>
+	<input id="publicationSearch" data-role="publication-search" type="text" class="form-control" value="${escapeHtml(stateFilters.search)}" placeholder="Escribe el titulo de la actividad">
+	</div>
+	<div class="col-12 col-md-4">
+	<label for="publicationStateFilter" class="form-label small mb-1 text-secondary">Estado</label>
+		<select id="publicationStateFilter" data-role="publication-state-filter" class="form-select">
+			<option value="todos" ${stateFilters.estado === "todos" ? "selected" : ""}>Todos</option>
+			<option value="publicado" ${stateFilters.estado === "publicado" ? "selected" : ""}>Publicado</option>
+			<option value="borrador" ${stateFilters.estado === "borrador" ? "selected" : ""}>Borrador</option>
+		</select>
+	</div>
+	</div>
+	${tableContent}
+	`;
+} catch (error) {
+	console.error("Error cargando publicaciones:", error);
+		refs.contentArea.innerHTML = `
+			<section class="hero-panel mb-4">
+				<div class="hero-copy">
+					<p class="hero-eyebrow mb-2">Dashboard privado</p>
+					<h1 class="h3 mb-2">Publicaciones</h1>
+					<p class="text-danger mb-2">No se pudo cargar el modulo de publicaciones.</p>
+					<p class="text-secondary mb-0">${escapeHtml(error && error.message ? error.message : "Error desconocido al consultar Supabase.")}</p>
 				</div>
-
-				<div class="section-note mb-4">
-					<span class="section-chip">Tabla: ${escapeHtml(APP_CONFIG.TABLES.PUBLICACIONES)}</span>
-					<span class="section-chip">Bucket: ${escapeHtml(APP_CONFIG.STORAGE.PUBLICACIONES_BUCKET)}</span>
+				<div class="hero-actions">
+					<button class="btn btn-primary" data-action="new-publication">Nueva publicacion</button>
 				</div>
-
-				<div class="row g-2 mb-3 align-items-end">
-					<div class="col-12 col-md-8">
-						<label for="publicationSearch" class="form-label small mb-1 text-secondary">Buscar por titulo</label>
-						<input id="publicationSearch" data-role="publication-search" type="text" class="form-control" value="${escapeHtml(stateFilters.search)}" placeholder="Escribe el titulo de la actividad">
-					</div>
-					<div class="col-12 col-md-4">
-						<label for="publicationStateFilter" class="form-label small mb-1 text-secondary">Estado</label>
-						<select id="publicationStateFilter" data-role="publication-state-filter" class="form-select">
-							<option value="todos" ${stateFilters.estado === "todos" ? "selected" : ""}>Todos</option>
-							<option value="publicado" ${stateFilters.estado === "publicado" ? "selected" : ""}>Publicado</option>
-							<option value="borrador" ${stateFilters.estado === "borrador" ? "selected" : ""}>Borrador</option>
-						</select>
-					</div>
-				</div>
-
-				${tableContent}
-			`;
-		} catch (error) {
-			console.error("Error cargando publicaciones:", error);
-			refs.contentArea.innerHTML = `
-				<section class="hero-panel mb-4">
-					<div class="hero-copy">
-						<p class="hero-eyebrow mb-2">Dashboard privado</p>
-						<h1 class="h3 mb-2">Publicaciones</h1>
-						<p class="text-danger mb-2">No se pudo cargar el modulo de publicaciones.</p>
-						<p class="text-secondary mb-0">${escapeHtml(error && error.message ? error.message : "Error desconocido al consultar Supabase.")}</p>
-					</div>
-					<div class="hero-actions">
-						<button class="btn btn-primary" data-action="new-publication">Nueva publicacion</button>
-					</div>
-				</section>
+			</section>
 			`;
 		}
 	}
 
-	function onContentClick(event) {
+	async function onContentClick(event) {
 		const actionButton = event.target.closest("[data-action]");
 		if (!actionButton) {
 			return;
 		}
-
 		const action = actionButton.dataset.action;
+
+		if (action === "go-inicio-web") { navigate("inicio-web");
+			return;
+		}
+		if (action === "inicio-web-close-text") { 
+			closeInicioWebTextEditor();
+			return;
+		}
+
+		if (action === "go-publicaciones") { navigate("publicaciones");
+			return;
+		}
+		if (action === "go-productos") { navigate("productos");
+			return;
+		}
+		if (action === "go-quienes" || action === "go-quienes-somos") { navigate("quienes-somos");
+			return;
+		}
+
+		if (action === "guardar-quienes-somos") {
+			await guardarQuienesSomosConfig();
+			return;
+		}
+
+		if (action === "guardar-quienes-somos-testimonio") {
+			const position = Number(actionButton.dataset.position || 0);
+			await guardarQuienesSomosTestimonio(position);
+			return;
+		}
 
 		if (action === "new-publication") {
 			openPublicationModal();
@@ -1928,10 +3890,6 @@
 				return "La URL del video no es válida.";
 			}
 
-			if (fechaEvento && !isValidDateString(fechaEvento)) {
-				return "La fecha del evento no es una fecha real.";
-			}
-
 			if (!imageAvailable) {
 				return "Debes seleccionar una imagen principal o conservar la existente antes de publicar.";
 			}
@@ -2013,10 +3971,7 @@
 			return fecha;
 		}
 
-		const formattedDate = date.toLocaleDateString("es-SV", {
-			day: "2-digit",
-			month: "short",
-			year: "numeric"
+		const formattedDate = date.toLocaleDateString("es-SV", { day: "2-digit", month: "short", year: "numeric"
 		});
 
 		if (!hora) {
@@ -2043,8 +3998,7 @@
 			return "";
 		}
 
-		if (typeof value === "string") {
-			const trimmed = value.trim();
+		if (typeof value === "string") { const trimmed = value.trim();
 			if (!trimmed) {
 				return "";
 			}

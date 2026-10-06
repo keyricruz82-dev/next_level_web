@@ -476,31 +476,453 @@ function showMessage(message, type){
 // ========================================
 
 function initCuratedGalleryMosaic(){
-  const workItems = document.querySelectorAll('.curated-grid .work-item');
-  if(!workItems || workItems.length === 0) return;
+  const workItems = Array.from(document.querySelectorAll('.curated-grid .work-item'));
+  if(!workItems.length) return;
 
   // Patrón profesional de mosaic: large, medium, wide, tall, etc.
   const sizePattern = ['large', 'medium', 'medium', 'wide', 'medium', 'medium', 'large', 'medium', 'medium', 'wide', 'medium', 'medium', 'medium', 'medium', 'large', 'medium'];
-  
+
   workItems.forEach((item, index) => {
+    item.classList.remove('large', 'medium', 'wide', 'tall');
+    item.classList.remove('is-last-row');
+    item.style.gridColumn = '';
+    item.style.justifySelf = '';
+
     const sizeClass = sizePattern[index % sizePattern.length];
     item.classList.add(sizeClass);
   });
+
+  const columnsPerRow = 4;
+  const trailingCount = workItems.length % columnsPerRow;
+
+  if (trailingCount === 0) return;
+
+  const placementsByCount = {
+    1: [2],
+    2: [2, 3],
+    3: [2, 3, 4]
+  };
+
+  const lastRowStart = workItems.length - trailingCount;
+  const placements = placementsByCount[trailingCount] || [];
+
+  workItems.slice(lastRowStart).forEach((item, offset) => {
+    const columnStart = placements[offset] || offset + 1;
+    item.classList.add('is-last-row');
+    item.style.gridColumn = String(columnStart);
+    item.style.justifySelf = 'center';
+  });
 }
 
-// ========================================
-// INICIALIZACIÓN
-// ========================================
+async function loadPublicGallery(){
+  const grid = document.querySelector('.curated-grid');
+  if(!grid) return;
+
+  const supabase = window.supabaseClient || window.supabase;
+  if(!supabase || typeof supabase.from !== 'function'){
+    console.error('No se encontró el cliente de Supabase para la galería pública.');
+    return;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('inicio_web_galeria')
+      .select('id, image_url')
+      .eq('is_visible', true);
+
+    if (error) {
+      throw error;
+    }
+
+    grid.innerHTML = '';
+
+    const visibleImages = Array.isArray(data) ? data.filter(item => item && typeof item.image_url === 'string' && item.image_url.trim()) : [];
+
+    visibleImages.forEach((item, index) => {
+      const workItem = document.createElement('div');
+      workItem.className = 'work-item';
+
+      const image = document.createElement('img');
+      image.src = item.image_url;
+      image.alt = `Imagen de galería ${index + 1}`;
+      image.loading = 'lazy';
+
+      workItem.appendChild(image);
+      grid.appendChild(workItem);
+    });
+
+    initCuratedGalleryMosaic();
+    refreshGalleryImageCollection();
+  } catch (error) {
+    console.error('Error al cargar la galería pública de Inicio Web:', error);
+    grid.innerHTML = '';
+  }
+}
+
+// TIPOGRAFÍA DINÁMICA - INICIO WEB
+
+async function applyInicioWebTypography() {
+
+    const supabase =
+        window.supabaseClient || window.supabase;
+
+    if (!supabase || typeof supabase.from !== "function") {
+        console.warn(
+            "No se encontró un cliente válido de Supabase para la tipografía."
+        );
+        return;
+    }
+
+    const typographyMap = {
+    hero_eyebrow: ".hero-copy .eyebrow",
+    hero_titulo: ".hero-copy h1",
+    hero_boton: ".hero-copy .cta-btn",
+
+    banner1_tag: "[data-inicio-web-elemento='banner1_tag']",
+    banner1_titulo: "[data-inicio-web-elemento='banner1_titulo']",
+    banner1_descripcion: "[data-inicio-web-elemento='banner1_descripcion']",
+
+    banner2_tag: "[data-inicio-web-elemento='banner2_tag']",
+    banner2_titulo: "[data-inicio-web-elemento='banner2_titulo']",
+    banner2_descripcion: "[data-inicio-web-elemento='banner2_descripcion']",
+
+    galeria_titulo: "[data-inicio-web-elemento='galeria_titulo']"
+};
+
+    try {
+
+        const { data, error } = await supabase
+            .from("inicio_web_styles")
+            .select("*");
+
+        if (error) {
+            throw error;
+        }
+
+        if (!Array.isArray(data)) {
+            return;
+        }
+
+        const bannerBackgroundMap = {};
+
+        data.forEach((style) => {
+            if (!style || !style.elemento) {
+                return;
+            }
+
+            const color1 = /^#[0-9a-fA-F]{6}$/.test(style.background_color_1 || "")
+                ? style.background_color_1
+                : "#090c11";
+
+            const color2 = /^#[0-9a-fA-F]{6}$/.test(style.background_color_2 || "")
+                ? style.background_color_2
+                : "#454a52";
+
+            const color3 = /^#[0-9a-fA-F]{6}$/.test(style.background_color_3 || "")
+                ? style.background_color_3
+                : null;
+
+            if (style.elemento === "banner1_background") {
+                bannerBackgroundMap.banner1_background = {
+                    color1,
+                    color2,
+                    color3
+                };
+            }
+
+            if (style.elemento === "banner2_background") {
+                bannerBackgroundMap.banner2_background = {
+                    color1,
+                    color2,
+                    color3
+                };
+            }
+        });
+
+        document.querySelectorAll(".banner-card").forEach((card) => {
+            const key = card.dataset.bannerBackground;
+            const selected = bannerBackgroundMap[key] || {
+                color1: "#090c11",
+                color2: "#454a52",
+                color3: null
+            };
+            const bannerContent = card.querySelector(".banner-content");
+            const gradient = selected.color3
+                ? `linear-gradient(90deg, ${selected.color1} 0%, ${selected.color2} 50%, ${selected.color3} 100%)`
+                : `linear-gradient(90deg, ${selected.color1} 0%, ${selected.color1} 48%, ${selected.color2} 49%, ${selected.color2} 100%)`;
+
+            if (bannerContent) {
+                bannerContent.style.background = gradient;
+                card.style.background = "transparent";
+                return;
+            }
+
+            card.style.background = gradient;
+        });
+
+        data.forEach(style => {
+
+            const selector =
+                typographyMap[style.elemento];
+
+            if (!selector) {
+                return;
+            }
+
+            const element =
+                document.querySelector(selector);
+
+            if (!element) {
+                console.warn(
+                    `No se encontró el elemento público para: ${style.elemento}`
+                );
+                return;
+            }
+
+            // FUENTE
+            if (
+                style.fuente &&
+                style.fuente !== "inherit"
+            ) {
+                element.style.fontFamily =
+                    `"${style.fuente}", sans-serif`;
+            } else {
+                element.style.removeProperty(
+                    "font-family"
+                );
+            }
+
+            // PESO
+            element.style.fontWeight =
+                style.peso ?? "";
+
+            // TAMAÑO
+            element.style.fontSize =
+                style.tamano != null
+                    ? `${style.tamano}px`
+                    : "";
+
+            // ESTILO
+            element.style.fontStyle =
+                style.estilo ?? "normal";
+
+            // ALINEACIÓN
+            element.style.textAlign =
+                style.alineacion ?? "";
+
+            // COLOR
+            element.style.color =
+                style.color ?? "";
+
+            // TRANSFORMACIÓN
+            element.style.textTransform =
+                style.transformacion ?? "none";
+
+            // ALTURA DE LÍNEA
+            element.style.lineHeight =
+                style.line_height ?? "";
+
+            // ESPACIADO
+            element.style.letterSpacing =
+                style.letter_spacing != null
+                    ? `${style.letter_spacing}px`
+                    : "";
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Error al aplicar la tipografía de Inicio Web:",
+            error
+        );
+    }
+}
+
+// INICIALIZACIÓN 
+
+async function loadPublicExpertiseSlider() {
+  const slider = document.getElementById("expertiseSlider");
+  if (!slider) {
+    return;
+  }
+
+  try {
+    if (!window.InicioWebService || typeof window.InicioWebService.listExpertise !== "function") {
+      return;
+    }
+
+    const items = await window.InicioWebService.listExpertise();
+    const visibleItems = (items || []).filter((item) => item && item.is_visible !== false);
+
+    if (!visibleItems.length) {
+      slider.innerHTML = "";
+      return;
+    }
+
+    const cardsHtml = visibleItems.map((item, index) => {
+      const isVideo = item.media_type === "video";
+      const altText = item.alt_text || (isVideo ? "Video de expertise" : "Imagen de expertise");
+
+      if (isVideo) {
+        const videoUrl = item.video_url || "videos/vid.mp4";
+        const detectedType = window.InicioWebService.detectExpertiseVideoType(videoUrl);
+
+        if (detectedType === "direct-video") {
+          return `
+            <div class="category-card ${index === 0 ? "active" : ""}">
+              <video autoplay muted loop playsinline aria-label="${altText}" src="${videoUrl}"></video>
+            </div>
+          `;
+        }
+
+        if (["youtube", "vimeo"].includes(detectedType)) {
+          const embedUrl = window.InicioWebService.getExpertiseVideoEmbedUrl(videoUrl);
+          if (embedUrl) {
+            return `
+              <div class="category-card ${index === 0 ? "active" : ""}">
+                <iframe
+                  src="${embedUrl}"
+                  title="${altText}"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowfullscreen
+                  loading="lazy"
+                  referrerpolicy="strict-origin-when-cross-origin"
+                  style="width:100%;height:100%;border:0;display:block;"
+                ></iframe>
+              </div>
+            `;
+          }
+        }
+
+        if (["tiktok", "instagram", "facebook"].includes(detectedType)) {
+          return `
+            <div class="category-card ${index === 0 ? "active" : ""}">
+              <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:#111827;color:#fff;text-align:center;padding:1rem;">
+                <div>
+                  <div style="font-weight:600;margin-bottom:0.5rem;">Enlace de video no compatible para vista previa.</div>
+                  <a href="${videoUrl}" target="_blank" rel="noopener noreferrer" style="color:#fff;text-decoration:underline;">Abrir enlace</a>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="category-card ${index === 0 ? "active" : ""}">
+            <video autoplay muted loop playsinline aria-label="${altText}" src="${videoUrl}"></video>
+          </div>
+        `;
+      }
+
+      const imageUrl = window.InicioWebService.buildExpertisePublicImageUrl(item.id);
+      return `
+        <div class="category-card ${index === 0 ? "active" : ""}">
+          <img src="${imageUrl}" alt="${altText}">
+        </div>
+      `;
+    }).join("");
+
+    slider.innerHTML = cardsHtml;
+  } catch (error) {
+    console.error("Error cargando expertise público:", error);
+  }
+}
+
+function initExpertiseSlider() {
+  const slider = document.getElementById("expertiseSlider");
+  const hoverLeft = document.getElementById("hoverLeft");
+  const hoverRight = document.getElementById("hoverRight");
+
+  if (!slider || slider.dataset.initialized === "true") {
+    return;
+  }
+
+  const originalChildren = Array.from(slider.children);
+  if (!originalChildren.length) {
+    return;
+  }
+
+  slider.innerHTML += slider.innerHTML;
+  slider.dataset.initialized = "true";
+
+  let speed = 1.5;
+  let boostSpeed = 5;
+  let currentSpeed = speed;
+  let direction = 1;
+
+  function animateSlider() {
+    slider.scrollLeft += currentSpeed * direction;
+
+    const halfWidth = slider.scrollWidth / 2;
+
+    if (slider.scrollLeft >= halfWidth) {
+      slider.scrollLeft -= halfWidth;
+    }
+
+    if (slider.scrollLeft <= 0) {
+      slider.scrollLeft += halfWidth;
+    }
+
+    requestAnimationFrame(animateSlider);
+  }
+
+  if (hoverRight) {
+    hoverRight.addEventListener("mouseenter", () => {
+      direction = 1;
+      currentSpeed = boostSpeed;
+    });
+
+    hoverRight.addEventListener("mouseleave", () => {
+      direction = 1;
+      currentSpeed = speed;
+    });
+  }
+
+  if (hoverLeft) {
+    hoverLeft.addEventListener("mouseenter", () => {
+      direction = -1;
+      currentSpeed = boostSpeed;
+    });
+
+    hoverLeft.addEventListener("mouseleave", () => {
+      direction = 1;
+      currentSpeed = speed;
+    });
+  }
+
+  slider.addEventListener("mouseenter", () => {
+    currentSpeed = 0;
+  });
+
+  slider.addEventListener("mouseleave", () => {
+    currentSpeed = speed;
+  });
+
+  slider.addEventListener("touchstart", () => {
+    currentSpeed = 0;
+  });
+
+  slider.addEventListener("touchend", () => {
+    currentSpeed = speed;
+  });
+
+  slider.scrollLeft = 1;
+  animateSlider();
+}
 
 initCuratedGalleryMosaic();
+loadPublicGallery();
 initHeroSlider();
 initAutoSlider();
 initManualSlider();
 lazyLoadImages();
 initContactForm();
+applyInicioWebTypography();
+loadPublicExpertiseSlider().then(() => {
+  initExpertiseSlider();
+});
 });
 
-//Chatg
 document.addEventListener("DOMContentLoaded", function(){
 
     const btnTop = document.getElementById("btnTop");
@@ -538,43 +960,78 @@ document.querySelectorAll('.category-card').forEach(card => {
 LIGHTBOX GALERÍA CON NAVEGACIÓN
 ========================= */
 
-const galleryImages = document.querySelectorAll('.work-item img');
+let galleryImages = [];
+let currentIndex = 0;
+
 const lightbox = document.getElementById('lightbox');
 const lightboxImg = document.getElementById('lightboxImg');
 const closeLightbox = document.getElementById('closeLightbox');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
 
-if (lightbox && lightboxImg && closeLightbox && prevBtn && nextBtn) {
-    let currentIndex = 0;
+function refreshGalleryImageCollection(){
+    galleryImages = Array.from(document.querySelectorAll('.curated-grid .work-item img'));
+    return galleryImages;
+}
 
-    /* ABRIR */
-    function showImage(index){
-        currentIndex = index;
+function showImage(index){
+    const activeImages = refreshGalleryImageCollection();
+    if (!activeImages.length) {
+        return;
+    }
+
+    currentIndex = (index + activeImages.length) % activeImages.length;
+    if (lightbox && lightboxImg) {
         lightbox.style.display = 'flex';
-        lightboxImg.src = galleryImages[currentIndex].src;
+        lightboxImg.src = activeImages[currentIndex].src;
+        lightboxImg.alt = activeImages[currentIndex].alt || 'Vista completa';
+    }
+}
+
+function nextImage(){
+    const activeImages = refreshGalleryImageCollection();
+    if (!activeImages.length) {
+        return;
     }
 
-    /* CLICK IMAGEN */
-    galleryImages.forEach((image, index) => {
-        image.addEventListener('click', () => {
-            showImage(index);
+    currentIndex = (currentIndex + 1) % activeImages.length;
+    if (lightboxImg) {
+        lightboxImg.src = activeImages[currentIndex].src;
+        lightboxImg.alt = activeImages[currentIndex].alt || 'Vista completa';
+    }
+}
+
+function prevImage(){
+    const activeImages = refreshGalleryImageCollection();
+    if (!activeImages.length) {
+        return;
+    }
+
+    currentIndex = (currentIndex - 1 + activeImages.length) % activeImages.length;
+    if (lightboxImg) {
+        lightboxImg.src = activeImages[currentIndex].src;
+        lightboxImg.alt = activeImages[currentIndex].alt || 'Vista completa';
+    }
+}
+
+if (lightbox && lightboxImg && closeLightbox && prevBtn && nextBtn) {
+    const curatedGrid = document.querySelector('.curated-grid');
+
+    if (curatedGrid) {
+        curatedGrid.addEventListener('click', (event) => {
+            const clickedImage = event.target.closest('.work-item img');
+            if (!clickedImage) {
+                return;
+            }
+
+            const activeImages = refreshGalleryImageCollection();
+            const imageIndex = activeImages.indexOf(clickedImage);
+            if (imageIndex >= 0) {
+                showImage(imageIndex);
+            }
         });
-    });
-
-    /* SIGUIENTE */
-    function nextImage(){
-        currentIndex = (currentIndex + 1) % galleryImages.length;
-        lightboxImg.src = galleryImages[currentIndex].src;
     }
 
-    /* ANTERIOR */
-    function prevImage(){
-        currentIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
-        lightboxImg.src = galleryImages[currentIndex].src;
-    }
-
-    /* BOTONES */
     nextBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         nextImage();
@@ -585,120 +1042,34 @@ if (lightbox && lightboxImg && closeLightbox && prevBtn && nextBtn) {
         prevImage();
     });
 
-    /* CERRAR */
     closeLightbox.addEventListener('click', () => {
         lightbox.style.display = 'none';
     });
 
-    /* CLICK FUERA */
     lightbox.addEventListener('click', (e) => {
-        if(e.target === lightbox){
+        if (e.target === lightbox) {
             lightbox.style.display = 'none';
         }
     });
 
-    /* TECLADO */
     document.addEventListener('keydown', (e) => {
+        if (lightbox.style.display !== 'flex') {
+            return;
+        }
 
-        if(lightbox.style.display === 'flex'){
+        if (e.key === 'ArrowRight') {
+            nextImage();
+        }
 
-            if(e.key === 'ArrowRight'){
-                nextImage();
-            }
+        if (e.key === 'ArrowLeft') {
+            prevImage();
+        }
 
-            if(e.key === 'ArrowLeft'){
-                prevImage();
-            }
-
-            if(e.key === 'Escape'){
-                lightbox.style.display = 'none';
-            }
+        if (e.key === 'Escape') {
+            lightbox.style.display = 'none';
         }
     });
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+refreshGalleryImageCollection();
 
-    const slider = document.getElementById("expertiseSlider");
-    const hoverLeft = document.getElementById("hoverLeft");
-    const hoverRight = document.getElementById("hoverRight");
-
-    if (!slider) return;
-
-    /* CLONAR ELEMENTOS */
-    const items = slider.innerHTML;
-    slider.innerHTML += items;
-
-    let speed = 1.5;
-    let boostSpeed = 5;
-    let currentSpeed = speed;
-    let direction = 1;
-
-    let animationFrame;
-
-    function animateSlider() {
-        slider.scrollLeft += currentSpeed * direction;
-
-        const halfWidth = slider.scrollWidth / 2;
-
-        /* LOOP SUAVE */
-        if (slider.scrollLeft >= halfWidth) {
-            slider.scrollLeft -= halfWidth;
-        }
-
-        if (slider.scrollLeft <= 0) {
-            slider.scrollLeft += halfWidth;
-        }
-
-        animationFrame = requestAnimationFrame(animateSlider);
-    }
-
-    /* DERECHA */
-    if (hoverRight) {
-        hoverRight.addEventListener("mouseenter", () => {
-            direction = 1;
-            currentSpeed = boostSpeed;
-        });
-
-        hoverRight.addEventListener("mouseleave", () => {
-            direction = 1;
-            currentSpeed = speed;
-        });
-    }
-
-    /* IZQUIERDA */
-    if (hoverLeft) {
-        hoverLeft.addEventListener("mouseenter", () => {
-            direction = -1;
-            currentSpeed = boostSpeed;
-        });
-
-        hoverLeft.addEventListener("mouseleave", () => {
-            direction = 1;
-            currentSpeed = speed;
-        });
-    }
-
-    /* PAUSA */
-    slider.addEventListener("mouseenter", () => {
-        currentSpeed = 0;
-    });
-
-    slider.addEventListener("mouseleave", () => {
-        currentSpeed = speed;
-    });
-
-    slider.addEventListener("touchstart", () => {
-        currentSpeed = 0;
-    });
-
-    slider.addEventListener("touchend", () => {
-        currentSpeed = speed;
-    });
-
-    /* POSICIÓN INICIAL IMPORTANTE */
-    slider.scrollLeft = 1;
-
-    animateSlider();
-
-});

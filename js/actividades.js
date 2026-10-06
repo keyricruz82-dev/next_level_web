@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         || "https://trkbeldutzrmombqrkye.supabase.co";
     const supabaseAnonKey = (window.APP_CONFIG && window.APP_CONFIG.SUPABASE_ANON_KEY)
         || "sb_publishable_s7mXrjP9hjcfOHRLPADPhw_n1TAI_Tt";
-
     function escapeHtml(value) {
         return String(value ?? "")
             .replace(/&/g, "&amp;")

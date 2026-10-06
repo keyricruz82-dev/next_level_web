@@ -1,7 +1,3 @@
-/* ========================================
-   VARIABLES DE COLOR - IDENTIDAD DE MARCA
-   ======================================== */
-
 :root {
   /* Colores Base - Paleta de Marca */
   --color-primary: #65812C;        /* Verde oscuro - Acento primario */
@@ -10,7 +6,6 @@
   --color-dark: #101010;           /* Negro profundo - Fondo dark mode */
   --color-gray-dark: #232323;      /* Gris oscuro - Texto light mode */
 
-  /* Dark Mode (por defecto) */
   --bg-primary: #101010;
   --bg-secondary: #1b1b1b;
   --text-primary: #ffffff;
@@ -90,10 +85,7 @@ a.cta-btn {
   line-height: 1.1;
 }
 
-/* ========================================
-   NAVBAR - BARRA DE NAVEGACIÓN
-   ======================================== */
-
+/* NAVBAR - BARRA DE NAVEGACIÓN */
 .navbar {
   display: flex;
   align-items: center;
@@ -242,10 +234,7 @@ a.cta-btn {
   transform: translateY(-1px);
 }
 
-/* ========================================
-   HERO VIDEO - SECCIÓN PRINCIPAL
-   ======================================== */
-
+/* HERO VIDEO - SECCIÓN PRINCIPAL */
 .hero-video {
   position: relative;
   width: 100%;
@@ -395,16 +384,7 @@ body.menu-open {
   .hero-copy h1 {
     font-size: clamp(2.3rem, 6vw, 3.4rem);
   }
-
-  /* AQUI ANEXO EL DEGENERE */
-
-
-
-
-  /* AQUI TERMINA EL DEGENERE */
-
   .gallery-grid {
-  
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -704,9 +684,6 @@ body.menu-open {
     transform: translateY(0);
   }
 }
-
-/* ====================OVERRIDE====================*/
-
 body {
   background: var(--bg-primary) !important;
   color: var(--text-primary) !important;
@@ -757,7 +734,7 @@ header {
 }
 
 .hero-copy h1 {
-  font-size: clamp(3rem, 5vw, 4.4rem) !important;
+  font-size: clamp(3rem, 5vw, 4.4rem);
 }
 
 .light-mode .hero-copy h1 {
@@ -786,7 +763,7 @@ header {
   margin-bottom: 16px !important;
 }
 
-/* Estilos para las imágenes principales en la página de detalle */
+/* imágenes principales en la página de detalle */
 .detail-page .detail-media {
   width: 100%;
   position: relative;
@@ -801,7 +778,6 @@ header {
   border-radius: 12px;
 }
 
-/* Por defecto (escritorio) ocultamos imágenes extra, solo se muestra la principal */
 .detail-page .detail-media img.extra-main-img {
   display: none;
 }
@@ -904,7 +880,7 @@ footer {
   }
 
   .hero-copy h1 {
-    font-size: 2.6rem !important;
+    font-size: 2.6rem;
   }
 
   .servicios,
@@ -916,12 +892,7 @@ footer {
     padding: 70px 0 !important;
   }
 }
-
-
-/* ========================================
-   SECCIONES GENERALES
-   ======================================== */
-
+/* SECCIONES GENERALES */
 section {
   padding: 100px 0;
   background-color: var(--bg-primary);
@@ -1005,9 +976,7 @@ section h3 {
   transform: translateY(0);
 }
 
-/* ========================================
-   SERVICIOS - TARJETAS
-   ======================================== */
+/* SERVICIOS - TARJETAS */
 
 .servicios {
   display: grid;
@@ -4086,13 +4055,6 @@ CURATED SECTION
     color: var(--text-primary);
     margin-bottom:60px;
 }
-
-/* =========================
-GRID GALERÍA de aqui cambio el codigo
-========================= */
-/* =========================
-CURATED GALLERY FUNCIONAL - PROFESSIONAL MOSAIC
-========================= */
 .curated-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -4100,8 +4062,10 @@ CURATED GALLERY FUNCIONAL - PROFESSIONAL MOSAIC
     gap: 16px;
     grid-auto-flow: dense;
     align-items: stretch;
-    width: min(100%, 1400px);
+    width: fit-content;
+    max-width: 100%;
     margin: 0 auto;
+    justify-content: center;
 }
 
 .work-item {
@@ -4117,6 +4081,10 @@ CURATED GALLERY FUNCIONAL - PROFESSIONAL MOSAIC
     background: #111;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
     transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.curated-grid .work-item.is-last-row {
+    justify-self: center;
 }
 
 .work-item img {
@@ -4273,6 +4241,7 @@ CURATED GALLERY FUNCIONAL - PROFESSIONAL MOSAIC
 /* RESPONSIVE */
 @media(max-width: 1200px) {
     .curated-grid {
+        width: min(100%, 1400px);
         grid-template-columns: repeat(4, minmax(0, 1fr));
         grid-auto-rows: minmax(100px, auto);
     }
@@ -4282,6 +4251,7 @@ CURATED GALLERY FUNCIONAL - PROFESSIONAL MOSAIC
     .curated-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
         grid-auto-rows: minmax(90px, auto);
+        width: min(100%, 1400px);
     }
     
     .work-item.large {
@@ -4299,6 +4269,7 @@ CURATED GALLERY FUNCIONAL - PROFESSIONAL MOSAIC
         grid-template-columns: repeat(2, minmax(0, 1fr));
         grid-auto-rows: minmax(80px, auto);
         gap: 12px;
+        width: min(100%, 1400px);
     }
     
     .work-item.large {
@@ -4328,6 +4299,7 @@ CURATED GALLERY FUNCIONAL - PROFESSIONAL MOSAIC
         grid-template-columns: 1fr;
         grid-auto-rows: auto;
         gap: 10px;
+        width: min(100%, 1400px);
     }
     
     .work-item,
@@ -4349,10 +4321,7 @@ CURATED GALLERY FUNCIONAL - PROFESSIONAL MOSAIC
         padding: 8px 14px;
     }
 }
-
-/* =========================
-BOTÓN SUBIR
-========================= */
+ 
 #btnTop{
     position:fixed;
     bottom:100px;
@@ -4376,10 +4345,7 @@ BOTÓN SUBIR
     color:#fff;
     transform:translateY(-4px);
 }
-
-/* =========================
-LIGHT MODE AJUSTES
-========================= */
+ 
 .light-mode .category-card::before{
     background:linear-gradient(to top, rgba(0,0,0,0.55), transparent 60%);
 }
@@ -4391,10 +4357,7 @@ LIGHT MODE AJUSTES
 .light-mode #btnTop{
     color:#fff;
 }
-
-/* =========================
-RESPONSIVE
-========================= */
+ 
 @media(max-width:1200px){
     .curated-grid{
         grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -4475,11 +4438,7 @@ RESPONSIVE
         width:48px;
         height:48px;
     }
-}
-/* =========================
-LOGO EMPRESARIAL NAVBAR
-========================= */
-
+} 
 .logo-container{
     display:flex;
     align-items:center;
@@ -4487,10 +4446,10 @@ LOGO EMPRESARIAL NAVBAR
 }
 
 .logo{
-    width:55px;          /* Tamaño profesional */
+    width:55px; 
     height:55px;
-    object-fit:contain;  /* Ajusta sin deformar */
-    border-radius:8px;   /* Opcional */
+    object-fit:contain; 
+    border-radius:8px; 
     transition:transform 0.3s ease;
 }
 
@@ -4506,10 +4465,7 @@ LOGO EMPRESARIAL NAVBAR
     font-weight:800;
     line-height:1;
 }
-
-/* =========================
-RESPONSIVE
-========================= */
+ 
 @media(max-width:768px){
     .logo{
         width:42px;
@@ -4531,12 +4487,6 @@ RESPONSIVE
         font-size:15px;
     }
 }
-
-/* =========================
-EXPERTISE CATEGORIES SLIDER PROFESIONAL
-Reemplaza tu bloque actual de .expertise-categories
-========================= */
-
 .expertise-slider-container {
     position: relative;
     width: 100%;
@@ -4603,9 +4553,6 @@ Reemplaza tu bloque actual de .expertise-categories
     transform: scale(1.08);
     filter: brightness(0.9);
 }
-
-
-
 .slider-arrow:hover {
     background: var(--color-secondary);
     color: black;
@@ -4646,10 +4593,7 @@ Reemplaza tu bloque actual de .expertise-categories
         height: 240px;
     }
 }
-/* =========================
-BOTONES/ZONAS HOVER VISIBLES
-AGREGA AL FINAL DE TU CSS
-========================= */
+/*BOTONES/ZONAS HOVER VISIBLES*/
 
 .expertise-slider-container {
     position: relative;
@@ -4710,123 +4654,10 @@ AGREGA AL FINAL DE TU CSS
 #servicios .card video {
     width: 100%;
     height: 250px; /* Ajusta según el diseño */
-    object-fit: cover; /* Hace que el video se adapte sin deformarse */
+    object-fit: cover;
     border-radius: 10px;
     display: block;
 }
-/* SECCIÓN 
-.narrativa-section{
-    background: #050505;
-    padding: 100px 8%;
-    overflow: hidden;
-}*/
-
-/* CONTENEDOR 
-.narrativa-container{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 50px;
-    flex-wrap: wrap;
-}
-
-/* CUADROS 
-.info-box{
-    background: linear-gradient(
-        145deg,
-        rgba(20,20,20,0.95),
-        rgba(8,8,8,0.98)
-    );
-    
-    border: 1px solid rgba(255,255,255,0.08);
-
-    padding: 45px;
-    border-radius: 22px;
-
-    backdrop-filter: blur(10px);
-
-    box-shadow:
-        0 0 25px rgba(0,0,0,0.5),
-        inset 0 0 20px rgba(255,255,255,0.02);
-
-    transition: 0.4s ease;
-}
-
-/* EFECTO HOVER 
-.info-box:hover{
-    transform: translateY(-6px);
-
-    border-color: rgba(180,255,0,0.35);
-
-    box-shadow:
-        0 0 35px rgba(180,255,0,0.08),
-        0 0 60px rgba(0,0,0,0.6);
-}
-
-/* CAJA IZQUIERDA 
-.title-box{
-    flex: 1;
-    min-width: 320px;
-}
-
-/* CAJA DERECHA 
-.text-box{
-    width: 420px;
-    min-width: 280px;
-}
-
-/* MINI TITULO 
-.mini-title{
-    color: #b7ff00;
-    font-size: 13px;
-    letter-spacing: 5px;
-    font-weight: 600;
-    display: block;
-    margin-bottom: 25px;
-}*/
-
-/* TITULO 
-.title-box h1{
-    color: white;
-    font-size: 72px;
-    line-height: 1.05;
-    font-weight: 500;
-    margin: 0;
-}
-
-/* TEXTO 
-.text-box p{
-    color: rgba(255,255,255,0.82);
-    font-size: 24px;
-    line-height: 1.9;
-    margin: 0;
-}
-
-/* RESPONSIVE 
-@media(max-width: 950px){
-
-    .narrativa-container{
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .title-box h1{
-        font-size: 52px;
-    }
-
-    .text-box{
-        width: 100%;
-    }
-
-    .text-box p{
-        font-size: 20px;
-    }
-}*/
-
-/* SECCION */
-
-/* SECCION */
-
 .narrativa-banner{
 
 background:#020202;
@@ -4942,85 +4773,55 @@ margin-bottom:35px;
 .left-content h1{
 
 color:white;
-
 font-size:88px;
-
 font-weight:500;
-
 line-height:1;
-
 margin:0;
-
 font-family:Georgia, serif;
-
 }
 
 /* DERECHA */
 
 .right-content{
-
 width:28%;
-
 }
 
 .right-content p{
-
 color:#ECECEC;
-
 font-size:28px;
-
 line-height:1.9;
-
 font-weight:300;
-
 }
 
 /* RESPONSIVE */
 
 @media(max-width:950px){
-
 .banner-card{
-
 height:auto;
-
 }
 
 .banner-content{
-
 flex-direction:column;
-
 padding:50px;
-
 gap:50px;
-
 }
 
 .left-content,
 .right-content{
-
 width:100%;
-
 }
 
 .left-content h1{
-
 font-size:58px;
-
 }
 
 .diagonal{
-
 display:none;
-
 }
 
 }
 
 /* SECCIÓN de comentarios */
-
-/* =========================
-   RESET
-========================= */
 
 *{
     margin: 0;
@@ -5047,9 +4848,7 @@ display:none;
     overflow: hidden;
 }
 
-/* =========================
-   FILAS
-========================= */
+/*FILAS*/
 
 .testimonial-row{
     width: 100%;
@@ -5061,9 +4860,7 @@ display:none;
     margin-bottom: 120px;
 }
 
-/* =========================
-   IMÁGENES
-========================= */
+/*  IMÁGENES */
 
 .testimonial-image{
     width: 38%;
@@ -5089,10 +4886,7 @@ display:none;
     justify-content: flex-end;
 }
 
-/* =========================
-   TEXTOS
-========================= */
-
+/*TEXTOS */
 .testimonial-content{
     width: 42%;
     color: #ffffff;
@@ -5110,44 +4904,32 @@ display:none;
     margin-top: 20px;
 }
 
-/* =========================
-   TÍTULOS
-========================= */
+/*TÍTULOS*/
 
 .testimonial-content h2{
     font-size: 58px;
     font-weight: 300;
-
     margin-bottom: 12px;
-
     color: #f5f5f5;
-
     font-family: 'Poppins', sans-serif;
 }
 
-/* SUBTÍTULO */
+/* SUBTÍTULO */ 
 .testimonial-content span{
     display: block;
-
     margin-bottom: 35px;
-
     color: #9f9f9f;
-
     font-size: 14px;
     font-style: italic;
-
     font-family: 'Poppins', sans-serif;
 }
 
 /* PÁRRAFO */
 .testimonial-content p{
     color: #d0d0d0;
-
     font-size: 19px;
     line-height: 2;
-
     font-weight: 300;
-
     font-family: 'Poppins', sans-serif;
 }
 
@@ -5284,10 +5066,7 @@ display:none;
 .promo-banner-grid[data-count="4"] {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-/* ========================================
-   UNA SOLA IMAGEN — MOSTRAR COMPLETA
-   ======================================== */
-
+ 
 .promo-banner-grid[data-count="1"] {
     display: block;
     width: 100%;
@@ -5317,7 +5096,6 @@ display:none;
 }
 
 /* BANNER CON VARIAS IMÁGENES */
-
 .promo-banner-grid[data-count="2"] .promo-banner-slot,
 .promo-banner-grid[data-count="3"] .promo-banner-slot,
 .promo-banner-grid[data-count="4"] .promo-banner-slot {
@@ -5325,17 +5103,13 @@ display:none;
 }
 
 /* RESPONSIVE */
-
 @media (max-width: 768px) {
-
     .promo-banner {
         padding: 30px 0;
     }
-
     .promo-banner-grid {
         width: min(100%, calc(100% - 20px));
     }
-
     .promo-banner-slot {
         min-width: 0;
         min-height: 150px;
@@ -5347,11 +5121,9 @@ display:none;
     .promo-banner-grid[data-count="4"] {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-
 }
 
 @media (max-width: 520px) {
-
     .promo-banner-grid[data-count="1"],
     .promo-banner-grid[data-count="2"],
     .promo-banner-grid[data-count="3"],
@@ -5368,10 +5140,6 @@ display:none;
     }
 
 }
-/* ========================================
-   RESPONSIVE OVERRIDES FOR MOBILE AND TABLET
-   ======================================== */
-
 html {
   scroll-behavior: smooth;
 }
@@ -5461,7 +5229,7 @@ html {
   }
 
   .hero-copy h1 {
-    font-size: clamp(2rem, 7vw, 3.4rem) !important;
+    font-size: clamp(2rem, 7vw, 3.4rem);
     line-height: 1.08;
   }
 
@@ -5552,7 +5320,7 @@ html {
   }
 
   .hero-copy h1 {
-    font-size: clamp(1.8rem, 8vw, 2.8rem) !important;
+    font-size: clamp(1.8rem, 8vw, 2.8rem);
   }
 
   .hero-copy .eyebrow,
@@ -5596,7 +5364,6 @@ html {
   }
 }
 
-/* Ajustes adicionales para actividades y servicios en móvil */
 @media (max-width: 900px) {
   section#actividades .servicios {
     display: grid;
@@ -5670,7 +5437,7 @@ html {
   }
 
   .hero-copy h1 {
-    font-size: 2.4rem !important;
+    font-size: 2.4rem;
   }
 
   .hero-copy p,
@@ -5680,9 +5447,7 @@ html {
   }
 }
 
-/* ========================================
-   GALERÍA SERVICIOS - RESPONSIVE COMPLETO
-   ======================================== */
+/*  GALERÍA SERVICIOS - RESPONSIVE COMPLETO */
 
 #galeria-servicios {
   padding: 90px 0;
@@ -5945,9 +5710,7 @@ html {
   }
 }
 
-/* ========================================
-   QUIÉNES SOMOS - OVERRIDES MÓVIL
-   ======================================== */
+/* QUIÉNES SOMOS - OVERRIDES MÓVIL  */
 @media (max-width: 700px) {
   #quienes {
     overflow-x: hidden;

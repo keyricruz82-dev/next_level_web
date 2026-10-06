@@ -176,7 +176,7 @@
 
         return {
             url: config.SUPABASE_URL || "https://trkbeldutzrmombqrkye.supabase.co",
-            anonKey: config.SUPABASE_ANON_KEY || "sb_publishable_s7mXrjP9hjcfOHRLPADPhw_n1TAI_Tt"
+            anonKey: config.SUPABASE_ANON_KEY || "sb_publishable_s7mXrjP9hjcfOHRLPADPhw_n1TAI_Tt"                               
         };
     }
 
