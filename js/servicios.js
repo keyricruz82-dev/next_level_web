@@ -1,10 +1,10 @@
 (function () {
     const FALLBACK_IMAGE = "images/next.jpeg";
     const DEFAULT_CURATED_IMAGES = [
-        { position: 1, image_url: "images/servi.png" },
-        { position: 2, image_url: "images/cap.jpeg" },
-        { position: 3, image_url: "images/rec.jpeg" },
-        { position: 4, image_url: "images/don.jpeg" }
+        { position: 1, image_url: "images/paq1.jpeg" },
+        { position: 2, image_url: "images/paq2.jpeg" },
+        { position: 3, image_url: "images/paq3.jpeg" },
+        { position: 4, image_url: "images/paq4.jpeg" }
     ];
     const DEFAULT_PROMO_BANNER_IMAGE = { position: 1, image_url: "images/servi.png" };
     const DEFAULT_PROMO_BANNER_IMAGES = [DEFAULT_PROMO_BANNER_IMAGE];
@@ -329,9 +329,7 @@
         const titleStyles = normalizeStyleConfig(styles.titulo);
         const descriptionStyles = normalizeStyleConfig(styles.descripcion);
 
-        /*
-         * IMAGEN
-         */
+        /* IMAGEN */
         if (imageEl) {
             if (image) {
                 imageEl.src = image;
@@ -348,9 +346,7 @@
             };
         }
 
-        /*
-         * TITULO
-         */
+        /* TITULO */
         if (titleEl) {
             clearInlineTextStyles(titleEl);
 
@@ -364,9 +360,7 @@
             }
         }
 
-        /*
-         * DESCRIPCION
-         */
+        /* DESCRIPCION */
         if (descriptionEl) {
             clearInlineTextStyles(descriptionEl);
 
@@ -383,9 +377,7 @@
             }
         }
 
-        /*
-         * BADGE
-         */
+        /* BADGE */
         if (badgeEl) {
             if (badge) {
                 badgeEl.textContent = badge;
@@ -396,9 +388,7 @@
             }
         }
 
-        /*
-         * TEXTO META
-         */
+        /* TEXTO META */
         if (metaEl) {
             if (meta) {
                 metaEl.textContent = meta;
@@ -409,9 +399,7 @@
             }
         }
 
-        /*
-         * OVERLAY
-         */
+        /* OVERLAY */
         if (overlayEl) {
             const hasOverlayContent =
                 Boolean(title) ||
@@ -422,9 +410,7 @@
                 hasOverlayContent ? "" : "none";
         }
 
-        /*
-         * MODO SOLO IMAGEN
-         */
+        /* MODO SOLO IMAGEN */
         const hasAnyText =
             Boolean(title) ||
             Boolean(description) ||
@@ -767,18 +753,7 @@
 
             orden: order
         };
-    });
-
-    /*
-     * TODO servicio de Supabase cuyo orden NO pertenece
-     * a los servicios predeterminados es un servicio NUEVO.
-     *
-     * Ejemplo:
-     *
-     * orden 15 → servicio nuevo
-     * orden 16 → servicio nuevo
-     * orden 17 → servicio nuevo
-     */
+    }); 
     const newCustomServices = normalizedCustom
         .filter((service) => !defaultOrders.has(service.orden))
         .map((service) => ({
@@ -814,14 +789,6 @@
             orden:
                 Number(service.orden)
         }));
-
-    /*
-     * IMPORTANTE:
-     * Devolvemos TODOS los servicios:
-     *
-     * Predeterminados: 1-14
-     * Nuevos:          15+
-     */
     return [
         ...mergedDefaults,
         ...newCustomServices
@@ -1003,18 +970,11 @@
         await renderPublishedServices();
         await renderSiteMediaSections();
         initializeReveal();
-    }
-
-    /*
-     * Disponible globalmente para poder
-     * volver a cargar los servicios manualmente.
-     */
+    } 
     window.loadServiciosPublicos =
         hydrateServices;
 
-    /*
-     * Inicialización.
-     */
+    /* Inicialización. */
     if (
         document.readyState === "loading"
     ) {

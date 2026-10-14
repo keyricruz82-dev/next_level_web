@@ -194,6 +194,7 @@
 		refs.contentArea.addEventListener("input", onContentInput);
 		refs.contentArea.addEventListener("change", onContentInput);
 		refs.contentArea.addEventListener("change", onSiteMediaInputChange);
+		refs.contentArea.addEventListener("change", onQuienesSomosMediaInputChange);
 		refs.contentArea.addEventListener("click", onSiteMediaActionClick);
 		refs.publicationCloseButton.addEventListener("click", () => handleModalCloseAttempt());
 		refs.cancelPublicationBtn.addEventListener("click", () => handleModalCloseAttempt());
@@ -282,6 +283,431 @@
     await renderPublicaciones();
 }
 
+async function uploadQuienesSomosMedia(file, mediaKind = "image") {
+	const bucketName = (window.APP_CONFIG && window.APP_CONFIG.STORAGE && window.APP_CONFIG.STORAGE.PUBLICACIONES_BUCKET)
+		? window.APP_CONFIG.STORAGE.PUBLICACIONES_BUCKET
+		: "publicaciones";
+
+	if (!file || !(file instanceof File)) {
+		throw new Error("Debes seleccionar un archivo válido.");
+	}
+
+	const allowedTypes = mediaKind === "video"
+		? ["video/mp4", "video/webm", "video/ogg", "video/quicktime"]
+		: ["image/jpeg", "image/png", "image/webp"];
+	const extension = String(file.name.split(".").pop() || "bin").toLowerCase();
+	const allowedExtensions = mediaKind === "video"
+		? ["mp4", "webm", "ogg", "mov"]
+		: ["jpg", "jpeg", "png", "webp"];
+
+	if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(extension)) {
+		throw new Error(mediaKind === "video"
+			? "El video debe ser MP4, WEBM, OGG o MOV."
+			: "La imagen debe ser JPG, PNG o WebP.");
+	}
+
+	const folder = mediaKind === "video" ? "quienes-somos/videos" : "quienes-somos/imagenes";
+	const storagePath = `${folder}/${crypto.randomUUID()}.${extension}`;
+	const { error } = await window.supabaseClient.storage.from(bucketName).upload(storagePath, file, {
+		cacheControl: "3600",
+		upsert: false
+	});
+
+	if (error) {
+		throw error;
+	}
+
+	const { data } = window.supabaseClient.storage.from(bucketName).getPublicUrl(storagePath);
+	if (!data || !data.publicUrl) {
+		throw new Error("No se pudo generar la URL pública del archivo.");
+	}
+
+	return data.publicUrl;
+}
+
+async function onQuienesSomosMediaInputChange(event) {
+	const target = event.target;
+	if (!(target instanceof HTMLInputElement) || !target.matches("[data-quienes-media-input]")) {
+		return;
+	}
+
+	const file = target.files && target.files[0] ? target.files[0] : null;
+	const configKey = target.dataset.quienesMediaKey || "";
+	if (!file || !configKey) {
+		target.value = "";
+		return;
+	}
+
+	const button = refs.contentArea.querySelector(`button[data-action="quienes-select-video"][data-video-key="${configKey}"]`);
+	const label = refs.contentArea.querySelector(`[data-quienes-video-btn-label="${configKey}"]`);
+	const status = refs.contentArea.querySelector(`[data-quienes-video-status="${configKey}"]`);
+	const field = refs.contentArea.querySelector(`input[data-quienes-config-key="${configKey}"]`);
+	const originalValue = field ? field.value : "";
+	const originalLabel = label ? label.textContent : "Seleccionar archivo";
+
+	if (button) {
+		button.disabled = true;
+	}
+	if (label) {
+		label.textContent = "Subiendo...";
+	}
+	if (status) {
+		status.textContent = `Subiendo "${file.name}"...`;
+		status.className = "form-text text-info mt-1";
+	}
+
+	try {
+		const publicUrl = await uploadQuienesSomosMedia(file, "video");
+		field.value = publicUrl;
+		if (label) {
+			label.textContent = "Cambiar archivo";
+		}
+		if (status) {
+			status.textContent = `Archivo subido: ${file.name}. Haz clic en "Guardar cambios" para conservarlo.`;
+			status.className = "form-text text-success mt-1";
+		}
+		showToast("El video se subió correctamente. Haz clic en 'Guardar cambios' para confirmar.", "success");
+	} catch (error) {
+		console.error("Error cargando video de Quiénes Somos:", error);
+		if (field) {
+			field.value = originalValue;
+		}
+		if (label) {
+			label.textContent = originalLabel;
+		}
+		if (status) {
+			status.textContent = error && error.message ? error.message : "No se pudo subir el video seleccionado.";
+			status.className = "form-text text-danger mt-1";
+		}
+		showToast(error && error.message ? error.message : "No se pudo subir el video seleccionado.", "danger");
+	} finally {
+		if (button) {
+			button.disabled = false;
+		}
+		target.value = "";
+	}
+}
+
+const QUIENES_STYLE_FONT_OPTIONS = [
+	"inherit",
+	"Inter",
+	"Poppins",
+	"Montserrat",
+	"Roboto",
+	"Open Sans",
+	"Lato",
+	"Playfair Display",
+	"Oswald",
+	"Raleway",
+	"Nunito"
+];
+
+function renderQuienesVisualEditor(editorId, elements, kind = "config", position = 0) {
+	return `
+		<div class="inicio-web-typography-layout quienes-somos-visual-editor" data-quienes-visual-editor="${editorId}" data-quienes-editor-kind="${kind}" data-quienes-editor-position="${position}">
+			<div class="inicio-web-typography-group inicio-web-typography-config">
+				<section class="card border-0 shadow-sm mb-4">
+					<div class="card-body">
+						<div class="mb-4">
+							<p class="text-secondary text-uppercase small fw-semibold mb-1">Tipografía</p>
+							<h2 class="h5 mb-1">Tipografía</h2>
+							<p class="text-secondary small mb-0">Personaliza la apariencia del elemento seleccionado.</p>
+						</div>
+						<div class="row g-3">
+							<div class="col-12">
+								<label class="form-label fw-semibold">Elemento</label>
+								<select class="form-select" data-quienes-visual-element>
+									${elements.map((element) => `
+										<option value="${escapeHtml(element.styleKey)}" data-source-key="${escapeHtml(element.sourceKey)}" data-source-field="${escapeHtml(element.sourceField || "")}" data-source-kind="${escapeHtml(element.sourceKind || kind)}" data-position="${element.position || position}" data-multiline="${element.multiline ? "true" : "false"}">
+											${escapeHtml(element.label)}
+										</option>
+									`).join("")}
+								</select>
+							</div>
+							<div class="col-12 col-md-6">
+								<label class="form-label">Fuente</label>
+								<select class="form-select" data-quienes-visual-control="fuente">
+									${QUIENES_STYLE_FONT_OPTIONS.map((font) => `<option value="${escapeHtml(font)}">${escapeHtml(font === "inherit" ? "Predeterminada del sitio" : font)}</option>`).join("")}
+								</select>
+							</div>
+							<div class="col-12 col-md-6">
+								<label class="form-label">Peso</label>
+								<select class="form-select" data-quienes-visual-control="peso">
+									<option value="300">Light</option>
+									<option value="400">Regular</option>
+									<option value="500">Medium</option>
+									<option value="600">SemiBold</option>
+									<option value="700">Bold</option>
+									<option value="800">ExtraBold</option>
+									<option value="900">Black</option>
+								</select>
+							</div>
+							<div class="col-12 col-md-6">
+								<label class="form-label">Tamaño</label>
+								<div class="input-group">
+									<input type="number" class="form-control" min="8" max="160" step="1" data-quienes-visual-control="tamano">
+									<span class="input-group-text">px</span>
+								</div>
+							</div>
+							<div class="col-12 col-md-6">
+								<label class="form-label">Alineación</label>
+								<select class="form-select" data-quienes-visual-control="alineacion">
+									<option value="left">Izquierda</option>
+									<option value="center">Centro</option>
+									<option value="right">Derecha</option>
+									<option value="justify">Justificado</option>
+								</select>
+							</div>
+							<div class="col-12 col-md-4">
+								<label class="form-label">Estilo</label>
+								<select class="form-select" data-quienes-visual-control="estilo">
+									<option value="normal">Normal</option>
+									<option value="italic">Cursiva</option>
+								</select>
+							</div>
+							<div class="col-12 col-md-4">
+								<label class="form-label">Transformación</label>
+								<select class="form-select" data-quienes-visual-control="transformacion">
+									<option value="none">Normal</option>
+									<option value="uppercase">MAYÚSCULAS</option>
+									<option value="lowercase">minúsculas</option>
+									<option value="capitalize">Tipo título</option>
+								</select>
+							</div>
+							<div class="col-12 col-md-4">
+								<label class="form-label">Color</label>
+								<div class="input-group">
+									<input type="color" class="form-control form-control-color" data-quienes-visual-control="color">
+									<input type="text" class="form-control" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$" data-quienes-visual-control="colorHex" aria-label="Color HEX">
+								</div>
+							</div>
+							<div class="col-12 col-md-6">
+								<label class="form-label">Altura de línea</label>
+								<input type="number" class="form-control" min="0.8" max="3" step="0.1" data-quienes-visual-control="line_height">
+							</div>
+							<div class="col-12 col-md-6">
+								<label class="form-label">Espaciado entre letras</label>
+								<div class="input-group">
+									<input type="number" class="form-control" min="-10" max="20" step="0.1" data-quienes-visual-control="letter_spacing">
+									<span class="input-group-text">px</span>
+								</div>
+							</div>
+						</div>
+						<div class="d-flex justify-content-end gap-2 mt-4">
+							<button type="button" class="btn btn-primary" data-action="quienes-save-visual-style">Guardar tipografía</button>
+						</div>
+					</div>
+				</section>
+			</div>
+			<div class="inicio-web-typography-group inicio-web-typography-editor">
+				<section class="card border-0 shadow-sm mb-4">
+					<div class="card-body">
+						<div class="mb-4">
+							<p class="text-secondary text-uppercase small fw-semibold mb-1">Contenido</p>
+							<h2 class="h5 mb-1">Editar texto</h2>
+							<p class="text-secondary small mb-0">Puedes modificar el texto que aparecerá en esta sección.</p>
+						</div>
+						<label class="form-label fw-semibold">Texto del elemento</label>
+						<input class="form-control" data-quienes-visual-content data-quienes-visual-content-short>
+						<textarea class="form-control d-none" rows="6" data-quienes-visual-content data-quienes-visual-content-long></textarea>
+						<div class="d-flex justify-content-end gap-2 mt-4">
+							<button type="button" class="btn btn-primary" data-action="quienes-save-visual-text">Guardar texto</button>
+						</div>
+					</div>
+				</section>
+			</div>
+			<div class="inicio-web-typography-group inicio-web-typography-preview">
+				<section class="card border-0 shadow-sm mb-4">
+					<div class="card-body">
+						<div class="mb-3">
+							<p class="text-secondary text-uppercase small fw-semibold mb-1">Vista previa</p>
+							<h2 class="h5 mb-0">Así se verá el texto</h2>
+						</div>
+						<div class="rounded-3 p-4 p-md-5 text-center quienes-somos-visual-preview" data-quienes-visual-preview>
+							<div data-quienes-visual-preview-text></div>
+						</div>
+					</div>
+				</section>
+			</div>
+		</div>
+	`;
+}
+
+function getQuienesVisualSourceField(editor) {
+	const option = editor.querySelector("[data-quienes-visual-element]")?.selectedOptions[0];
+	if (!option) {
+		return null;
+	}
+
+	if (option.dataset.sourceKind === "testimonial") {
+		return refs.contentArea.querySelector(
+			`[data-quienes-testimonio-position="${option.dataset.position}"][data-quienes-testimonio-field="${option.dataset.sourceField}"]`
+		);
+	}
+
+	return refs.contentArea.querySelector(`[data-quienes-config-key="${option.dataset.sourceKey}"]`);
+}
+
+function getQuienesVisualContentControl(editor) {
+	return editor.querySelector("[data-quienes-visual-content]:not(.d-none)");
+}
+
+function syncQuienesVisualContentControl(editor) {
+	const option = editor.querySelector("[data-quienes-visual-element]")?.selectedOptions[0];
+	const multiline = option?.dataset.multiline === "true";
+	const shortControl = editor.querySelector("[data-quienes-visual-content-short]");
+	const longControl = editor.querySelector("[data-quienes-visual-content-long]");
+	if (!shortControl || !longControl) {
+		return;
+	}
+
+	const value = shortControl.value || longControl.value;
+	shortControl.classList.toggle("d-none", multiline);
+	longControl.classList.toggle("d-none", !multiline);
+	if (multiline) {
+		longControl.value = value;
+	} else {
+		shortControl.value = value;
+	}
+}
+
+function getQuienesVisualStyle(editor) {
+	const control = (name) => editor.querySelector(`[data-quienes-visual-control="${name}"]`)?.value;
+	return {
+		elemento: editor.querySelector("[data-quienes-visual-element]")?.value,
+		fuente: control("fuente"),
+		peso: Number(control("peso")),
+		tamano: Number(control("tamano")),
+		estilo: control("estilo"),
+		alineacion: control("alineacion"),
+		color: control("colorHex"),
+		transformacion: control("transformacion"),
+		line_height: Number(control("line_height")),
+		letter_spacing: Number(control("letter_spacing"))
+	};
+}
+
+function updateQuienesVisualPreview(editor) {
+	const sourceField = getQuienesVisualSourceField(editor);
+	const content = getQuienesVisualContentControl(editor);
+	const preview = editor.querySelector("[data-quienes-visual-preview]");
+	const previewText = editor.querySelector("[data-quienes-visual-preview-text]");
+	if (!content || !preview || !previewText) {
+		return;
+	}
+
+	previewText.textContent = content.value || sourceField?.value || "";
+	const style = getQuienesVisualStyle(editor);
+	Object.assign(previewText.style, {
+		fontFamily: style.fuente === "inherit" ? "" : style.fuente,
+		fontWeight: String(style.peso || 400),
+		fontSize: `${style.tamano || 18}px`,
+		fontStyle: style.estilo || "normal",
+		textAlign: style.alineacion || "left",
+		color: style.color || "#ffffff",
+		textTransform: style.transformacion || "none",
+		lineHeight: String(style.line_height || 1.5),
+		letterSpacing: `${style.letter_spacing || 0}px`
+	});
+}
+
+async function loadQuienesVisualEditor(editor) {
+	const sourceField = getQuienesVisualSourceField(editor);
+	syncQuienesVisualContentControl(editor);
+	const content = getQuienesVisualContentControl(editor);
+	if (content) {
+		content.value = sourceField?.value || "";
+	}
+
+	try {
+		const style = await window.QuienesSomosService.getStyle(
+			editor.querySelector("[data-quienes-visual-element]")?.value
+		);
+		Object.entries(style).forEach(([name, value]) => {
+			const control = editor.querySelector(`[data-quienes-visual-control="${name}"]`);
+			if (control) {
+				control.value = value;
+			}
+		});
+		const colorHex = editor.querySelector('[data-quienes-visual-control="colorHex"]');
+		const color = editor.querySelector('[data-quienes-visual-control="color"]');
+		if (colorHex && color) {
+			colorHex.value = style.color;
+			color.value = style.color;
+		}
+		updateQuienesVisualPreview(editor);
+	} catch (error) {
+		console.error("Error cargando la tipografía de Quiénes Somos:", error);
+		showToast("No se pudo cargar la tipografía de Quiénes Somos.", "danger");
+	}
+}
+
+function bindQuienesVisualEditors() {
+	refs.contentArea.querySelectorAll("[data-quienes-visual-editor]").forEach((editor) => {
+		const elementSelect = editor.querySelector("[data-quienes-visual-element]");
+		const content = editor.querySelector("[data-quienes-visual-content]");
+		const color = editor.querySelector('[data-quienes-visual-control="color"]');
+		const colorHex = editor.querySelector('[data-quienes-visual-control="colorHex"]');
+
+		elementSelect?.addEventListener("change", () => {
+			syncQuienesVisualContentControl(editor);
+			loadQuienesVisualEditor(editor);
+		});
+		editor.querySelectorAll("[data-quienes-visual-content]").forEach((contentControl) => {
+			contentControl.addEventListener("input", () => {
+				const sourceField = getQuienesVisualSourceField(editor);
+				if (sourceField) {
+					sourceField.value = contentControl.value;
+				}
+				updateQuienesVisualPreview(editor);
+			});
+		});
+		editor.querySelectorAll("[data-quienes-visual-control]").forEach((control) => {
+			control.addEventListener("input", () => {
+				if (control.dataset.quienesVisualControl === "color") {
+					colorHex.value = control.value;
+				}
+				if (control.dataset.quienesVisualControl === "colorHex" && /^#[0-9a-fA-F]{6}$/.test(control.value)) {
+					color.value = control.value;
+				}
+				updateQuienesVisualPreview(editor);
+			});
+			control.addEventListener("change", () => updateQuienesVisualPreview(editor));
+		});
+		editor.querySelector("[data-action='quienes-save-visual-style']")?.addEventListener("click", async () => {
+			const style = getQuienesVisualStyle(editor);
+			if (!style.elemento || !/^#[0-9a-fA-F]{6}$/.test(style.color) || !Number.isFinite(style.tamano) || !Number.isFinite(style.line_height) || !Number.isFinite(style.letter_spacing)) {
+				showToast("Revisa los valores de tipografía antes de guardar.", "warning");
+				return;
+			}
+			try {
+				await window.QuienesSomosService.saveStyle(style);
+				showToast("La tipografía de Quiénes Somos se guardó correctamente.", "success");
+			} catch (error) {
+				console.error("Error guardando la tipografía de Quiénes Somos:", error);
+				showToast("No se pudo guardar la tipografía de Quiénes Somos.", "danger");
+			}
+		});
+		editor.querySelector("[data-action='quienes-save-visual-text']")?.addEventListener("click", async () => {
+			const sourceField = getQuienesVisualSourceField(editor);
+			const contentControl = getQuienesVisualContentControl(editor);
+			if (!sourceField || !contentControl || !contentControl.value.trim()) {
+				showToast("El texto no puede quedar vacío.", "warning");
+				return;
+			}
+			sourceField.value = contentControl.value;
+			const option = elementSelect?.selectedOptions[0];
+			if (option?.dataset.sourceKind === "testimonial") {
+				await guardarQuienesSomosTestimonio(Number(option.dataset.position));
+			} else {
+				await guardarQuienesSomosConfig();
+			}
+		});
+
+		loadQuienesVisualEditor(editor);
+	});
+}
+
 async function renderQuienesSomos() {
 	try {
 		const [configMap, testimonials] = await Promise.all([
@@ -327,35 +753,77 @@ async function renderQuienesSomos() {
 			}
 		];
 
-		const sectionsMarkup = sectionFields.map(({ section, fields }) => `
-			<div class="quienes-somos-section-card">
-				<div class="quienes-somos-section-title">${escapeHtml(section)}</div>
-				<div class="quienes-somos-grid">
-					${fields.map(([key, label]) => {
-						const inputType = key.includes("video") ? "text" : "text";
-						const isLongText = [
-							"expertise_parrafo_1",
-							"expertise_parrafo_2",
-							"about_parrafo_1",
-							"about_parrafo_2",
-							"about_parrafo_3",
-							"about_banner_descripcion"
-						].includes(key);
+		const renderFieldGroup = (fieldList) => fieldList.map(([key, label]) => {
+			const isLongText = [
+				"expertise_parrafo_1",
+				"expertise_parrafo_2",
+				"about_parrafo_1",
+				"about_parrafo_2",
+				"about_parrafo_3",
+				"about_banner_descripcion"
+			].includes(key);
 
-						const control = isLongText
-							? `<textarea class="form-control" rows="4" data-quienes-config-key="${key}">${escapeHtml(values[key] || "")}</textarea>`
-							: `<input type="${inputType}" class="form-control" data-quienes-config-key="${key}" value="${escapeHtml(values[key] || "")}">`;
+			const value = values[key] || "";
+			const control = isLongText
+				? `<textarea class="form-control" rows="4" data-quienes-config-key="${key}">${escapeHtml(value)}</textarea>`
+				: key.includes("video")
+					? `
+						<div class="mb-2">
+							<button type="button" class="btn btn-outline-primary btn-sm" data-action="quienes-select-video" data-video-key="${key}">
+								<span data-quienes-video-btn-label="${key}">${value ? "Cambiar archivo" : "Seleccionar archivo"}</span>
+							</button>
+							<input type="file" id="quienesVideoInput-${key}" class="d-none" data-quienes-media-input data-quienes-media-key="${key}" accept="video/mp4,video/webm,video/ogg,video/quicktime">
+						</div>
+						<input type="text" class="form-control" data-quienes-config-key="${key}" data-quienes-video-input="${key}" value="${escapeHtml(value)}" placeholder="Video actual o URL externa">
+						<div class="form-text text-secondary mt-1" data-quienes-video-status="${key}">${value ? `Video actual: ${escapeHtml(value)}` : "Formatos permitidos: MP4, WebM, OGG, MOV o URL externa."}</div>
+					`
+					: `<input type="text" class="form-control" data-quienes-config-key="${key}" value="${escapeHtml(value)}">`;
 
-						return `
-							<div>
-								<label class="quienes-somos-form-label">${escapeHtml(label)}</label>
-								${control}
-							</div>
-						`;
-					}).join("")}
+			return `
+				<div>
+					<label class="quienes-somos-form-label">${escapeHtml(label)}</label>
+					${control}
 				</div>
-			</div>
-		`).join("");
+			`;
+		}).join("");
+
+		const sectionsMarkup = sectionFields.map(({ section, fields }) => {
+			const isHistorySection = section === "Historia";
+			const primaryFields = isHistorySection
+				? fields.filter(([key]) => !["about_video_1", "about_video_2", "about_video_3"].includes(key))
+				: fields;
+			const videoFields = isHistorySection
+				? fields.filter(([key]) => ["about_video_1", "about_video_2", "about_video_3"].includes(key))
+				: [];
+			const textElements = fields
+				.filter(([key]) => !key.includes("video"))
+				.map(([key, label]) => ({
+					styleKey: `quienes_${key}`,
+					sourceKey: key,
+					sourceKind: "config",
+					label,
+					multiline: key.includes("parrafo") || key === "about_banner_descripcion"
+				}));
+			const editorId = section.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+			return `
+				<div class="quienes-somos-section-card">
+					<div class="quienes-somos-section-title">${escapeHtml(section)}</div>
+					${renderQuienesVisualEditor(editorId, textElements)}
+					${isHistorySection ? `
+						<div class="quienes-somos-history-layout">
+							<div class="quienes-somos-grid">${renderFieldGroup(primaryFields)}</div>
+							<div class="quienes-somos-video-panel">
+								<div class="quienes-somos-grid">${renderFieldGroup(videoFields)}</div>
+							</div>
+						</div>
+					` : `<div class="quienes-somos-grid">${renderFieldGroup(fields)}</div>`}
+					<div class="quienes-somos-form-actions">
+						<button class="btn btn-primary" type="button" data-action="guardar-quienes-somos" data-section="${escapeHtml(section)}">Guardar cambios</button>
+					</div>
+				</div>
+			`;
+		}).join("");
 
 		const testimonialMarkup = [1, 2, 3].map((position) => {
 			const item = (testimonials || []).find((entry) => Number(entry.position) === position) || {
@@ -365,26 +833,40 @@ async function renderQuienesSomos() {
 				image_url: "",
 				position
 			};
+			const imagePreview = item.image_url
+				? `<div class="site-media-preview"><img src="${escapeHtml(item.image_url)}" alt="Testimonio ${position}" class="site-media-thumb"></div>`
+				: `<div class="site-media-preview site-media-empty"><span>Sin imagen</span></div>`;
 
 			return `
 				<div class="quienes-somos-testimonial-card">
 					<div class="quienes-somos-section-title">Testimonio ${position}</div>
-					<div class="row g-3">
-						<div class="col-12 col-md-6">
-							<label class="quienes-somos-form-label">Título</label>
-							<input type="text" class="form-control" data-quienes-testimonio-position="${position}" data-quienes-testimonio-field="titulo" value="${escapeHtml(item.titulo || "")}">
+					${renderQuienesVisualEditor(`testimonio-${position}`, [
+						{ styleKey: `quienes_testimonio_${position}_titulo`, sourceKey: "titulo", sourceField: "titulo", sourceKind: "testimonial", label: "Título", position, multiline: false },
+						{ styleKey: `quienes_testimonio_${position}_nombre_ubicacion`, sourceKey: "nombre_ubicacion", sourceField: "nombre_ubicacion", sourceKind: "testimonial", label: "Nombre / ubicación", position, multiline: false },
+						{ styleKey: `quienes_testimonio_${position}_texto`, sourceKey: "texto", sourceField: "texto", sourceKind: "testimonial", label: "Texto", position, multiline: true }
+					], "testimonial", position)}
+					<div class="quienes-somos-testimonial-layout">
+						<div class="quienes-somos-testimonial-content">
+							<div class="quienes-somos-testimonial-field-row">
+								<div>
+									<label class="quienes-somos-form-label">Título</label>
+									<input type="text" class="form-control" data-quienes-testimonio-position="${position}" data-quienes-testimonio-field="titulo" value="${escapeHtml(item.titulo || "")}">
+								</div>
+								<div>
+									<label class="quienes-somos-form-label">Nombre y ubicación</label>
+									<input type="text" class="form-control" data-quienes-testimonio-position="${position}" data-quienes-testimonio-field="nombre_ubicacion" value="${escapeHtml(item.nombre_ubicacion || "")}">
+								</div>
+							</div>
+							<div>
+								<label class="quienes-somos-form-label">Texto</label>
+								<textarea class="form-control" rows="4" data-quienes-testimonio-position="${position}" data-quienes-testimonio-field="texto">${escapeHtml(item.texto || "")}</textarea>
+							</div>
 						</div>
-						<div class="col-12 col-md-6">
-							<label class="quienes-somos-form-label">Nombre y ubicación</label>
-							<input type="text" class="form-control" data-quienes-testimonio-position="${position}" data-quienes-testimonio-field="nombre_ubicacion" value="${escapeHtml(item.nombre_ubicacion || "")}">
-						</div>
-						<div class="col-12">
-							<label class="quienes-somos-form-label">Texto</label>
-							<textarea class="form-control" rows="4" data-quienes-testimonio-position="${position}" data-quienes-testimonio-field="texto">${escapeHtml(item.texto || "")}</textarea>
-						</div>
-						<div class="col-12">
+						<div class="quienes-somos-testimonial-media">
 							<label class="quienes-somos-form-label">Imagen URL</label>
 							<input type="text" class="form-control" data-quienes-testimonio-position="${position}" data-quienes-testimonio-field="image_url" value="${escapeHtml(item.image_url || "")}">
+							<div class="quienes-somos-form-hint">Formatos permitidos: JPG, PNG, WEBP</div>
+							${imagePreview}
 						</div>
 					</div>
 					<div class="quienes-somos-form-actions">
@@ -411,6 +893,7 @@ async function renderQuienesSomos() {
 				${testimonialMarkup}
 			</div>
 		`;
+		bindQuienesVisualEditors();
 	} catch (error) {
 		console.error("Error cargando Quiénes Somos:", error);
 		refs.contentArea.innerHTML = `
@@ -3250,6 +3733,13 @@ function updateInicioWebTypographyPreview() {
 
 		if (action === "guardar-quienes-somos") {
 			await guardarQuienesSomosConfig();
+			return;
+		}
+
+		if (action === "quienes-select-video") {
+			const videoKey = actionButton.dataset.videoKey;
+			const input = refs.contentArea.querySelector(`input[data-quienes-media-input][data-quienes-media-key="${videoKey}"]`);
+			input?.click();
 			return;
 		}
 

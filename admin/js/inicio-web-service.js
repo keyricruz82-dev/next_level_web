@@ -166,6 +166,44 @@
         }
     };
 
+    const QUIENES_SOMOS_TEXT_STYLE_KEYS = [
+        "quienes_expertise_subtitulo",
+        "quienes_expertise_titulo",
+        "quienes_expertise_parrafo_1",
+        "quienes_expertise_parrafo_2",
+        "quienes_about_kicker",
+        "quienes_about_titulo",
+        "quienes_about_parrafo_1",
+        "quienes_about_parrafo_2",
+        "quienes_about_parrafo_3",
+        "quienes_about_banner_tag",
+        "quienes_about_banner_titulo",
+        "quienes_about_banner_descripcion",
+        "quienes_testimonio_1_titulo",
+        "quienes_testimonio_1_nombre",
+        "quienes_testimonio_1_texto",
+        "quienes_testimonio_2_titulo",
+        "quienes_testimonio_2_nombre",
+        "quienes_testimonio_2_texto",
+        "quienes_testimonio_3_titulo",
+        "quienes_testimonio_3_nombre",
+        "quienes_testimonio_3_texto"
+    ];
+
+    QUIENES_SOMOS_TEXT_STYLE_KEYS.forEach((elemento) => {
+        DEFAULT_STYLES[elemento] = {
+            fuente: "inherit",
+            peso: 400,
+            tamano: 16,
+            estilo: "normal",
+            alineacion: "left",
+            color: "#ffffff",
+            transformacion: "none",
+            line_height: 1.5,
+            letter_spacing: 0
+        };
+    });
+
     function getSupabaseClient() {
         if (window.supabaseClient) {
             return window.supabaseClient;

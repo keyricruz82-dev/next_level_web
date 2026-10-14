@@ -257,6 +257,52 @@ body {
 	color: #86efac;
 }
 
+.quienes-somos-testimonial-layout {
+	display: grid;
+	grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr);
+	gap: 1rem;
+	align-items: start;
+}
+
+.quienes-somos-history-layout {
+	display: grid;
+	grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr);
+	gap: 1rem;
+	align-items: start;
+}
+
+.quienes-somos-video-panel {
+	min-width: 0;
+	display: flex;
+	align-items: flex-end;
+}
+
+.quienes-somos-video-panel .quienes-somos-grid {
+	width: 100%;
+}
+
+.quienes-somos-testimonial-content,
+.quienes-somos-testimonial-media {
+	min-width: 0;
+}
+
+.quienes-somos-testimonial-content {
+	display: grid;
+	gap: 1rem;
+}
+
+.quienes-somos-testimonial-field-row {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1rem;
+}
+
+.quienes-somos-testimonial-media {
+	display: grid;
+	gap: 0.6rem;
+	align-content: start;
+}
+
 .quienes-somos-grid {
 	display: grid;
 	gap: 1rem;
@@ -271,6 +317,13 @@ body {
 	margin-bottom: 0.45rem;
 }
 
+.quienes-somos-form-hint {
+	font-size: 0.72rem;
+	color: var(--admin-label);
+	line-height: 1.4;
+	margin-top: -0.2rem;
+}
+
 .quienes-somos-testimonial-card {
 	background: rgba(15, 23, 42, 0.7);
 	border: 1px solid var(--admin-border);
@@ -278,10 +331,30 @@ body {
 	padding: 1rem;
 }
 
+.quienes-somos-testimonial-media .site-media-preview {
+	height: 220px;
+	min-height: 220px;
+	max-height: 220px;
+}
+
+.quienes-somos-testimonial-media .site-media-empty {
+	height: 220px;
+	min-height: 220px;
+	max-height: 220px;
+}
+
 .quienes-somos-form-actions {
 	display: flex;
 	justify-content: flex-end;
 	margin-top: 1rem;
+}
+
+@media (max-width: 767.98px) {
+	.quienes-somos-history-layout,
+	.quienes-somos-testimonial-layout,
+	.quienes-somos-testimonial-field-row {
+		grid-template-columns: 1fr;
+	}
 }
 
 .site-media-preview {

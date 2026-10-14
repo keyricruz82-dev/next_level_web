@@ -12,6 +12,7 @@ window.QuienesSomosService = (function createQuienesSomosService() {
         window.APP_CONFIG.TABLES &&
         window.APP_CONFIG.TABLES.QUIENES_SOMOS_TESTIMONIOS
     ) ? window.APP_CONFIG.TABLES.QUIENES_SOMOS_TESTIMONIOS : "quienes_somos_testimonios";
+    const STYLE_TABLE = "inicio_web_styles";
 
     const DEFAULT_CONFIG = {
         expertise_subtitulo: "Sobre Next Level",
@@ -60,6 +61,18 @@ window.QuienesSomosService = (function createQuienesSomosService() {
         }
     ];
 
+    const DEFAULT_QUIENES_STYLES = {
+        fuente: "inherit",
+        peso: 400,
+        tamano: 18,
+        estilo: "normal",
+        alineacion: "left",
+        color: "#ffffff",
+        transformacion: "none",
+        line_height: 1.5,
+        letter_spacing: 0
+    };
+
     function getSupabaseClient() {
         if (window.supabaseClient) {
             return window.supabaseClient;
@@ -97,6 +110,83 @@ window.QuienesSomosService = (function createQuienesSomosService() {
         };
     }
 
+    function normalizeStyle(elemento, row = {}) {
+        const numberOrDefault = (value, fallback) => {
+            const number = Number(value);
+            return Number.isFinite(number) ? number : fallback;
+        };
+
+        return {
+            elemento,
+            fuente: typeof row.fuente === "string" ? row.fuente : DEFAULT_QUIENES_STYLES.fuente,
+            peso: numberOrDefault(row.peso, DEFAULT_QUIENES_STYLES.peso),
+            tamano: numberOrDefault(row.tamano, DEFAULT_QUIENES_STYLES.tamano),
+            estilo: row.estilo === "italic" ? "italic" : "normal",
+            alineacion: ["left", "center", "right", "justify"].includes(row.alineacion)
+                ? row.alineacion
+                : DEFAULT_QUIENES_STYLES.alineacion,
+            color: /^#[0-9a-fA-F]{6}$/.test(row.color || "")
+                ? row.color
+                : DEFAULT_QUIENES_STYLES.color,
+            transformacion: ["none", "uppercase", "lowercase", "capitalize"].includes(row.transformacion)
+                ? row.transformacion
+                : DEFAULT_QUIENES_STYLES.transformacion,
+            line_height: numberOrDefault(row.line_height, DEFAULT_QUIENES_STYLES.line_height),
+            letter_spacing: numberOrDefault(row.letter_spacing, DEFAULT_QUIENES_STYLES.letter_spacing)
+        };
+    }
+
+    async function getStyle(elemento) {
+        if (!elemento || !elemento.startsWith("quienes_")) {
+            throw new Error("El elemento de estilo de Quiénes Somos no es válido.");
+        }
+
+        const supabase = getSupabaseClient();
+        const { data, error } = await supabase
+            .from(STYLE_TABLE)
+            .select("*")
+            .eq("elemento", elemento)
+            .maybeSingle();
+
+        if (error) {
+            throw error;
+        }
+
+        return normalizeStyle(elemento, data || {});
+    }
+
+    async function saveStyle(style) {
+        if (!style || !style.elemento || !style.elemento.startsWith("quienes_")) {
+            throw new Error("No se recibió un elemento de estilo de Quiénes Somos válido.");
+        }
+
+        const normalized = normalizeStyle(style.elemento, style);
+        const supabase = getSupabaseClient();
+        const { data, error } = await supabase
+            .from(STYLE_TABLE)
+            .upsert({
+                elemento: normalized.elemento,
+                fuente: normalized.fuente,
+                peso: normalized.peso,
+                tamano: normalized.tamano,
+                estilo: normalized.estilo,
+                alineacion: normalized.alineacion,
+                color: normalized.color,
+                transformacion: normalized.transformacion,
+                line_height: normalized.line_height,
+                letter_spacing: normalized.letter_spacing,
+                updated_at: new Date().toISOString()
+            }, { onConflict: "elemento" })
+            .select()
+            .single();
+
+        if (error) {
+            throw error;
+        }
+
+        return normalizeStyle(normalized.elemento, data || normalized);
+    }
+
     async function listConfig() {
         const supabase = getSupabaseClient();
         const { data, error } = await supabase
@@ -105,6 +195,7 @@ window.QuienesSomosService = (function createQuienesSomosService() {
             .order("key", { ascending: true });
 
         if (error) {
+            console.error("Error al consultar quienes_somos_config desde Supabase:", error);
             throw error;
         }
 
@@ -125,6 +216,7 @@ window.QuienesSomosService = (function createQuienesSomosService() {
         const { data, error } = await query;
 
         if (error) {
+            console.error("Error al consultar quienes_somos_testimonios desde Supabase:", error);
             throw error;
         }
 
@@ -139,37 +231,50 @@ window.QuienesSomosService = (function createQuienesSomosService() {
             return {};
         }
 
+        const nowIso = new Date().toISOString();
+        const rows = updates.map(([key, value]) => ({
+            key,
+            value: value === null || typeof value === "undefined" ? "" : String(value),
+            updated_at: nowIso
+        }));
+
+        // Intentar upsert atómico aprovechando el constraint UNIQUE(key)
+        const { error: upsertError } = await supabase
+            .from(CONFIG_TABLE)
+            .upsert(rows, { onConflict: "key" });
+
+        if (!upsertError) {
+            const results = {};
+            updates.forEach(([key, value]) => {
+                results[key] = value === null || typeof value === "undefined" ? "" : String(value);
+            });
+            return results;
+        }
+
+        console.warn("Fallo el upsert por lotes en quienes_somos_config, intentando actualización individual:", upsertError);
+
+        // Fallback: actualización o inserción individual
         const results = {};
 
         for (const [key, value] of updates) {
             const rowValue = value === null || typeof value === "undefined" ? "" : String(value);
-            const { data: existingRows, error: selectError } = await supabase
-                .from(CONFIG_TABLE)
-                .select("id")
-                .eq("key", key)
-                .limit(1);
 
-            if (selectError) {
-                throw selectError;
+            const { data: updatedRows, error: updateError } = await supabase
+                .from(CONFIG_TABLE)
+                .update({
+                    value: rowValue,
+                    updated_at: nowIso
+                })
+                .eq("key", key)
+                .select("id");
+
+            if (updateError) {
+                console.error(`Error actualizando clave "${key}" en quienes_somos_config:`, updateError);
+                throw updateError;
             }
 
-            const existingRow = existingRows && existingRows[0] ? existingRows[0] : null;
-            const nowIso = new Date().toISOString();
-
-            if (existingRow && existingRow.id) {
-                const { error } = await supabase
-                    .from(CONFIG_TABLE)
-                    .update({
-                        value: rowValue,
-                        updated_at: nowIso
-                    })
-                    .eq("id", existingRow.id);
-
-                if (error) {
-                    throw error;
-                }
-            } else {
-                const { error } = await supabase
+            if (!updatedRows || updatedRows.length === 0) {
+                const { error: insertError } = await supabase
                     .from(CONFIG_TABLE)
                     .insert([{
                         key,
@@ -178,8 +283,9 @@ window.QuienesSomosService = (function createQuienesSomosService() {
                         updated_at: nowIso
                     }]);
 
-                if (error) {
-                    throw error;
+                if (insertError) {
+                    console.error(`Error insertando clave "${key}" en quienes_somos_config:`, insertError);
+                    throw insertError;
                 }
             }
 
@@ -189,7 +295,86 @@ window.QuienesSomosService = (function createQuienesSomosService() {
         return results;
     }
 
-    async function saveTestimonial(position, payload = {}) {
+    function getStorageBucketName() {
+        return (
+            window.APP_CONFIG &&
+            window.APP_CONFIG.STORAGE &&
+            window.APP_CONFIG.STORAGE.PUBLICACIONES_BUCKET
+        ) ? window.APP_CONFIG.STORAGE.PUBLICACIONES_BUCKET : "publicaciones";
+    }
+
+    async function uploadTestimonialImage(file, position) {
+        if (!file || !(file instanceof File)) {
+            throw new Error("Debes seleccionar un archivo de imagen válido.");
+        }
+
+        const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+        if (!allowedTypes.includes(file.type)) {
+            throw new Error("La imagen debe ser JPG, PNG o WebP.");
+        }
+
+        const maxBytes = 5 * 1024 * 1024;
+        if (file.size > maxBytes) {
+            throw new Error("La imagen no puede superar los 5 MB.");
+        }
+
+        const safePosition = Number(position);
+        if (!Number.isInteger(safePosition) || safePosition < 1 || safePosition > 3) {
+            throw new Error("La posición del testimonio debe ser un número entero entre 1 y 3.");
+        }
+
+        const supabase = getSupabaseClient();
+        const bucketName = getStorageBucketName();
+        const extension = String(file.name.split(".").pop() || "jpg").toLowerCase();
+        const storagePath = `quienes-somos/testimonios/testimonio-${safePosition}-${crypto.randomUUID()}.${extension}`;
+
+        const { error: uploadError } = await supabase
+            .storage
+            .from(bucketName)
+            .upload(storagePath, file, {
+                cacheControl: "3600",
+                upsert: false
+            });
+
+        if (uploadError) {
+            throw uploadError;
+        }
+
+        const { data } = supabase
+            .storage
+            .from(bucketName)
+            .getPublicUrl(storagePath);
+
+        if (!data || !data.publicUrl) {
+            throw new Error("No se pudo obtener la URL pública de la imagen.");
+        }
+
+        return {
+            publicUrl: data.publicUrl,
+            storagePath
+        };
+    }
+
+    async function removeStorageFileByUrl(imageUrl) {
+        if (!imageUrl || typeof imageUrl !== "string") {
+            return;
+        }
+        try {
+            const bucketName = getStorageBucketName();
+            const marker = `/storage/v1/object/public/${bucketName}/`;
+            if (imageUrl.includes(marker)) {
+                const storagePath = imageUrl.split(marker)[1];
+                if (storagePath && storagePath.startsWith("quienes-somos/testimonios/")) {
+                    const supabase = getSupabaseClient();
+                    await supabase.storage.from(bucketName).remove([storagePath]);
+                }
+            }
+        } catch (error) {
+            console.warn("No se pudo eliminar el archivo previo de storage:", error);
+        }
+    }
+
+    async function saveTestimonial(position, payload = {}, imageFile = null) {
         const supabase = getSupabaseClient();
         const safePosition = Number(position);
 
@@ -197,19 +382,9 @@ window.QuienesSomosService = (function createQuienesSomosService() {
             throw new Error("La posición del testimonio debe ser un número entero entre 1 y 3.");
         }
 
-        const row = {
-            position: safePosition,
-            titulo: typeof payload.titulo === "string" ? payload.titulo : "",
-            nombre_ubicacion: typeof payload.nombre_ubicacion === "string" ? payload.nombre_ubicacion : "",
-            texto: typeof payload.texto === "string" ? payload.texto : "",
-            image_url: typeof payload.image_url === "string" ? payload.image_url : "",
-            is_visible: payload.is_visible !== false,
-            updated_at: new Date().toISOString()
-        };
-
         const { data: existingRows, error: selectError } = await supabase
             .from(TESTIMONIOS_TABLE)
-            .select("id")
+            .select("id, image_url")
             .eq("position", safePosition)
             .limit(1);
 
@@ -218,7 +393,31 @@ window.QuienesSomosService = (function createQuienesSomosService() {
         }
 
         const existingRow = existingRows && existingRows[0] ? existingRows[0] : null;
+        const previousImageUrl = existingRow && typeof existingRow.image_url === "string" ? existingRow.image_url : "";
 
+        let uploaded = null;
+        if (imageFile && imageFile instanceof File) {
+            uploaded = await uploadTestimonialImage(imageFile, safePosition);
+        }
+
+        const rawImageUrl = typeof payload.image_url === "string" ? payload.image_url.trim() : "";
+        const targetImageUrl = uploaded
+            ? uploaded.publicUrl
+            : (rawImageUrl && !rawImageUrl.startsWith("[Seleccionada:")
+                ? rawImageUrl
+                : previousImageUrl);
+
+        const row = {
+            position: safePosition,
+            titulo: typeof payload.titulo === "string" ? payload.titulo : "",
+            nombre_ubicacion: typeof payload.nombre_ubicacion === "string" ? payload.nombre_ubicacion : "",
+            texto: typeof payload.texto === "string" ? payload.texto : "",
+            image_url: targetImageUrl,
+            is_visible: payload.is_visible !== false,
+            updated_at: new Date().toISOString()
+        };
+
+        let result;
         if (existingRow && existingRow.id) {
             const { error } = await supabase
                 .from(TESTIMONIOS_TABLE)
@@ -229,21 +428,27 @@ window.QuienesSomosService = (function createQuienesSomosService() {
                 throw error;
             }
 
-            return normalizeTestimonial({ ...row, id: existingRow.id });
+            result = normalizeTestimonial({ ...row, id: existingRow.id });
+        } else {
+            const { error } = await supabase
+                .from(TESTIMONIOS_TABLE)
+                .insert([{
+                    ...row,
+                    created_at: new Date().toISOString()
+                }]);
+
+            if (error) {
+                throw error;
+            }
+
+            result = normalizeTestimonial(row);
         }
 
-        const { error } = await supabase
-            .from(TESTIMONIOS_TABLE)
-            .insert([{
-                ...row,
-                created_at: new Date().toISOString()
-            }]);
-
-        if (error) {
-            throw error;
+        if (uploaded && previousImageUrl && previousImageUrl !== uploaded.publicUrl) {
+            await removeStorageFileByUrl(previousImageUrl);
         }
 
-        return normalizeTestimonial(row);
+        return result;
     }
 
     function getDefaultConfig() {
@@ -301,6 +506,10 @@ window.QuienesSomosService = (function createQuienesSomosService() {
         listTestimonials,
         saveConfigEntries,
         saveTestimonial,
+        getStyle,
+        saveStyle,
+        uploadTestimonialImage,
+        removeStorageFileByUrl,
         ensureSeededDefaults
     };
 })();

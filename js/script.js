@@ -586,7 +586,29 @@ async function applyInicioWebTypography() {
     banner2_titulo: "[data-inicio-web-elemento='banner2_titulo']",
     banner2_descripcion: "[data-inicio-web-elemento='banner2_descripcion']",
 
-    galeria_titulo: "[data-inicio-web-elemento='galeria_titulo']"
+    galeria_titulo: "[data-inicio-web-elemento='galeria_titulo']",
+
+    quienes_expertise_subtitulo: "[data-quienes-key='expertise_subtitulo']",
+    quienes_expertise_titulo: "[data-quienes-key='expertise_titulo']",
+    quienes_expertise_parrafo_1: "[data-quienes-key='expertise_parrafo_1']",
+    quienes_expertise_parrafo_2: "[data-quienes-key='expertise_parrafo_2']",
+    quienes_about_kicker: "[data-quienes-key='about_kicker']",
+    quienes_about_titulo: "[data-quienes-key='about_titulo']",
+    quienes_about_parrafo_1: "[data-quienes-key='about_parrafo_1']",
+    quienes_about_parrafo_2: "[data-quienes-key='about_parrafo_2']",
+    quienes_about_parrafo_3: "[data-quienes-key='about_parrafo_3']",
+    quienes_about_banner_tag: "[data-quienes-key='about_banner_tag']",
+    quienes_about_banner_titulo: "[data-quienes-key='about_banner_titulo']",
+    quienes_about_banner_descripcion: "[data-quienes-key='about_banner_descripcion']",
+    quienes_testimonio_1_titulo: "[data-quienes-testimonio='1'] [data-quienes-field='titulo']",
+    quienes_testimonio_1_nombre: "[data-quienes-testimonio='1'] [data-quienes-field='nombre_ubicacion']",
+    quienes_testimonio_1_texto: "[data-quienes-testimonio='1'] [data-quienes-field='texto']",
+    quienes_testimonio_2_titulo: "[data-quienes-testimonio='2'] [data-quienes-field='titulo']",
+    quienes_testimonio_2_nombre: "[data-quienes-testimonio='2'] [data-quienes-field='nombre_ubicacion']",
+    quienes_testimonio_2_texto: "[data-quienes-testimonio='2'] [data-quienes-field='texto']",
+    quienes_testimonio_3_titulo: "[data-quienes-testimonio='3'] [data-quienes-field='titulo']",
+    quienes_testimonio_3_nombre: "[data-quienes-testimonio='3'] [data-quienes-field='nombre_ubicacion']",
+    quienes_testimonio_3_texto: "[data-quienes-testimonio='3'] [data-quienes-field='texto']"
 };
 
     try {
@@ -1072,4 +1094,3 @@ if (lightbox && lightboxImg && closeLightbox && prevBtn && nextBtn) {
 }
 
 refreshGalleryImageCollection();
-
