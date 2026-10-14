@@ -458,14 +458,14 @@ function renderQuienesVisualEditor(editorId, elements, kind = "config", position
 									<option value="justify">Justificado</option>
 								</select>
 							</div>
-							<div class="col-12 col-md-4">
+							<div class="col-12 col-md-6">
 								<label class="form-label">Estilo</label>
 								<select class="form-select" data-quienes-visual-control="estilo">
 									<option value="normal">Normal</option>
 									<option value="italic">Cursiva</option>
 								</select>
 							</div>
-							<div class="col-12 col-md-4">
+							<div class="col-12 col-md-6">
 								<label class="form-label">Transformación</label>
 								<select class="form-select" data-quienes-visual-control="transformacion">
 									<option value="none">Normal</option>
@@ -474,7 +474,7 @@ function renderQuienesVisualEditor(editorId, elements, kind = "config", position
 									<option value="capitalize">Tipo título</option>
 								</select>
 							</div>
-							<div class="col-12 col-md-4">
+							<div class="col-12 col-md-6">
 								<label class="form-label">Color</label>
 								<div class="input-group">
 									<input type="color" class="form-control form-control-color" data-quienes-visual-control="color">
