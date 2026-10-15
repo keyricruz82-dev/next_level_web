@@ -258,7 +258,7 @@
     state.currentView = targetView;
     setActiveNav(targetView);
     refs.sidebar.classList.remove("is-open");
-    refs.contentArea.classList.remove("inicio-web-view");
+    refs.contentArea.classList.remove("inicio-web-view", "quienes-somos-view");
 
     if (targetView === "inicio") {
         await renderInicio();
@@ -710,6 +710,7 @@ function bindQuienesVisualEditors() {
 
 async function renderQuienesSomos() {
 	try {
+		refs.contentArea.classList.add("quienes-somos-view", "inicio-web-view");
 		const [configMap, testimonials] = await Promise.all([
 			window.QuienesSomosService.listConfig().catch(() => window.QuienesSomosService.getDefaultConfig()),
 			window.QuienesSomosService.listTestimonials(true).catch(() => window.QuienesSomosService.getDefaultTestimonials())
