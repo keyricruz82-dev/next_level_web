@@ -26,6 +26,7 @@
 	let currentExistingAdditionalImages = [];
 	let currentOriginalAdditionalImages = [];
 	let draftSaveTimer = null;
+	const quienesPendingTestimonialImages = new Map();
 
 	function cacheRefs() {
 		refs.contentArea = document.getElementById("contentArea");
@@ -195,6 +196,7 @@
 		refs.contentArea.addEventListener("change", onContentInput);
 		refs.contentArea.addEventListener("change", onSiteMediaInputChange);
 		refs.contentArea.addEventListener("change", onQuienesSomosMediaInputChange);
+		refs.contentArea.addEventListener("change", onQuienesTestimonialImageInputChange);
 		refs.contentArea.addEventListener("click", onSiteMediaActionClick);
 		refs.publicationCloseButton.addEventListener("click", () => handleModalCloseAttempt());
 		refs.cancelPublicationBtn.addEventListener("click", () => handleModalCloseAttempt());
@@ -384,6 +386,72 @@ async function onQuienesSomosMediaInputChange(event) {
 		if (button) {
 			button.disabled = false;
 		}
+		target.value = "";
+	}
+}
+
+function clearQuienesPendingTestimonialImages() {
+	quienesPendingTestimonialImages.forEach(({ objectUrl }) => {
+		if (objectUrl) {
+			URL.revokeObjectURL(objectUrl);
+		}
+	});
+	quienesPendingTestimonialImages.clear();
+}
+
+function onQuienesTestimonialImageInputChange(event) {
+	const target = event.target;
+	if (!(target instanceof HTMLInputElement) || !target.matches("[data-quienes-testimonial-image-input]")) {
+		return;
+	}
+
+	const position = Number(target.dataset.position || 0);
+	const file = target.files && target.files[0] ? target.files[0] : null;
+	if (!position || !file) {
+		target.value = "";
+		return;
+	}
+
+	try {
+		const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+		const extension = String(file.name.split(".").pop() || "").toLowerCase();
+		if (!allowedTypes.includes(file.type) && !["jpg", "jpeg", "png", "webp"].includes(extension)) {
+			throw new Error("La imagen debe ser JPG, PNG o WebP.");
+		}
+		if (file.size > 5 * 1024 * 1024) {
+			throw new Error("La imagen no puede superar los 5 MB.");
+		}
+
+		const previous = quienesPendingTestimonialImages.get(position);
+		if (previous && previous.objectUrl) {
+			URL.revokeObjectURL(previous.objectUrl);
+		}
+
+		const objectUrl = URL.createObjectURL(file);
+		quienesPendingTestimonialImages.set(position, { file, objectUrl });
+
+		const preview = refs.contentArea.querySelector(`[data-quienes-testimonio-preview="${position}"]`);
+		if (preview) {
+			preview.className = "site-media-preview";
+			preview.innerHTML = `<img src="${escapeHtml(objectUrl)}" alt="Testimonio ${position}" class="site-media-thumb">`;
+		}
+
+		const status = refs.contentArea.querySelector(`[data-quienes-testimonio-image-status="${position}"]`);
+		if (status) {
+			status.textContent = `Imagen seleccionada: ${file.name}. Haz clic en "Guardar testimonio ${position}" para subirla.`;
+			status.className = "quienes-somos-form-hint text-success";
+		}
+		showToast(`Imagen del testimonio ${position} seleccionada.`, "success");
+	} catch (error) {
+		console.error(`Error preparando la imagen del testimonio ${position}:`, error);
+		quienesPendingTestimonialImages.delete(position);
+		const status = refs.contentArea.querySelector(`[data-quienes-testimonio-image-status="${position}"]`);
+		if (status) {
+			status.textContent = error.message;
+			status.className = "quienes-somos-form-hint text-danger";
+		}
+		showToast(error.message, "danger");
+	} finally {
 		target.value = "";
 	}
 }
@@ -710,6 +778,7 @@ function bindQuienesVisualEditors() {
 
 async function renderQuienesSomos() {
 	try {
+		clearQuienesPendingTestimonialImages();
 		refs.contentArea.classList.add("quienes-somos-view", "inicio-web-view");
 		const [configMap, testimonials] = await Promise.all([
 			window.QuienesSomosService.listConfig().catch(() => window.QuienesSomosService.getDefaultConfig()),
@@ -865,9 +934,15 @@ async function renderQuienesSomos() {
 						</div>
 						<div class="quienes-somos-testimonial-media">
 							<label class="quienes-somos-form-label">Imagen URL</label>
+							<div class="mb-2">
+								<button type="button" class="btn btn-outline-primary btn-sm" data-action="quienes-select-testimonial-image" data-position="${position}">
+									Seleccionar imagen
+								</button>
+								<input type="file" class="d-none" data-quienes-testimonial-image-input data-position="${position}" accept="image/jpeg,image/png,image/webp">
+							</div>
 							<input type="text" class="form-control" data-quienes-testimonio-position="${position}" data-quienes-testimonio-field="image_url" value="${escapeHtml(item.image_url || "")}">
-							<div class="quienes-somos-form-hint">Formatos permitidos: JPG, PNG, WEBP</div>
-							${imagePreview}
+							<div class="quienes-somos-form-hint" data-quienes-testimonio-image-status="${position}">Formatos permitidos: JPG, PNG, WEBP (máx. 5 MB)</div>
+							<div data-quienes-testimonio-preview="${position}">${imagePreview}</div>
 						</div>
 					</div>
 					<div class="quienes-somos-form-actions">
@@ -952,9 +1027,10 @@ async function guardarQuienesSomosTestimonio(position) {
 		texto: refs.contentArea.querySelector(`[data-quienes-testimonio-position="${targetPosition}"][data-quienes-testimonio-field="texto"]`)?.value || "",
 		image_url: refs.contentArea.querySelector(`[data-quienes-testimonio-position="${targetPosition}"][data-quienes-testimonio-field="image_url"]`)?.value || ""
 	};
+	const imageFile = quienesPendingTestimonialImages.get(targetPosition)?.file || null;
 
 	try {
-		await window.QuienesSomosService.saveTestimonial(targetPosition, payload);
+		await window.QuienesSomosService.saveTestimonial(targetPosition, payload, imageFile);
 		showToast(`El testimonio ${targetPosition} se guardó correctamente.`, "success");
 		await renderQuienesSomos();
 	} catch (error) {
@@ -3740,6 +3816,13 @@ function updateInicioWebTypographyPreview() {
 		if (action === "quienes-select-video") {
 			const videoKey = actionButton.dataset.videoKey;
 			const input = refs.contentArea.querySelector(`input[data-quienes-media-input][data-quienes-media-key="${videoKey}"]`);
+			input?.click();
+			return;
+		}
+
+		if (action === "quienes-select-testimonial-image") {
+			const position = Number(actionButton.dataset.position || 0);
+			const input = refs.contentArea.querySelector(`input[data-quienes-testimonial-image-input][data-position="${position}"]`);
 			input?.click();
 			return;
 		}

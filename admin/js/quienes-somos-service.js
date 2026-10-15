@@ -32,7 +32,7 @@ window.QuienesSomosService = (function createQuienesSomosService() {
         about_banner_tag: "Nuestra energía",
         about_banner_titulo: "Donde la creatividad visual se convierte en una experiencia memorable.",
         about_banner_descripcion: "Cada proyecto es una oportunidad para contar una historia con sensibilidad, precisión y un estilo que se mantiene fiel a tu marca y a tu momento más importante."
-    };
+    }; 
 
     const DEFAULT_TESTIMONIOS = [
         {
