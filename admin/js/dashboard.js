@@ -414,7 +414,7 @@ function renderQuienesVisualEditor(editorId, elements, kind = "config", position
 							<p class="text-secondary small mb-0">Personaliza la apariencia del elemento seleccionado.</p>
 						</div>
 						<div class="row g-3">
-							<div class="col-12">
+							<div class="col-12 col-md-6">
 								<label class="form-label fw-semibold">Elemento</label>
 								<select class="form-select" data-quienes-visual-element>
 									${elements.map((element) => `
