@@ -1274,6 +1274,17 @@ async function guardarQuienesSomosTestimonio(position) {
 					<form id="siteConfigForm" class="site-config-form" novalidate>
 						<div class="card site-config-card">
 							<div class="card-body">
+								<h2 class="site-config-card-title">Nombre del sitio web</h2>
+								<div class="site-config-row">
+									<label class="site-config-label" for="siteConfig_site_name">Nombre del sitio web:</label>
+									<div class="site-config-control">
+										<input class="form-control" type="text" id="siteConfig_site_name" data-site-config-key="site_name" maxlength="100" value="${escapeHtml(config.site_name || "")}" placeholder="Next Level Producciones">
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="card site-config-card">
+							<div class="card-body">
 								<h2 class="site-config-card-title">Redes sociales</h2>
 								${[
 									["social_instagram", "Instagram"],
@@ -1432,6 +1443,12 @@ async function guardarQuienesSomosTestimonio(position) {
 			document.querySelectorAll("[data-site-config-key]").forEach((field) => {
 				values[field.dataset.siteConfigKey] = field.value.trim();
 			});
+			if (!values.site_name) {
+				throw new Error("El nombre del sitio web no puede estar vacío.");
+			}
+			if (values.site_name.length > 100) {
+				throw new Error("El nombre del sitio web no puede superar los 100 caracteres.");
+			}
 			values.social_instagram = validateSiteUrl(values.social_instagram, "Instagram");
 			values.social_tiktok = validateSiteUrl(values.social_tiktok, "TikTok");
 			values.social_youtube = validateSiteUrl(values.social_youtube, "YouTube");

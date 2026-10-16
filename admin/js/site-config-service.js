@@ -5,6 +5,7 @@ window.SiteConfigService = (function createSiteConfigService() {
         || "publicaciones";
 
     const defaults = {
+        site_name: "Next Level Producciones",
         social_instagram: "https://www.instagram.com/nextlevelproducciones_?igsh=bDBrcGkyNmp5aXZk",
         social_tiktok: "https://www.tiktok.com/@nextlevelproducciones?_r=1&_t=ZS-95vGeT53f7P",
         social_youtube: "https://www.youtube.com/@NextLevelProducciones",
