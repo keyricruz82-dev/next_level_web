@@ -327,6 +327,51 @@ async function uploadQuienesSomosMedia(file, mediaKind = "image") {
 	return data.publicUrl;
 }
 
+function getQuienesHistoryMediaType(value) {
+	const normalizedValue = String(value || "").toLowerCase();
+	if (/\.(jpg|jpeg|png|webp)(?:[?#]|$)/.test(normalizedValue)) {
+		return "image";
+	}
+	if (/\.(mp4|webm|ogg|mov)(?:[?#]|$)/.test(normalizedValue)) {
+		return "video";
+	}
+	return "";
+}
+
+function renderQuienesHistoryMediaPreview(value, key) {
+	const mediaType = getQuienesHistoryMediaType(value);
+	if (mediaType === "image") {
+		return `<div class="site-media-preview"><img src="${escapeHtml(value)}" alt="${escapeHtml(key)}" class="site-media-thumb"></div>`;
+	}
+	if (mediaType === "video") {
+		return `<div class="site-media-preview"><video src="${escapeHtml(value)}" class="w-100 h-100" style="object-fit: cover;" controls preload="metadata"></video></div>`;
+	}
+	return `<div class="site-media-preview site-media-empty"><span>Sin archivo multimedia</span></div>`;
+}
+
+function updateQuienesHistoryMediaControls(key) {
+	const field = refs.contentArea.querySelector(`input[data-quienes-config-key="${key}"]`);
+	const value = field ? field.value : "";
+	const mediaType = getQuienesHistoryMediaType(value);
+	const imageButton = refs.contentArea.querySelector(`button[data-action="quienes-select-history-image"][data-media-key="${key}"]`);
+	const videoButton = refs.contentArea.querySelector(`button[data-action="quienes-select-video"][data-video-key="${key}"]`);
+	const clearButton = refs.contentArea.querySelector(`button[data-action="quienes-clear-history-media"][data-media-key="${key}"]`);
+	const preview = refs.contentArea.querySelector(`[data-quienes-history-media-preview="${key}"]`);
+
+	if (imageButton) {
+		imageButton.disabled = false;
+	}
+	if (videoButton) {
+		videoButton.disabled = false;
+	}
+	if (clearButton) {
+		clearButton.classList.toggle("d-none", !value);
+	}
+	if (preview) {
+		preview.innerHTML = renderQuienesHistoryMediaPreview(value, key);
+	}
+}
+
 async function onQuienesSomosMediaInputChange(event) {
 	const target = event.target;
 	if (!(target instanceof HTMLInputElement) || !target.matches("[data-quienes-media-input]")) {
@@ -340,18 +385,17 @@ async function onQuienesSomosMediaInputChange(event) {
 		return;
 	}
 
-	const button = refs.contentArea.querySelector(`button[data-action="quienes-select-video"][data-video-key="${configKey}"]`);
-	const label = refs.contentArea.querySelector(`[data-quienes-video-btn-label="${configKey}"]`);
-	const status = refs.contentArea.querySelector(`[data-quienes-video-status="${configKey}"]`);
+	const mediaKind = target.dataset.quienesMediaKind || "video";
 	const field = refs.contentArea.querySelector(`input[data-quienes-config-key="${configKey}"]`);
 	const originalValue = field ? field.value : "";
-	const originalLabel = label ? label.textContent : "Seleccionar archivo";
+
+	const button = mediaKind === "video"
+		? refs.contentArea.querySelector(`button[data-action="quienes-select-video"][data-video-key="${configKey}"]`)
+		: refs.contentArea.querySelector(`button[data-action="quienes-select-history-image"][data-media-key="${configKey}"]`);
+	const status = refs.contentArea.querySelector(`[data-quienes-history-media-status="${configKey}"]`);
 
 	if (button) {
 		button.disabled = true;
-	}
-	if (label) {
-		label.textContent = "Subiendo...";
 	}
 	if (status) {
 		status.textContent = `Subiendo "${file.name}"...`;
@@ -359,33 +403,29 @@ async function onQuienesSomosMediaInputChange(event) {
 	}
 
 	try {
-		const publicUrl = await uploadQuienesSomosMedia(file, "video");
+		const publicUrl = await uploadQuienesSomosMedia(file, mediaKind);
 		field.value = publicUrl;
-		if (label) {
-			label.textContent = "Cambiar archivo";
-		}
 		if (status) {
 			status.textContent = `Archivo subido: ${file.name}. Haz clic en "Guardar cambios" para conservarlo.`;
 			status.className = "form-text text-success mt-1";
 		}
-		showToast("El video se subió correctamente. Haz clic en 'Guardar cambios' para confirmar.", "success");
+		updateQuienesHistoryMediaControls(configKey);
+		showToast(`El archivo de ${mediaKind === "image" ? "imagen" : "video"} se subió correctamente. Haz clic en "Guardar cambios" para confirmar.`, "success");
 	} catch (error) {
-		console.error("Error cargando video de Quiénes Somos:", error);
+		console.error(`Error cargando archivo de ${mediaKind} de Historia:`, error);
 		if (field) {
 			field.value = originalValue;
 		}
-		if (label) {
-			label.textContent = originalLabel;
-		}
 		if (status) {
-			status.textContent = error && error.message ? error.message : "No se pudo subir el video seleccionado.";
+			status.textContent = error && error.message ? error.message : "No se pudo subir el archivo seleccionado.";
 			status.className = "form-text text-danger mt-1";
 		}
-		showToast(error && error.message ? error.message : "No se pudo subir el video seleccionado.", "danger");
+		showToast(error && error.message ? error.message : "No se pudo subir el archivo seleccionado.", "danger");
 	} finally {
 		if (button) {
 			button.disabled = false;
 		}
+		updateQuienesHistoryMediaControls(configKey);
 		target.value = "";
 	}
 }
@@ -839,13 +879,21 @@ async function renderQuienesSomos() {
 				: key.includes("video")
 					? `
 						<div class="mb-2">
-							<button type="button" class="btn btn-outline-primary btn-sm" data-action="quienes-select-video" data-video-key="${key}">
-								<span data-quienes-video-btn-label="${key}">${value ? "Cambiar archivo" : "Seleccionar archivo"}</span>
+							<button type="button" class="btn btn-outline-primary btn-sm" data-action="quienes-select-history-image" data-media-key="${key}">
+								Seleccionar imagen
 							</button>
-							<input type="file" id="quienesVideoInput-${key}" class="d-none" data-quienes-media-input data-quienes-media-key="${key}" accept="video/mp4,video/webm,video/ogg,video/quicktime">
+							<input type="file" id="quienesImageInput-${key}" class="d-none" data-quienes-media-input data-quienes-media-key="${key}" data-quienes-media-kind="image" accept="image/jpeg,image/png,image/webp">
+							<button type="button" class="btn btn-outline-primary btn-sm" data-action="quienes-select-video" data-video-key="${key}">
+								Seleccionar video
+							</button>
+							<input type="file" id="quienesVideoInput-${key}" class="d-none" data-quienes-media-input data-quienes-media-key="${key}" data-quienes-media-kind="video" accept="video/mp4,video/webm,video/ogg,video/quicktime">
 						</div>
 						<input type="text" class="form-control" data-quienes-config-key="${key}" data-quienes-video-input="${key}" value="${escapeHtml(value)}" placeholder="Video actual o URL externa">
-						<div class="form-text text-secondary mt-1" data-quienes-video-status="${key}">${value ? `Video actual: ${escapeHtml(value)}` : "Formatos permitidos: MP4, WebM, OGG, MOV o URL externa."}</div>
+						<div class="d-flex justify-content-end mt-2">
+							<button type="button" class="btn btn-link btn-sm p-0 ${value ? "" : "d-none"}" data-action="quienes-clear-history-media" data-media-key="${key}">Eliminar archivo</button>
+						</div>
+						<div class="form-text text-secondary mt-1" data-quienes-history-media-status="${key}">${value ? `Archivo actual: ${escapeHtml(value)}` : "Selecciona una imagen o un video. Solo puede existir uno por elemento."}</div>
+						<div class="mt-2" data-quienes-history-media-preview="${key}">${renderQuienesHistoryMediaPreview(value, key)}</div>
 					`
 					: `<input type="text" class="form-control" data-quienes-config-key="${key}" value="${escapeHtml(value)}">`;
 
@@ -3815,8 +3863,30 @@ function updateInicioWebTypographyPreview() {
 
 		if (action === "quienes-select-video") {
 			const videoKey = actionButton.dataset.videoKey;
-			const input = refs.contentArea.querySelector(`input[data-quienes-media-input][data-quienes-media-key="${videoKey}"]`);
+			const input = refs.contentArea.querySelector(`input[data-quienes-media-input][data-quienes-media-key="${videoKey}"][data-quienes-media-kind="video"]`);
 			input?.click();
+			return;
+		}
+
+		if (action === "quienes-select-history-image") {
+			const mediaKey = actionButton.dataset.mediaKey;
+			const input = refs.contentArea.querySelector(`input[data-quienes-media-input][data-quienes-media-key="${mediaKey}"][data-quienes-media-kind="image"]`);
+			input?.click();
+			return;
+		}
+
+		if (action === "quienes-clear-history-media") {
+			const mediaKey = actionButton.dataset.mediaKey;
+			const field = refs.contentArea.querySelector(`input[data-quienes-config-key="${mediaKey}"]`);
+			if (field) {
+				field.value = "";
+				updateQuienesHistoryMediaControls(mediaKey);
+				const status = refs.contentArea.querySelector(`[data-quienes-history-media-status="${mediaKey}"]`);
+				if (status) {
+					status.textContent = "Archivo eliminado. Selecciona una imagen o un video.";
+					status.className = "form-text text-secondary mt-1";
+				}
+			}
 			return;
 		}
 

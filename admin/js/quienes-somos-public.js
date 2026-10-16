@@ -42,19 +42,58 @@ window.QuienesSomosPublic = (function createQuienesSomosPublic() {
         });
     }
 
+    function getMediaType(value) {
+        const normalizedValue = String(value || "").toLowerCase();
+        if (/\.(jpg|jpeg|png|webp)(?:[?#]|$)/.test(normalizedValue)) {
+            return "image";
+        }
+        if (/\.(mp4|webm|ogg|mov)(?:[?#]|$)/.test(normalizedValue)) {
+            return "video";
+        }
+        return "";
+    }
+
+    function getVideoMimeType(value) {
+        const normalizedValue = String(value || "").toLowerCase();
+        if (normalizedValue.includes(".webm")) {
+            return "video/webm";
+        }
+        if (normalizedValue.includes(".ogg")) {
+            return "video/ogg";
+        }
+        if (normalizedValue.includes(".mov")) {
+            return "video/quicktime";
+        }
+        return "video/mp4";
+    }
+
     function applyVideoSources(configMap) {
         document.querySelectorAll("[data-quienes-video]").forEach((videoElement) => {
             const position = Number(videoElement.dataset.quienesVideo || 0);
             const key = `about_video_${position}`;
             const value = getValue(configMap, key);
 
-            if (!value || !videoElement || !(videoElement.tagName === "VIDEO")) {
+            if (!value || !videoElement) {
+                return;
+            }
+
+            if (getMediaType(value) === "image") {
+                const imageElement = document.createElement("img");
+                imageElement.className = videoElement.className;
+                imageElement.alt = `Historia ${position}`;
+                imageElement.src = value;
+                imageElement.dataset.quienesVideo = String(position);
+                videoElement.replaceWith(imageElement);
+                return;
+            }
+
+            if (videoElement.tagName !== "VIDEO") {
                 return;
             }
 
             const sourceElement = videoElement.querySelector("source") || document.createElement("source");
             sourceElement.src = value;
-            sourceElement.type = "video/mp4";
+            sourceElement.type = getVideoMimeType(value);
             if (!videoElement.querySelector("source")) {
                 videoElement.appendChild(sourceElement);
             }
