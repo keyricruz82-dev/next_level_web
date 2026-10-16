@@ -4068,6 +4068,10 @@ CURATED SECTION
     justify-content: center;
 }
 
+#curatedGridContainer.curated-grid {
+    width: 100%;
+}
+
 .work-item {
     position: relative;
     overflow: hidden;
