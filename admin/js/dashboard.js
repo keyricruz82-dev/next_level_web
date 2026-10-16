@@ -2379,21 +2379,21 @@ async function renderInicioWeb() {
                             <div class="mb-3">
                                 <label for="banner1BackgroundColor1" class="form-label">Color del degradado 1</label>
                                 <div class="input-group">
-                                    <input id="banner1BackgroundColor1" type="color" class="form-control form-control-color w-100" value="#090c11" aria-label="Color del degradado 1 del banner 1">
+                                    <input id="banner1BackgroundColor1" type="color" class="form-control form-control-color" value="#090c11" aria-label="Color del degradado 1 del banner 1">
                                     <input id="banner1BackgroundHex1" type="text" class="form-control" value="#090c11" aria-label="HEX del color 1 del banner 1" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$" placeholder="#090c11">
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label for="banner1BackgroundColor2" class="form-label">Color del degradado 2</label>
                                 <div class="input-group">
-                                    <input id="banner1BackgroundColor2" type="color" class="form-control form-control-color w-100" value="#454a52" aria-label="Color del degradado 2 del banner 1">
+                                    <input id="banner1BackgroundColor2" type="color" class="form-control form-control-color" value="#454a52" aria-label="Color del degradado 2 del banner 1">
                                     <input id="banner1BackgroundHex2" type="text" class="form-control" value="#454a52" aria-label="HEX del color 2 del banner 1" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$" placeholder="#454a52">
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label for="banner1BackgroundColor3" class="form-label">Color del degradado 3</label>
                                 <div class="input-group">
-                                    <input id="banner1BackgroundColor3" type="color" class="form-control form-control-color w-100" value="#000080" aria-label="Color del degradado 3 del banner 1">
+                                    <input id="banner1BackgroundColor3" type="color" class="form-control form-control-color" value="#000080" aria-label="Color del degradado 3 del banner 1">
                                     <input id="banner1BackgroundHex3" type="text" class="form-control" value="#000080" aria-label="HEX del color 3 del banner 1" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$" placeholder="#000080">
                                 </div>
                             </div>
@@ -2408,21 +2408,21 @@ async function renderInicioWeb() {
                             <div class="mb-3">
                                 <label for="banner2BackgroundColor1" class="form-label">Color del degradado 1</label>
                                 <div class="input-group">
-                                    <input id="banner2BackgroundColor1" type="color" class="form-control form-control-color w-100" value="#090c11" aria-label="Color del degradado 1 del banner 2">
+                                    <input id="banner2BackgroundColor1" type="color" class="form-control form-control-color" value="#090c11" aria-label="Color del degradado 1 del banner 2">
                                     <input id="banner2BackgroundHex1" type="text" class="form-control" value="#090c11" aria-label="HEX del color 1 del banner 2" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$" placeholder="#090c11">
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label for="banner2BackgroundColor2" class="form-label">Color del degradado 2</label>
                                 <div class="input-group">
-                                    <input id="banner2BackgroundColor2" type="color" class="form-control form-control-color w-100" value="#454a52" aria-label="Color del degradado 2 del banner 2">
+                                    <input id="banner2BackgroundColor2" type="color" class="form-control form-control-color" value="#454a52" aria-label="Color del degradado 2 del banner 2">
                                     <input id="banner2BackgroundHex2" type="text" class="form-control" value="#454a52" aria-label="HEX del color 2 del banner 2" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$" placeholder="#454a52">
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label for="banner2BackgroundColor3" class="form-label">Color del degradado 3</label>
                                 <div class="input-group">
-                                    <input id="banner2BackgroundColor3" type="color" class="form-control form-control-color w-100" value="#000080" aria-label="Color del degradado 3 del banner 2">
+                                    <input id="banner2BackgroundColor3" type="color" class="form-control form-control-color" value="#000080" aria-label="Color del degradado 3 del banner 2">
                                     <input id="banner2BackgroundHex3" type="text" class="form-control" value="#000080" aria-label="HEX del color 3 del banner 2" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$" placeholder="#000080">
                                 </div>
                             </div>
