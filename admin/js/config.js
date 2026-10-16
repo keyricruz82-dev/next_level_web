@@ -10,6 +10,7 @@ window.APP_CONFIG = {
 		PUBLICACIONES: "publicaciones",
 		PRODUCTOS: "productos",
 		SITE_MEDIA: "site_media",
+		SITE_CONFIG: "site_config",
 		QUIENES_SOMOS_CONFIG: "quienes_somos_config",
 		QUIENES_SOMOS_TESTIMONIOS: "quienes_somos_testimonios"
 	},

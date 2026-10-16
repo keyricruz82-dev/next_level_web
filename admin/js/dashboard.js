@@ -27,6 +27,7 @@
 	let currentOriginalAdditionalImages = [];
 	let draftSaveTimer = null;
 	const quienesPendingTestimonialImages = new Map();
+	let pendingSiteLogoFile = null;
 
 	function cacheRefs() {
 		refs.contentArea = document.getElementById("contentArea");
@@ -250,7 +251,7 @@
 		});
 	}
 	async function navigate(view) {
-    const validViews = [ "inicio", "inicio-web", "publicaciones", "productos", "quienes-somos"
+    const validViews = [ "inicio", "inicio-web", "publicaciones", "productos", "quienes-somos", "configuracion-sitio"
     ];
 
     const targetView = validViews.includes(view)
@@ -279,6 +280,11 @@
 
     if (targetView === "quienes-somos") {
         await renderQuienesSomos();
+        return;
+    }
+
+    if (targetView === "configuracion-sitio") {
+        await renderConfiguracionSitio();
         return;
     }
 
@@ -1249,6 +1255,145 @@ async function guardarQuienesSomosTestimonio(position) {
 		}
 
 		return null;
+	}
+
+	async function renderConfiguracionSitio() {
+		try {
+			const config = await window.SiteConfigService.getConfig();
+			pendingSiteLogoFile = null;
+			refs.contentArea.innerHTML = `
+				<section class="dashboard-section">
+					<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+						<div>
+							<p class="text-uppercase text-secondary small fw-semibold mb-1">Configuración general</p>
+							<h1 class="h3 mb-1">Configuración del sitio</h1>
+							<p class="text-secondary mb-0">Actualiza los enlaces, datos de contacto y el logo público.</p>
+						</div>
+					</div>
+					<div class="card border-0 shadow-sm">
+						<div class="card-body p-4">
+							<form id="siteConfigForm" novalidate>
+								<h2 class="h5 mb-3">Redes sociales</h2>
+								<div class="row g-3 mb-4">
+									${[
+										["social_instagram", "Instagram"],
+										["social_tiktok", "TikTok"],
+										["social_youtube", "YouTube"],
+										["social_facebook", "Facebook"]
+									].map(([key, label]) => `
+										<div class="col-md-6">
+											<label class="form-label" for="siteConfig_${key}">${label}</label>
+											<input class="form-control" type="url" id="siteConfig_${key}" data-site-config-key="${key}" value="${escapeHtml(config[key] || "")}" placeholder="https://">
+										</div>
+									`).join("")}
+								</div>
+								<h2 class="h5 mb-3">Información de contacto</h2>
+								<div class="row g-3 mb-4">
+									<div class="col-md-6">
+										<label class="form-label" for="siteConfig_contact_email">Correo electrónico</label>
+										<input class="form-control" type="email" id="siteConfig_contact_email" data-site-config-key="contact_email" value="${escapeHtml(config.contact_email || "")}">
+									</div>
+									<div class="col-md-6">
+										<label class="form-label" for="siteConfig_contact_whatsapp">Número de WhatsApp</label>
+										<input class="form-control" type="tel" id="siteConfig_contact_whatsapp" data-site-config-key="contact_whatsapp" value="${escapeHtml(config.contact_whatsapp || "")}" placeholder="50377251450">
+										<div class="form-text">Acepta espacios, guiones y el signo +; se normaliza al guardar.</div>
+									</div>
+								</div>
+								<h2 class="h5 mb-3">Logo del sitio</h2>
+								<div class="row g-3 align-items-end mb-4">
+									<div class="col-md-6">
+										<label class="form-label" for="siteConfig_logo">Nueva imagen</label>
+										<input class="form-control" type="file" id="siteConfig_logo" accept="image/jpeg,image/png,image/webp">
+										<div class="form-text">JPG, PNG o WebP, máximo 5 MB.</div>
+									</div>
+									<div class="col-md-6">
+										<img id="siteConfigLogoPreview" src="${escapeHtml(config.site_logo_url || "images/next.jpeg")}" alt="Vista previa del logo" class="img-fluid rounded border" style="max-height: 110px; object-fit: contain;">
+									</div>
+								</div>
+								<div id="siteConfigError" class="alert alert-danger d-none" role="alert"></div>
+								<div class="d-flex justify-content-end">
+									<button type="submit" class="btn btn-primary" data-action="save-site-config">Guardar cambios</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</section>
+			`;
+
+			const logoInput = document.getElementById("siteConfig_logo");
+			logoInput?.addEventListener("change", () => {
+				const file = logoInput.files && logoInput.files[0];
+				pendingSiteLogoFile = file || null;
+				if (file) {
+					document.getElementById("siteConfigLogoPreview").src = URL.createObjectURL(file);
+				}
+			});
+			document.getElementById("siteConfigForm")?.addEventListener("submit", guardarConfiguracionSitio);
+		} catch (error) {
+			console.error("Error cargando la configuración del sitio:", error);
+			refs.contentArea.innerHTML = `<div class="alert alert-danger">No se pudo cargar la configuración del sitio.</div>`;
+		}
+	}
+
+	function normalizeSiteWhatsapp(value) {
+		return String(value || "").replace(/\D/g, "");
+	}
+
+	function validateSiteUrl(value, label) {
+		if (!value) {
+			return "";
+		}
+		try {
+			const url = new URL(value);
+			if (!["http:", "https:"].includes(url.protocol)) {
+				throw new Error();
+			}
+			return url.toString();
+		} catch (_error) {
+			throw new Error(`${label} debe ser una URL HTTP o HTTPS válida.`);
+		}
+	}
+
+	async function guardarConfiguracionSitio(event) {
+		event.preventDefault();
+		const errorBox = document.getElementById("siteConfigError");
+		const submitButton = event.submitter;
+		if (submitButton) {
+			submitButton.disabled = true;
+		}
+
+		try {
+			const values = {};
+			document.querySelectorAll("[data-site-config-key]").forEach((field) => {
+				values[field.dataset.siteConfigKey] = field.value.trim();
+			});
+			values.social_instagram = validateSiteUrl(values.social_instagram, "Instagram");
+			values.social_tiktok = validateSiteUrl(values.social_tiktok, "TikTok");
+			values.social_youtube = validateSiteUrl(values.social_youtube, "YouTube");
+			values.social_facebook = validateSiteUrl(values.social_facebook, "Facebook");
+			if (values.contact_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.contact_email)) {
+				throw new Error("El correo electrónico no es válido.");
+			}
+			values.contact_whatsapp = normalizeSiteWhatsapp(values.contact_whatsapp);
+			if (values.contact_whatsapp && (values.contact_whatsapp.length < 8 || values.contact_whatsapp.length > 15)) {
+				throw new Error("El número de WhatsApp debe tener entre 8 y 15 dígitos.");
+			}
+			if (pendingSiteLogoFile) {
+				values.site_logo_url = await window.SiteConfigService.uploadLogo(pendingSiteLogoFile);
+			}
+			await window.SiteConfigService.saveConfig(values);
+			pendingSiteLogoFile = null;
+			showToast("La configuración del sitio se guardó correctamente.", "success");
+			await renderConfiguracionSitio();
+		} catch (error) {
+			console.error("Error guardando la configuración del sitio:", error);
+			errorBox.textContent = error && error.message ? error.message : "No se pudo guardar la configuración.";
+			errorBox.classList.remove("d-none");
+		} finally {
+			if (submitButton) {
+				submitButton.disabled = false;
+			}
+		}
 	}
 
 	async function renderSiteMediaManagement() {
