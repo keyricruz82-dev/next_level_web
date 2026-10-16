@@ -28,6 +28,7 @@
 	let draftSaveTimer = null;
 	const quienesPendingTestimonialImages = new Map();
 	let pendingSiteLogoFile = null;
+	let siteConfigSaving = false;
 
 	function cacheRefs() {
 		refs.contentArea = document.getElementById("contentArea");
@@ -1262,7 +1263,7 @@ async function guardarQuienesSomosTestimonio(position) {
 			const config = await window.SiteConfigService.getConfig();
 			pendingSiteLogoFile = null;
 			refs.contentArea.innerHTML = `
-				<section class="dashboard-section">
+				<section class="dashboard-section site-config-section">
 					<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
 						<div>
 							<p class="text-uppercase text-secondary small fw-semibold mb-1">Configuración general</p>
@@ -1270,62 +1271,116 @@ async function guardarQuienesSomosTestimonio(position) {
 							<p class="text-secondary mb-0">Actualiza los enlaces, datos de contacto y el logo público.</p>
 						</div>
 					</div>
-					<div class="card border-0 shadow-sm">
-						<div class="card-body p-4">
-							<form id="siteConfigForm" novalidate>
-								<h2 class="h5 mb-3">Redes sociales</h2>
-								<div class="row g-3 mb-4">
-									${[
-										["social_instagram", "Instagram"],
-										["social_tiktok", "TikTok"],
-										["social_youtube", "YouTube"],
-										["social_facebook", "Facebook"]
-									].map(([key, label]) => `
-										<div class="col-md-6">
-											<label class="form-label" for="siteConfig_${key}">${label}</label>
+					<form id="siteConfigForm" class="site-config-form" novalidate>
+						<div class="card site-config-card">
+							<div class="card-body">
+								<h2 class="site-config-card-title">Redes sociales</h2>
+								${[
+									["social_instagram", "Instagram"],
+									["social_tiktok", "TikTok"],
+									["social_youtube", "YouTube"],
+									["social_facebook", "Facebook"]
+								].map(([key, label]) => `
+									<div class="site-config-row">
+										<label class="site-config-label" for="siteConfig_${key}">${label}:</label>
+										<div class="site-config-control">
 											<input class="form-control" type="url" id="siteConfig_${key}" data-site-config-key="${key}" value="${escapeHtml(config[key] || "")}" placeholder="https://">
 										</div>
-									`).join("")}
-								</div>
-								<h2 class="h5 mb-3">Información de contacto</h2>
-								<div class="row g-3 mb-4">
-									<div class="col-md-6">
-										<label class="form-label" for="siteConfig_contact_email">Correo electrónico</label>
+									</div>
+								`).join("")}
+							</div>
+						</div>
+						<div class="card site-config-card">
+							<div class="card-body">
+								<h2 class="site-config-card-title">Datos de contacto</h2>
+								<div class="site-config-row">
+									<label class="site-config-label" for="siteConfig_contact_email">Correo electrónico:</label>
+									<div class="site-config-control">
 										<input class="form-control" type="email" id="siteConfig_contact_email" data-site-config-key="contact_email" value="${escapeHtml(config.contact_email || "")}">
 									</div>
-									<div class="col-md-6">
-										<label class="form-label" for="siteConfig_contact_whatsapp">Número de WhatsApp</label>
+								</div>
+								<div class="site-config-row">
+									<label class="site-config-label" for="siteConfig_contact_whatsapp">WhatsApp:</label>
+									<div class="site-config-control">
 										<input class="form-control" type="tel" id="siteConfig_contact_whatsapp" data-site-config-key="contact_whatsapp" value="${escapeHtml(config.contact_whatsapp || "")}" placeholder="50377251450">
 										<div class="form-text">Acepta espacios, guiones y el signo +; se normaliza al guardar.</div>
 									</div>
 								</div>
-								<h2 class="h5 mb-3">Logo del sitio</h2>
-								<div class="row g-3 align-items-end mb-4">
-									<div class="col-md-6">
-										<label class="form-label" for="siteConfig_logo">Nueva imagen</label>
-										<input class="form-control" type="file" id="siteConfig_logo" accept="image/jpeg,image/png,image/webp">
-										<div class="form-text">JPG, PNG o WebP, máximo 5 MB.</div>
-									</div>
-									<div class="col-md-6">
-										<img id="siteConfigLogoPreview" src="${escapeHtml(config.site_logo_url || "images/next.jpeg")}" alt="Vista previa del logo" class="img-fluid rounded border" style="max-height: 110px; object-fit: contain;">
-									</div>
-								</div>
-								<div id="siteConfigError" class="alert alert-danger d-none" role="alert"></div>
-								<div class="d-flex justify-content-end">
-									<button type="submit" class="btn btn-primary" data-action="save-site-config">Guardar cambios</button>
-								</div>
-							</form>
+							</div>
 						</div>
-					</div>
+						<div class="card site-config-card">
+							<div class="card-body">
+								<h2 class="site-config-card-title">Identidad visual</h2>
+								<div class="site-config-row">
+									<span class="site-config-label">Logotipo:</span>
+									<div class="site-config-control">
+										<div class="site-config-logo-current">
+											<img id="siteConfigLogoPreview" src="${escapeHtml(resolveSiteLogoSrc(config.site_logo_url))}" alt="Logotipo actual" class="site-config-logo-img">
+											<code id="siteConfigLogoPath" class="site-config-logo-path">${escapeHtml(config.site_logo_url || "images/next.jpeg")}</code>
+										</div>
+										<div class="site-config-upload">
+											<span class="site-config-upload-title">Nueva imagen</span>
+											<input class="visually-hidden" type="file" id="siteConfig_logo" accept="image/jpeg,image/png,image/webp">
+											<label class="site-config-file-btn" for="siteConfig_logo">Buscar imagen en el dispositivo</label>
+											<div class="form-text">JPG, PNG o WebP, máximo 5 MB.</div>
+											<div id="siteConfigLogoFeedback" class="site-config-logo-feedback" role="status"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div id="siteConfigError" class="alert alert-danger d-none" role="alert"></div>
+						<div class="site-config-actions">
+							<button type="button" class="btn btn-outline-secondary" data-action="reset-site-config">Restablecer</button>
+							<button type="submit" class="btn btn-primary" data-action="save-site-config">Guardar cambios</button>
+						</div>
+					</form>
 				</section>
 			`;
 
 			const logoInput = document.getElementById("siteConfig_logo");
+			const logoPreview = document.getElementById("siteConfigLogoPreview");
+			const logoFeedback = document.getElementById("siteConfigLogoFeedback");
+			const currentLogoSrc = logoPreview.src;
+			let objectUrl = null;
 			logoInput?.addEventListener("change", () => {
 				const file = logoInput.files && logoInput.files[0];
-				pendingSiteLogoFile = file || null;
-				if (file) {
-					document.getElementById("siteConfigLogoPreview").src = URL.createObjectURL(file);
+				if (objectUrl) {
+					URL.revokeObjectURL(objectUrl);
+					objectUrl = null;
+				}
+				logoFeedback.className = "site-config-logo-feedback";
+				if (!file) {
+					pendingSiteLogoFile = null;
+					logoPreview.src = currentLogoSrc;
+					logoFeedback.textContent = "";
+					return;
+				}
+				if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+					pendingSiteLogoFile = null;
+					logoInput.value = "";
+					logoPreview.src = currentLogoSrc;
+					logoFeedback.textContent = "Formato no compatible. Usa una imagen JPG, PNG o WebP.";
+					logoFeedback.classList.add("is-error");
+					return;
+				}
+				if (file.size > 5 * 1024 * 1024) {
+					pendingSiteLogoFile = null;
+					logoInput.value = "";
+					logoPreview.src = currentLogoSrc;
+					logoFeedback.textContent = "El archivo supera el límite de 5 MB.";
+					logoFeedback.classList.add("is-error");
+					return;
+				}
+				pendingSiteLogoFile = file;
+				objectUrl = URL.createObjectURL(file);
+				logoPreview.src = objectUrl;
+				logoFeedback.textContent = `Imagen seleccionada: ${file.name}. Se aplicará al guardar.`;
+				logoFeedback.classList.add("is-ok");
+			});
+			document.querySelector('[data-action="reset-site-config"]')?.addEventListener("click", () => {
+				if (!siteConfigSaving) {
+					renderConfiguracionSitio();
 				}
 			});
 			document.getElementById("siteConfigForm")?.addEventListener("submit", guardarConfiguracionSitio);
@@ -1333,6 +1388,11 @@ async function guardarQuienesSomosTestimonio(position) {
 			console.error("Error cargando la configuración del sitio:", error);
 			refs.contentArea.innerHTML = `<div class="alert alert-danger">No se pudo cargar la configuración del sitio.</div>`;
 		}
+	}
+
+	function resolveSiteLogoSrc(value) {
+		const src = value || "images/next.jpeg";
+		return /^(https?:)?\/\/|^data:|^blob:|^\.\.\/|^\//.test(src) ? src : `../${src}`;
 	}
 
 	function normalizeSiteWhatsapp(value) {
@@ -1356,7 +1416,12 @@ async function guardarQuienesSomosTestimonio(position) {
 
 	async function guardarConfiguracionSitio(event) {
 		event.preventDefault();
+		if (siteConfigSaving) {
+			return;
+		}
+		siteConfigSaving = true;
 		const errorBox = document.getElementById("siteConfigError");
+		errorBox.classList.add("d-none");
 		const submitButton = event.submitter;
 		if (submitButton) {
 			submitButton.disabled = true;
@@ -1390,6 +1455,7 @@ async function guardarQuienesSomosTestimonio(position) {
 			errorBox.textContent = error && error.message ? error.message : "No se pudo guardar la configuración.";
 			errorBox.classList.remove("d-none");
 		} finally {
+			siteConfigSaving = false;
 			if (submitButton) {
 				submitButton.disabled = false;
 			}

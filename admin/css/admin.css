@@ -1668,3 +1668,28 @@ body {
 }
 
 }
+/* Configuración del sitio */
+.site-config-section { max-width: 860px; margin-inline: auto; }
+.site-config-card { background: var(--admin-card); border: 1px solid var(--admin-border); border-radius: 14px; margin-bottom: 1.25rem; box-shadow: var(--admin-shadow); }
+.site-config-card .card-body { padding: 1.5rem; }
+.site-config-card-title { font-size: 1.05rem; font-weight: 600; color: var(--admin-text-strong); margin: 0 0 1.25rem; padding-bottom: .75rem; border-bottom: 1px solid var(--admin-border); }
+.site-config-card-title::before { content: ""; display: inline-block; width: 4px; height: 1em; margin-right: .6rem; vertical-align: -.12em; border-radius: 2px; background: #9FCC3D; }
+.site-config-row { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 1rem; align-items: start; margin-bottom: 1rem; }
+.site-config-row:last-child { margin-bottom: 0; }
+.site-config-label { color: var(--admin-label); font-weight: 500; padding-top: .45rem; }
+.site-config-logo-current { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.site-config-logo-img { max-height: 90px; max-width: 200px; object-fit: contain; background: var(--admin-form-bg); border: 1px solid var(--admin-form-border); border-radius: 10px; padding: .4rem; }
+.site-config-logo-path { color: var(--admin-muted); font-size: .85rem; word-break: break-all; }
+.site-config-upload-title { display: block; color: var(--admin-label); font-weight: 500; margin-bottom: .5rem; }
+.site-config-file-btn { display: inline-block; cursor: pointer; padding: .55rem 1.1rem; border: 1px dashed #65812C; border-radius: 10px; color: #9FCC3D; background: var(--admin-form-bg); transition: background .15s, border-color .15s; }
+.site-config-file-btn:hover, .site-config-upload input:focus-visible + .site-config-file-btn { background: var(--admin-primary-soft); border-color: #9FCC3D; }
+.site-config-logo-feedback { margin-top: .4rem; font-size: .875rem; color: var(--admin-muted); }
+.site-config-logo-feedback.is-error { color: #f87171; }
+.site-config-logo-feedback.is-ok { color: #9FCC3D; }
+.site-config-actions { display: flex; justify-content: flex-end; gap: .75rem; flex-wrap: wrap; }
+@media (max-width: 767.98px) {
+	.site-config-row { grid-template-columns: 1fr; gap: .35rem; }
+	.site-config-label { padding-top: 0; }
+	.site-config-card .card-body { padding: 1.1rem; }
+	.site-config-actions .btn { flex: 1 1 auto; }
+}
