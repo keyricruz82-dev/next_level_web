@@ -2378,11 +2378,17 @@ async function renderInicioWeb() {
                             <h3 class="h6 mb-3">Banner 1</h3>
                             <div class="mb-3">
                                 <label for="banner1BackgroundColor1" class="form-label">Color del degradado 1</label>
-                                <input id="banner1BackgroundColor1" type="color" class="form-control form-control-color w-100" value="#090c11" aria-label="Color del degradado 1 del banner 1">
+                                <div class="input-group">
+                                    <input id="banner1BackgroundColor1" type="color" class="form-control form-control-color w-100" value="#090c11" aria-label="Color del degradado 1 del banner 1">
+                                    <input id="banner1BackgroundHex1" type="text" class="form-control" value="#090c11" aria-label="HEX del color 1 del banner 1" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$" placeholder="#090c11">
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label for="banner1BackgroundColor2" class="form-label">Color del degradado 2</label>
-                                <input id="banner1BackgroundColor2" type="color" class="form-control form-control-color w-100" value="#454a52" aria-label="Color del degradado 2 del banner 1">
+                                <div class="input-group">
+                                    <input id="banner1BackgroundColor2" type="color" class="form-control form-control-color w-100" value="#454a52" aria-label="Color del degradado 2 del banner 1">
+                                    <input id="banner1BackgroundHex2" type="text" class="form-control" value="#454a52" aria-label="HEX del color 2 del banner 1" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$" placeholder="#454a52">
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label for="banner1BackgroundColor3" class="form-label">Color del degradado 3</label>
@@ -2391,6 +2397,7 @@ async function renderInicioWeb() {
                                     <input id="banner1BackgroundHex3" type="text" class="form-control" value="#000080" aria-label="HEX del color 3 del banner 1" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$" placeholder="#000080">
                                 </div>
                             </div>
+                            <div class="rounded-3 mb-3" data-banner-gradient-preview="banner1_background" style="height: 64px;"></div>
                             <button type="button" class="btn btn-primary w-100" data-action="save-banner1-background">Guardar Banner 1</button>
                         </div>
                     </div>
@@ -2400,11 +2407,17 @@ async function renderInicioWeb() {
                             <h3 class="h6 mb-3">Banner 2</h3>
                             <div class="mb-3">
                                 <label for="banner2BackgroundColor1" class="form-label">Color del degradado 1</label>
-                                <input id="banner2BackgroundColor1" type="color" class="form-control form-control-color w-100" value="#090c11" aria-label="Color del degradado 1 del banner 2">
+                                <div class="input-group">
+                                    <input id="banner2BackgroundColor1" type="color" class="form-control form-control-color w-100" value="#090c11" aria-label="Color del degradado 1 del banner 2">
+                                    <input id="banner2BackgroundHex1" type="text" class="form-control" value="#090c11" aria-label="HEX del color 1 del banner 2" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$" placeholder="#090c11">
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label for="banner2BackgroundColor2" class="form-label">Color del degradado 2</label>
-                                <input id="banner2BackgroundColor2" type="color" class="form-control form-control-color w-100" value="#454a52" aria-label="Color del degradado 2 del banner 2">
+                                <div class="input-group">
+                                    <input id="banner2BackgroundColor2" type="color" class="form-control form-control-color w-100" value="#454a52" aria-label="Color del degradado 2 del banner 2">
+                                    <input id="banner2BackgroundHex2" type="text" class="form-control" value="#454a52" aria-label="HEX del color 2 del banner 2" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$" placeholder="#454a52">
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label for="banner2BackgroundColor3" class="form-label">Color del degradado 3</label>
@@ -2413,6 +2426,7 @@ async function renderInicioWeb() {
                                     <input id="banner2BackgroundHex3" type="text" class="form-control" value="#000080" aria-label="HEX del color 3 del banner 2" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$" placeholder="#000080">
                                 </div>
                             </div>
+                            <div class="rounded-3 mb-3" data-banner-gradient-preview="banner2_background" style="height: 64px;"></div>
                             <button type="button" class="btn btn-primary w-100" data-action="save-banner2-background">Guardar Banner 2</button>
                         </div>
                     </div>
@@ -3062,12 +3076,34 @@ async function renderInicioWeb() {
     });
 
     syncBannerBackgroundColorInputs(
+        document.getElementById("banner1BackgroundColor1"),
+        document.getElementById("banner1BackgroundHex1"),
+        "banner1_background"
+    );
+    syncBannerBackgroundColorInputs(
+        document.getElementById("banner1BackgroundColor2"),
+        document.getElementById("banner1BackgroundHex2"),
+        "banner1_background"
+    );
+    syncBannerBackgroundColorInputs(
         document.getElementById("banner1BackgroundColor3"),
-        document.getElementById("banner1BackgroundHex3")
+        document.getElementById("banner1BackgroundHex3"),
+        "banner1_background"
+    );
+    syncBannerBackgroundColorInputs(
+        document.getElementById("banner2BackgroundColor1"),
+        document.getElementById("banner2BackgroundHex1"),
+        "banner2_background"
+    );
+    syncBannerBackgroundColorInputs(
+        document.getElementById("banner2BackgroundColor2"),
+        document.getElementById("banner2BackgroundHex2"),
+        "banner2_background"
     );
     syncBannerBackgroundColorInputs(
         document.getElementById("banner2BackgroundColor3"),
-        document.getElementById("banner2BackgroundHex3")
+        document.getElementById("banner2BackgroundHex3"),
+        "banner2_background"
     );
 
     loadInicioWebTypographyStyle();
@@ -3160,7 +3196,23 @@ function isValidBannerHexColor(value) {
     return /^#[0-9a-fA-F]{6}$/.test((value || "").trim());
 }
 
-function syncBannerBackgroundColorInputs(colorInput, hexInput) {
+function updateBannerGradientPreview(elemento) {
+    const prefix = elemento === "banner1_background" ? "banner1" : "banner2";
+    const color1 = document.getElementById(`${prefix}BackgroundColor1`)?.value || "#090c11";
+    const color2 = document.getElementById(`${prefix}BackgroundColor2`)?.value || "#454a52";
+    const color3Input = document.getElementById(`${prefix}BackgroundHex3`);
+    const color3 = color3Input?.dataset.hasThirdColor === "true" && isValidBannerHexColor(color3Input.value)
+        ? color3Input.value.trim()
+        : "";
+    const colors = color3 ? `${color1}, ${color2}, ${color3}` : `${color1}, ${color2}`;
+    const preview = document.querySelector(`[data-banner-gradient-preview="${elemento}"]`);
+
+    if (preview) {
+        preview.style.background = `linear-gradient(135deg, ${colors})`;
+    }
+}
+
+function syncBannerBackgroundColorInputs(colorInput, hexInput, elemento) {
     if (!colorInput || !hexInput) {
         return;
     }
@@ -3168,6 +3220,7 @@ function syncBannerBackgroundColorInputs(colorInput, hexInput) {
     const setExplicitState = (isExplicit) => {
         colorInput.dataset.hasThirdColor = isExplicit ? "true" : "false";
         hexInput.dataset.hasThirdColor = isExplicit ? "true" : "false";
+        updateBannerGradientPreview(elemento);
     };
 
     const syncFromColorInput = () => {
@@ -3213,12 +3266,16 @@ async function loadBannerBackgroundStyles() {
             color1: document.getElementById("banner1BackgroundColor1"),
             color2: document.getElementById("banner1BackgroundColor2"),
             color3: document.getElementById("banner1BackgroundColor3"),
+            hex1: document.getElementById("banner1BackgroundHex1"),
+            hex2: document.getElementById("banner1BackgroundHex2"),
             hex3: document.getElementById("banner1BackgroundHex3")
         },
         banner2_background: {
             color1: document.getElementById("banner2BackgroundColor1"),
             color2: document.getElementById("banner2BackgroundColor2"),
             color3: document.getElementById("banner2BackgroundColor3"),
+            hex1: document.getElementById("banner2BackgroundHex1"),
+            hex2: document.getElementById("banner2BackgroundHex2"),
             hex3: document.getElementById("banner2BackgroundHex3")
         }
     };
@@ -3235,6 +3292,14 @@ async function loadBannerBackgroundStyles() {
                 controls.color2.value = style.background_color_2 || "#454a52";
             }
 
+            if (controls.hex1) {
+                controls.hex1.value = style.background_color_1 || "#090c11";
+            }
+
+            if (controls.hex2) {
+                controls.hex2.value = style.background_color_2 || "#454a52";
+            }
+
             const hasThirdColor = isValidBannerHexColor(style.background_color_3 || "");
 
             if (controls.color3) {
@@ -3247,6 +3312,8 @@ async function loadBannerBackgroundStyles() {
                 controls.hex3.dataset.hasThirdColor = hasThirdColor ? "true" : "false";
                 controls.hex3.placeholder = "#000080";
             }
+
+            updateBannerGradientPreview(elemento);
         } catch (error) {
             console.error(`Error al cargar fondo de ${elemento}:`, error);
         }
@@ -3259,6 +3326,8 @@ function getBannerBackgroundControls(elemento) {
             color1: document.getElementById("banner1BackgroundColor1"),
             color2: document.getElementById("banner1BackgroundColor2"),
             color3: document.getElementById("banner1BackgroundColor3"),
+            hex1: document.getElementById("banner1BackgroundHex1"),
+            hex2: document.getElementById("banner1BackgroundHex2"),
             hex3: document.getElementById("banner1BackgroundHex3"),
             button: document.querySelector("[data-action='save-banner1-background']")
         },
@@ -3266,6 +3335,8 @@ function getBannerBackgroundControls(elemento) {
             color1: document.getElementById("banner2BackgroundColor1"),
             color2: document.getElementById("banner2BackgroundColor2"),
             color3: document.getElementById("banner2BackgroundColor3"),
+            hex1: document.getElementById("banner2BackgroundHex1"),
+            hex2: document.getElementById("banner2BackgroundHex2"),
             hex3: document.getElementById("banner2BackgroundHex3"),
             button: document.querySelector("[data-action='save-banner2-background']")
         }
@@ -3283,8 +3354,8 @@ async function saveInicioWebBannerBackground(elemento) {
 
     const button = controls.button;
     const originalButtonText = button?.textContent || "Guardar";
-    const color1 = (controls.color1?.value || "").trim();
-    const color2 = (controls.color2?.value || "").trim();
+    const color1 = (controls.hex1 ? controls.hex1.value : controls.color1?.value || "").trim();
+    const color2 = (controls.hex2 ? controls.hex2.value : controls.color2?.value || "").trim();
     const hasColor3 = controls.color3?.dataset.hasThirdColor === "true" || controls.hex3?.dataset.hasThirdColor === "true";
     const color3Hex = hasColor3 ? ((controls.hex3?.value || controls.color3?.value || "").trim()) : "";
     const color3 = hasColor3 && isValidBannerHexColor(color3Hex) ? color3Hex : null;
